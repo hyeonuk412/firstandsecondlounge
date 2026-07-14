@@ -40,9 +40,9 @@
   --surface-3: #f2f1ee;
 
   /* brand */
-  --accent: #6a5af9;
-  --accent-strong: #5646e8;
-  --accent-soft: #eeebff;
+  --accent: #8b7bf5;
+  --accent-strong: #6d5fd6;
+  --accent-soft: #eae5ff;
   --chzzk: #17cd7d;
   --chzzk-strong: #0fb56c;
   --chzzk-soft: #e3f7ee;
@@ -3662,3 +3662,34 @@ body:has(.cheotdool-admin-page) {
 .admin-home-card span { color: var(--cc-ink-soft); }
 .admin-home-card strong { color: var(--cc-ink); }
 .admin-home-card small { color: var(--cc-ink-soft); font-weight: 700; }
+
+/* Unify accents & calm heavy leftover weights across inner pages */
+body:has(.cc-page) .kicker,
+.dm-page .kicker,
+.admin-page .kicker,
+.cheotdool-admin-page .kicker {
+  color: var(--cc-coral);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.dm-thread-summary strong,
+.admin-thread-topline strong,
+.admin-chat-profile strong,
+.dm-header-user span { font-weight: 700; }
+.dm-thread-summary small,
+.dm-thread-meta time,
+.admin-thread-topline time,
+.admin-thread-preview { font-weight: 600; }
+.dm-thread-meta em,
+.dm-message-author,
+.admin-chat-bubble-head strong {
+  background: transparent;
+  color: var(--cc-lav);
+  font-weight: 700;
+}
+.dm-thread-meta em {
+  background: var(--cc-lav-soft);
+  padding: 4px 9px;
+  border-radius: 999px;
+}
