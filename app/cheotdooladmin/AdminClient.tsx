@@ -634,9 +634,9 @@ export default function CheotdoolAdminClient() {
           <div className="admin-calendar-layout">
             <section className="admin-calendar-panel">
               <div className="admin-calendar-head">
-                <button type="button" onClick={() => setCalendarMonth((current) => moveMonth(current, -1))}>이전</button>
-                <strong>{calendarMonth}</strong>
-                <button type="button" onClick={() => setCalendarMonth((current) => moveMonth(current, 1))}>다음</button>
+                <button type="button" onClick={() => setCalendarMonth((current) => moveMonth(current, -1))} aria-label="이전 달">‹</button>
+                <strong>{calendarMonth.split("-")[0]}년 {Number(calendarMonth.split("-")[1])}월</strong>
+                <button type="button" onClick={() => setCalendarMonth((current) => moveMonth(current, 1))} aria-label="다음 달">›</button>
               </div>
               <div className="admin-calendar-weekdays">{WEEKDAYS.map((day) => <span key={day}>{day}</span>)}</div>
               <div className="admin-calendar-grid">
@@ -679,7 +679,7 @@ export default function CheotdoolAdminClient() {
           {contentSaved ? <p className="sent">{TEXT.saved}</p> : null}
           {contentError ? <p className="dm-error">{contentError}</p> : null}
           <section className="admin-content-section">
-            <div className="admin-section-head"><h2>{TEXT.settings}</h2></div>
+            <div className="admin-section-head"><h2>디스코드</h2></div>
             <article className="admin-edit-card">
               <label>{TEXT.discordUrl}<input value={settings.discordUrl} onChange={(event) => setSettings((current) => ({ ...current, discordUrl: event.target.value }))} placeholder="https://discord.gg/..." /></label>
             </article>

@@ -3694,3 +3694,99 @@ body:has(.cc-page) .kicker,
 .cc-hero-kicker, .cc-live-pill, .cc-link-label, .cc-chip,
 .admin-unified-tabs button { font-weight: 700; }
 .cc-login { font-weight: 800; }
+
+/* =====================================================================
+   CALENDAR (viewer + admin) + settings polish + danger buttons
+   ===================================================================== */
+
+/* Danger buttons must stay red everywhere (beat container mint rules) */
+.admin-page .admin-danger,
+.cheotdool-admin-page .admin-danger {
+  border: 0;
+  border-radius: 999px;
+  background: var(--cc-coral-soft);
+  color: #c33f22;
+  font-weight: 800;
+  box-shadow: none;
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.admin-page .admin-danger:hover,
+.cheotdool-admin-page .admin-danger:hover { background: #ffd2c4; transform: translateY(-1px); }
+
+/* Settings: tidy nickname rows (input + delete inline, compact) */
+.admin-nickname-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 16px;
+}
+.admin-nickname-card .admin-danger { align-self: end; min-height: 40px; padding: 0 16px; }
+
+/* ---- Shared cute calendar (viewer .cc-cal + admin .admin-calendar) ---- */
+.cc-cal-card { padding: 20px; }
+.cc-cal { display: grid; gap: 14px; }
+.cc-cal-head, .admin-calendar-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.cc-cal-head strong, .admin-calendar-head strong {
+  font-family: "Jua", sans-serif; font-weight: 400; font-size: 22px; color: var(--cc-ink);
+  text-align: center; letter-spacing: 0.01em;
+}
+.cc-cal-nav, .admin-calendar-head button {
+  display: grid; place-items: center;
+  width: 42px; height: 42px; min-height: 42px; padding: 0;
+  border: 0; border-radius: 50%;
+  background: var(--cc-cream); color: var(--cc-ink);
+  font-size: 22px; font-weight: 800; cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.cc-cal-nav:hover, .admin-calendar-head button:hover { background: var(--cc-mint-soft); transform: translateY(-1px); }
+
+.cc-cal-weekdays, .admin-calendar-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+}
+.cc-cal-weekdays span, .admin-calendar-weekdays span {
+  text-align: center; font-size: 13px; font-weight: 700; color: var(--cc-ink-soft);
+}
+.cc-cal-weekdays .sun { color: var(--cc-coral); }
+.cc-cal-weekdays .sat { color: var(--cc-lav); }
+
+.cc-cal-grid, .admin-calendar-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;
+}
+.cc-cal-day, .admin-calendar-grid button {
+  position: relative;
+  display: grid; place-items: center;
+  aspect-ratio: 1; min-height: 0; width: auto;
+  border: 0; border-radius: 14px;
+  background: var(--cc-cream); color: var(--cc-ink);
+  font-weight: 700; cursor: pointer;
+  transition: background 0.12s ease, transform 0.1s ease;
+}
+.cc-cal-day b, .admin-calendar-grid button strong { font-weight: 700; font-size: 15px; }
+.cc-cal-day:hover, .admin-calendar-grid button:hover { background: var(--cc-mint-soft); transform: translateY(-2px); }
+.cc-cal-day.today { box-shadow: inset 0 0 0 2px var(--cc-mint); }
+.cc-cal-day.selected, .admin-calendar-grid button.active { background: var(--cc-mint); color: #08321f; }
+.cc-cal-blank, .admin-calendar-grid .blank { background: transparent; }
+
+/* event indicator: viewer = dot, admin = count badge */
+.cc-cal-day.has i {
+  position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+  width: 6px; height: 6px; border-radius: 50%; background: var(--cc-coral);
+}
+.cc-cal-day.selected.has i { background: #08321f; }
+.admin-calendar-grid button span {
+  position: absolute; top: 4px; right: 4px;
+  display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: 999px; background: var(--cc-coral); color: #fff;
+  font-size: 11px; font-weight: 800;
+}
+.admin-calendar-grid button.active span { background: #08321f; }
+
+.cc-cal-detail { border-top: 1px dashed var(--cc-line); padding-top: 14px; display: grid; gap: 10px; }
+.cc-cal-date { margin: 0; font-family: "Jua", sans-serif; font-weight: 400; font-size: 18px; color: var(--cc-ink); }
+.cc-cal-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.cc-cal-list li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--cc-mint-soft); }
+.cc-cal-time { flex: 0 0 auto; padding: 5px 11px; border-radius: 999px; background: #fff; color: #0f9b6c; font-size: 13px; font-weight: 800; }
+.cc-cal-list strong { font-size: 15px; font-weight: 700; color: var(--cc-ink); }
+.cc-cal-empty { margin: 0; padding: 22px 14px; text-align: center; border-radius: 14px; background: var(--cc-cream); color: var(--cc-ink-soft); font-weight: 700; }

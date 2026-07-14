@@ -124,6 +124,7 @@ export default async function Home() {
         <div className="cc-card cc-schedule" id="schedule">
           <div className="cc-card-head">
             <h2><span className="cc-emoji" aria-hidden="true">🗓️</span> 이번 주</h2>
+            <a className="cc-more" href="/schedule">달력 보기</a>
           </div>
           <div className="cc-schedule-list">
             {schedules.map((item) => (
