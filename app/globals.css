@@ -286,3 +286,159 @@ button, input, select, textarea { font: inherit; }
 .status-pill.live::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: #101814; box-shadow: 0 0 12px rgba(16, 24, 20, 0.7); }
 .live-meta { display: flex; flex-wrap: wrap; gap: 8px; }
 .live-meta span { display: inline-flex; align-items: center; min-height: 30px; border-radius: 999px; background: rgba(255,255,255,.1); color: rgba(255,255,255,.78); padding: 0 11px; font-size: 14px; font-weight: 900; }
+
+
+/* Fan lounge live state refinements */
+.topbar {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.status-pill::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #8d8795;
+  box-shadow: none;
+}
+
+.status-card.is-live {
+  background: #141014;
+  box-shadow: 0 22px 58px rgba(255, 59, 48, 0.18);
+}
+
+.status-pill.live {
+  background: rgba(255, 59, 48, 0.16);
+  color: #ff6b60;
+  box-shadow: 0 0 0 6px rgba(255, 59, 48, 0.08), 0 0 30px rgba(255, 59, 48, 0.28);
+}
+
+.status-pill.live::before {
+  background: #ff3b30;
+  box-shadow: 0 0 14px rgba(255, 59, 48, 0.9);
+}
+
+.admin-calendar {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.admin-calendar-head {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-calendar-head strong {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.admin-calendar-head button,
+.admin-calendar-all {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-calendar-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.admin-calendar-all.active {
+  border-color: rgba(0, 208, 132, 0.5);
+  background: rgba(0, 255, 163, 0.22);
+  color: #08754f;
+}
+
+.admin-calendar-weekdays,
+.admin-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.admin-calendar-weekdays span {
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.admin-calendar-grid button {
+  position: relative;
+  display: grid;
+  min-height: 42px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.54);
+  color: var(--text);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-calendar-grid button.muted {
+  opacity: 0.42;
+}
+
+.admin-calendar-grid button:disabled {
+  cursor: default;
+  color: rgba(112, 104, 121, 0.55);
+}
+
+.admin-calendar-grid button.has-dms {
+  border-color: rgba(0, 208, 132, 0.32);
+  background: rgba(0, 255, 163, 0.12);
+}
+
+.admin-calendar-grid button.active {
+  border-color: transparent;
+  background: var(--chzzk);
+  color: #101814;
+  box-shadow: 0 8px 20px rgba(0, 208, 132, 0.18);
+}
+
+.admin-calendar-grid em {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 999px;
+  background: #1f1b27;
+  color: #fff;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.admin-calendar-grid button.active em {
+  background: #fff;
+  color: #101814;
+}

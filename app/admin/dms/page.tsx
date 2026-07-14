@@ -38,6 +38,8 @@ const TEXT = {
   refresh: "\uC0C8\uB85C\uACE0\uCE68",
   refreshing: "\uC0C8\uB85C\uACE0\uCE68 \uC911",
   all: "\uC804\uCCB4",
+  allDates: "\uC804\uCCB4 \uB0A0\uC9DC",
+  selectedEmpty: "\uC120\uD0DD\uD55C \uB0A0\uC9DC\uC5D0 \uB4E4\uC5B4\uC628 DM\uC774 \uC5C6\uC5B4\uC694.",
   totalDm: "\uC804\uCCB4 DM",
   countSuffix: "\uAC1C",
   waiting: "\uB2F5\uBCC0 \uB300\uAE30",
@@ -82,10 +84,22 @@ function formatDay(value: string) {
 
 function dayKey(value: string) {
   const date = new Date(value);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return calendarKey(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function monthLabel(value: Date) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "long",
+  }).format(value);
+}
+
+function shiftMonth(value: Date, amount: number) {
+  return new Date(value.getFullYear(), value.getMonth() + amount, 1);
+}
+
+function calendarKey(year: number, month: number, day: number) {
+  return year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
 }
 
 function firstViewerMessage(thread: DmThread) {
@@ -106,6 +120,7 @@ export default function AdminDmsPage() {
   const [editDrafts, setEditDrafts] = useState<Record<string, string>>({});
   const [editingMessageId, setEditingMessageId] = useState("");
   const [activeDate, setActiveDate] = useState("all");
+  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
 
   const dateGroups = useMemo(() => {
     const groups = new Map<string, { key: string; label: string; threads: DmThread[] }>();
@@ -125,6 +140,22 @@ export default function AdminDmsPage() {
       }));
   }, [threads]);
 
+  const dateGroupMap = useMemo(() => new Map(dateGroups.map((group) => [group.key, group])), [dateGroups]);
+
+  const calendarDays = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const start = new Date(year, month, 1 - firstDay.getDay());
+
+    return Array.from({ length: 42 }, (_, index) => {
+      const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
+      const key = calendarKey(date.getFullYear(), date.getMonth(), date.getDate());
+      const count = dateGroupMap.get(key)?.threads.length || 0;
+      return { key, day: date.getDate(), currentMonth: date.getMonth() === month, count };
+    });
+  }, [calendarMonth, dateGroupMap]);
+
   const visibleGroups = activeDate === "all" ? dateGroups : dateGroups.filter((group) => group.key === activeDate);
 
   async function loadThreads(nextToken = token) {
@@ -139,6 +170,11 @@ export default function AdminDmsPage() {
       if (!response.ok) throw new Error(response.status === 401 ? TEXT.wrongCode : TEXT.loadError);
       const payload = (await response.json()) as { threads: DmThread[] };
       setThreads(payload.threads);
+      const latestThread = payload.threads[0];
+      if (latestThread) {
+        const receivedAt = firstViewerMessage(latestThread)?.createdAt || latestThread.createdAt;
+        setCalendarMonth(new Date(receivedAt));
+      }
       if (activeDate !== "all" && !payload.threads.some((thread) => dayKey(firstViewerMessage(thread)?.createdAt || thread.createdAt) === activeDate)) {
         setActiveDate("all");
       }
@@ -174,6 +210,7 @@ export default function AdminDmsPage() {
     setThreads([]);
     setError("");
     setActiveDate("all");
+    setCalendarMonth(new Date());
   }
 
   async function submitReply(threadId: string) {
@@ -260,11 +297,36 @@ export default function AdminDmsPage() {
           </div>
           {error ? <p className="dm-error">{error}</p> : null}
 
-          <div className="admin-date-nav" aria-label="DM date filter">
-            <button className={activeDate === "all" ? "active" : ""} type="button" onClick={() => setActiveDate("all")}>{TEXT.all} <span>{threads.length}</span></button>
-            {dateGroups.map((group) => (
-              <button className={activeDate === group.key ? "active" : ""} type="button" onClick={() => setActiveDate(group.key)} key={group.key}>{group.label} <span>{group.threads.length}</span></button>
-            ))}
+          <div className="admin-calendar" aria-label="DM calendar filter">
+            <div className="admin-calendar-head">
+              <button type="button" onClick={() => setCalendarMonth((value) => shiftMonth(value, -1))} aria-label="previous month">&lt;</button>
+              <strong>{monthLabel(calendarMonth)}</strong>
+              <button type="button" onClick={() => setCalendarMonth((value) => shiftMonth(value, 1))} aria-label="next month">&gt;</button>
+            </div>
+            <button className={activeDate === "all" ? "admin-calendar-all active" : "admin-calendar-all"} type="button" onClick={() => setActiveDate("all")}>
+              {TEXT.allDates} <span>{threads.length}</span>
+            </button>
+            <div className="admin-calendar-weekdays" aria-hidden="true">
+              {["\uC77C", "\uC6D4", "\uD654", "\uC218", "\uBAA9", "\uAE08", "\uD1A0"].map((day) => <span key={day}>{day}</span>)}
+            </div>
+            <div className="admin-calendar-grid">
+              {calendarDays.map((day) => {
+                const hasDms = day.count > 0;
+                const isActive = activeDate === day.key;
+                return (
+                  <button
+                    className={[day.currentMonth ? "" : "muted", hasDms ? "has-dms" : "", isActive ? "active" : ""].filter(Boolean).join(" ")}
+                    type="button"
+                    disabled={!hasDms}
+                    onClick={() => setActiveDate(day.key)}
+                    key={day.key}
+                  >
+                    <span>{day.day}</span>
+                    {hasDms ? <em>{day.count}</em> : null}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="admin-dm-list by-date">
@@ -331,7 +393,7 @@ export default function AdminDmsPage() {
                 })}
               </section>
             )) : (
-              <div className="admin-empty">{TEXT.empty}</div>
+              <div className="admin-empty">{activeDate === "all" ? TEXT.empty : TEXT.selectedEmpty}</div>
             )}
           </div>
         </section>

@@ -301,7 +301,7 @@ export default function Home() {
         </div>
 
         <aside className={`status-card ${liveStatus?.live ? "is-live" : ""}`} aria-label="broadcast status">
-          <span className={`status-pill ${liveStatus?.live ? "live" : ""}`}>{liveStatus?.live ? "ON AIR" : "\uB2E4\uC74C \uBC29\uC1A1 \uC900\uBE44 \uC911"}</span>
+          <span className={`status-pill ${liveStatus?.live ? "live" : ""}`}>ON AIR</span>
           <strong>{liveStatus?.live ? liveStatus.title || "\uB77C\uC774\uBE0C \uBC29\uC1A1 \uC911" : "\uC624\uB298\uC740 \uACF5\uC9C0\uC640 \uC2A4\uCF00\uC904\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694."}</strong>
           {liveStatus?.live ? (
             <div className="live-meta">
