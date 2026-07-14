@@ -52,14 +52,6 @@ const TEXT = {
   noSelection: "스레드를 선택해주세요.",
 };
 
-const categoryLabels: Record<string, string> = {
-  support: "응원",
-  question: "문의",
-  suggestion: "제안",
-  business: "제휴",
-  etc: "기타",
-};
-
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "long",
@@ -104,7 +96,7 @@ export default function AdminDmsPage() {
     return threads.filter((thread) => {
       const viewerName = `${thread.viewer.nickname} ${thread.viewer.channelName} ${thread.viewer.channelId}`.toLowerCase();
       const messages = thread.messages.map((message) => message.message).join(" ").toLowerCase();
-      return viewerName.includes(keyword) || messages.includes(keyword) || (categoryLabels[thread.category] || "").includes(keyword);
+      return viewerName.includes(keyword) || messages.includes(keyword);
     });
   }, [query, threads]);
 
@@ -278,7 +270,7 @@ export default function AdminDmsPage() {
                         <strong>{viewerName}</strong>
                         <time>{formatDate(thread.updatedAt)}</time>
                       </span>
-                      <span className="admin-thread-topic">{categoryLabels[thread.category] || categoryLabels.etc} · {shortText(firstMessage?.message || latest?.message || "")}</span>
+                      <span className="admin-thread-topic">{shortText(firstMessage?.message || latest?.message || "")}</span>
                       <span className="admin-thread-preview">{latest?.sender === "admin" ? `${TEXT.admin}: ` : ""}{shortText(latest?.message || "")}</span>
                     </span>
                     <em>{thread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
@@ -298,7 +290,7 @@ export default function AdminDmsPage() {
                     <span className="admin-thread-avatar large">{(selectedThread.viewer.nickname || selectedThread.viewer.channelName || TEXT.viewer).slice(0, 1)}</span>
                     <div>
                       <strong>{selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong>
-                      <span>{categoryLabels[selectedThread.category] || categoryLabels.etc} · {selectedThread.viewer.channelId}</span>
+                      <span>{selectedThread.viewer.channelId}</span>
                     </div>
                   </div>
                   <em className={selectedThread.status === "waiting" ? "waiting" : ""}>{selectedThread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
@@ -349,3 +341,4 @@ export default function AdminDmsPage() {
     </main>
   );
 }
+

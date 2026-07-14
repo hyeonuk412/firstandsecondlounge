@@ -25,14 +25,6 @@ type DmThread = {
   messages: DmMessage[];
 };
 
-const categoryLabels: Record<string, string> = {
-  support: "응원",
-  question: "문의",
-  suggestion: "제안",
-  business: "제휴",
-  etc: "기타",
-};
-
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "long",
@@ -127,7 +119,6 @@ export default function DmPage() {
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const category = String(formData.get("category") || "etc");
     const message = String(formData.get("message") || "").trim();
     if (!message) return;
 
@@ -138,7 +129,7 @@ export default function DmPage() {
       const response = await fetch("/api/dms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category, message }),
+        body: JSON.stringify({ message }),
       });
       if (!response.ok) throw new Error("DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
       const payload = (await response.json()) as { thread: DmThread };
@@ -255,7 +246,7 @@ export default function DmPage() {
                 const active = selectedThreadId === thread.id;
                 return (
                   <button className={`dm-thread-card ${active ? "active" : ""}`} type="button" onClick={() => openThread(thread.id)} key={thread.id}>
-                    <span className="dm-thread-avatar">{(categoryLabels[thread.category] || "DM").slice(0, 1)}</span>
+                    <span className="dm-thread-avatar">DM</span>
                     <span className="dm-thread-summary">
                       <strong>{shortText(firstViewerMessage(thread), 34)}</strong>
                       <small>{latest ? shortText(latest.message) : "메시지가 없어요."}</small>
@@ -284,16 +275,6 @@ export default function DmPage() {
               </div>
               <form className="dm-new-form" onSubmit={handleCreate}>
                 <label>
-                  카테고리
-                  <select name="category" defaultValue="support">
-                    <option value="support">응원</option>
-                    <option value="question">문의</option>
-                    <option value="suggestion">제안</option>
-                    <option value="business">제휴</option>
-                    <option value="etc">기타</option>
-                  </select>
-                </label>
-                <label>
                   DM 내용
                   <textarea name="message" placeholder="첫째와둘째에게 전하고 싶은 내용을 적어주세요." rows={8} required />
                 </label>
@@ -304,7 +285,6 @@ export default function DmPage() {
             <>
               <div className="dm-chat-head">
                 <div>
-                  <span>{categoryLabels[selectedThread.category] || "기타"}</span>
                   <h2>{shortText(firstViewerMessage(selectedThread), 42)}</h2>
                 </div>
                 <em>{selectedThread.status === "answered" ? "답변 완료" : "답변 대기"}</em>
@@ -340,5 +320,4 @@ export default function DmPage() {
     </main>
   );
 }
-
 
