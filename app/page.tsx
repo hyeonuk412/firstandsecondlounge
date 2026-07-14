@@ -2,7 +2,7 @@ import { getLoungeContent, type NoticeItem, type ScheduleItem } from "./api/loun
 import HomeAuth from "./HomeAuth";
 import LiveStatusCard from "./LiveStatusCard";
 
-const CHZZK_LIVE = "https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca";
+const CHZZK_CHANNEL = "https://chzzk.naver.com/48070f8882233efa7aee52519fee8fca";
 const YOUTUBE = "https://www.youtube.com/@_brother-siste";
 const CHZZK_ICON = "/icons/chzzk.png";
 const YOUTUBE_ICON = "/icons/youtube.svg";
@@ -45,7 +45,7 @@ export default async function Home() {
   const adminNicknames = content.settings?.adminNicknames?.length ? content.settings.adminNicknames : DEFAULT_ADMIN_NICKNAMES;
 
   const links = [
-    { label: "치지직 LIVE", href: CHZZK_LIVE, tone: "chzzk", icon: CHZZK_ICON },
+    { label: "치지직", href: CHZZK_CHANNEL, tone: "chzzk", icon: CHZZK_ICON },
     { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: YOUTUBE_ICON },
     { label: "쪽지 DM", href: "/dm", tone: "dm", icon: MESSENGER_ICON },
     { label: "디스코드", href: discordUrl || "#", tone: "discord", icon: DISCORD_ICON },
