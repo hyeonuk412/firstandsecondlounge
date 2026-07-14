@@ -3225,16 +3225,13 @@ body:has(.cc-home) {
 .cc-blob-b { bottom: 120px; left: -70px; width: 200px; height: 200px; background: var(--cc-mint-soft); }
 .cc-home > *:not(.cc-blob) { position: relative; z-index: 1; }
 
-/* Font roles */
+/* Font roles — Jua for display headings / brand / numbers only.
+   Buttons, kickers, labels, tabs, body all stay Pretendard for a
+   consistent system across every page. */
 .cc-brand-name b,
-.cc-hero-kicker,
 .cc-card-head h2,
-.cc-link-label,
 .cc-live-title,
-.cc-live-pill,
-.cc-day,
-.cc-login,
-.cc-chip {
+.cc-day {
   font-family: "Jua", "Pretendard Variable", sans-serif;
   font-weight: 400;
   letter-spacing: 0.01em;
@@ -3523,12 +3520,11 @@ body:has(.cheotdool-admin-page) {
     var(--cc-cream);
 }
 
-/* Jua on inner-page headings */
+/* Jua on inner-page headings only (buttons/tabs stay Pretendard) */
 .cc-page-title, .cc-detail-title,
 .dm-sidebar-head h1, .dm-login-screen h1, .dm-empty-chat h2, .dm-chat-head h2,
 .admin-header h1, .admin-messenger-head h2, .admin-section-head h2,
-.admin-date-heading h2, .admin-toolbar strong, .admin-home-card strong,
-.admin-unified-tabs button {
+.admin-date-heading h2, .admin-toolbar strong, .admin-home-card strong {
   font-family: "Jua", "Pretendard Variable", sans-serif;
   font-weight: 400;
   letter-spacing: 0.01em;
@@ -3620,7 +3616,7 @@ body:has(.cheotdool-admin-page) {
 .admin-chat-head, .admin-messenger-head { background: #fff; border-color: var(--cc-line); }
 .admin-home-card span { color: var(--cc-lav); }
 .admin-home-card strong { color: var(--cc-ink); }
-.admin-unified-tabs { border: 1px solid var(--cc-line); border-radius: 999px; background: #fff; box-shadow: var(--cc-shadow-sm); }
+.admin-unified-tabs { border: 1px solid var(--cc-line); border-radius: 20px; background: #fff; box-shadow: var(--cc-shadow-sm); }
 .admin-unified-tabs button { border-radius: 999px; color: var(--cc-ink-soft); }
 .admin-unified-tabs button.active { background: var(--cc-mint); color: #08321f; box-shadow: none; }
 .admin-header button, .admin-messenger-head button, .admin-section-head button,
@@ -3693,3 +3689,8 @@ body:has(.cc-page) .kicker,
   padding: 4px 9px;
   border-radius: 999px;
 }
+
+/* Weights for UI bits kept on Pretendard (off Jua) so they read solid */
+.cc-hero-kicker, .cc-live-pill, .cc-link-label, .cc-chip,
+.admin-unified-tabs button { font-weight: 700; }
+.cc-login { font-weight: 800; }
