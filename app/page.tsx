@@ -5,6 +5,10 @@ import { FormEvent, useEffect, useState } from "react";
 const CHZZK_CHANNEL = "https://chzzk.naver.com/48070f8882233efa7aee52519fee8fca";
 const CHZZK_LIVE = "https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca";
 const YOUTUBE = "https://www.youtube.com/@_brother-siste";
+const CHZZK_ICON = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Chzzk_Logo.svg/512px-Chzzk_Logo.svg.png";
+const YOUTUBE_ICON = "https://cdn.simpleicons.org/youtube/FF0000";
+const MESSENGER_ICON = "https://cdn.simpleicons.org/messenger/0084FF";
+const DISCORD_ICON = "https://cdn.simpleicons.org/discord/5865F2";
 
 type Viewer = {
   channelId: string;
@@ -74,44 +78,6 @@ const DEFAULT_LINKS: LinkSettings = {
   discordUrl: "",
 };
 
-
-function ChzzkIcon() {
-  return (
-    <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
-      <rect width="64" height="64" rx="18" fill="#00ffa3" />
-      <path d="M18 22h10l5 8 5-8h8l-9 14 9 14H36l-5-8-5 8h-8l9-14-9-14Z" fill="#101814" />
-    </svg>
-  );
-}
-
-function YouTubeIcon() {
-  return (
-    <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
-      <rect width="64" height="64" rx="18" fill="#ff0033" />
-      <path d="M27 22l18 10-18 10V22Z" fill="#fff" />
-    </svg>
-  );
-}
-
-function MessengerIcon() {
-  return (
-    <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
-      <rect width="64" height="64" rx="18" fill="#168aff" />
-      <path d="M32 15c-10.5 0-19 7.5-19 16.8 0 5.3 2.8 10 7.1 13.1v6.5l6.5-3.6c1.7.5 3.5.8 5.4.8 10.5 0 19-7.5 19-16.8S42.5 15 32 15Z" fill="#fff" opacity=".95" />
-      <path d="M21 36l8.3-8.8 6.2 5.1L43 24l-8.4 9-6.1-5.1L21 36Z" fill="#168aff" />
-    </svg>
-  );
-}
-
-function DiscordIcon() {
-  return (
-    <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
-      <rect width="64" height="64" rx="18" fill="#5865f2" />
-      <path d="M43.5 22.5A28 28 0 0 0 36.6 20l-.8 1.6a24 24 0 0 0-7.6 0l-.8-1.6a28 28 0 0 0-6.9 2.5c-4.4 6.5-5.6 12.8-5 19a28 28 0 0 0 8.5 4.3l1.8-3a18 18 0 0 1-2.8-1.4l.7-.5c5.4 2.5 11.3 2.5 16.6 0l.7.5c-.9.6-1.8 1-2.8 1.4l1.8 3a28 28 0 0 0 8.5-4.3c.7-7.2-1.1-13.4-5-19Z" fill="#fff" />
-      <path d="M26 36c-1.7 0-3-1.6-3-3.5s1.3-3.5 3-3.5 3 1.6 3 3.5-1.3 3.5-3 3.5Zm12 0c-1.7 0-3-1.6-3-3.5s1.3-3.5 3-3.5 3 1.6 3 3.5-1.3 3.5-3 3.5Z" fill="#5865f2" />
-    </svg>
-  );
-}
 
 const DEFAULT_NOTICES: NoticeItem[] = [
   { tag: "공지", title: "팬 라운지 오픈", body: "방송 링크와 DM 창구를 먼저 열어두었어요." },
@@ -314,6 +280,27 @@ export default function Home() {
           </span>
         </a>
 
+        <div className="top-auth">
+          {loadingViewer ? (
+            <span className="top-auth-note">로그인 확인 중</span>
+          ) : viewer ? (
+            <>
+              <div className="top-viewer">
+                <span>치지직 로그인</span>
+                <strong>{viewer.nickname || viewer.channelName}</strong>
+              </div>
+              <a className="top-logout" href="/api/auth/chzzk/logout">로그아웃</a>
+            </>
+          ) : (
+            <>
+              <div className="top-auth-copy">
+                <strong>치지직으로 로그인</strong>
+                <span>로그인하면 치지직 닉네임이 자동으로 연동됩니다</span>
+              </div>
+              <a className="top-login-button" href="/api/auth/chzzk/start">치지직으로 로그인</a>
+            </>
+          )}
+        </div>
       </header>
 
       <section className="hero" id="top">
@@ -337,13 +324,13 @@ export default function Home() {
 
       <section className="quick-grid icon-links" aria-label="빠른 이동">
         {[
-          { label: "치지직 LIVE", href: CHZZK_LIVE, tone: "chzzk", icon: <ChzzkIcon /> },
-          { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: <YouTubeIcon /> },
-          { label: "DM", href: "#dm", tone: "dm", icon: <MessengerIcon /> },
-          { label: "디스코드", href: links.discordUrl || "#", tone: "discord", icon: <DiscordIcon /> },
+          { label: "치지직 LIVE", href: CHZZK_LIVE, tone: "chzzk", icon: CHZZK_ICON },
+          { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: YOUTUBE_ICON },
+          { label: "DM", href: "#dm", tone: "dm", icon: MESSENGER_ICON },
+          { label: "디스코드", href: links.discordUrl || "#", tone: "discord", icon: DISCORD_ICON },
         ].map((link) => (
           <a className={`quick-card ${link.tone}`} href={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noreferrer" : undefined} aria-label={link.label} title={link.label} key={link.label}>
-            <span className="quick-icon" aria-hidden="true">{link.icon}</span>
+            <span className="quick-icon" aria-hidden="true"><img src={link.icon} alt="" /></span>
             <span className="visually-hidden">{link.label}</span>
           </a>
         ))}
@@ -406,7 +393,6 @@ export default function Home() {
                   <h3>{viewer.nickname || viewer.channelName}님 안녕하세요.</h3>
                   <p>이 계정으로 보낸 DM과 답변을 확인할 수 있어요.</p>
                 </div>
-                <a className="logout-link" href="/api/auth/chzzk/logout">로그아웃</a>
               </div>
 
               <div className="dm-inbox-head">
@@ -497,9 +483,8 @@ export default function Home() {
             </div>
           ) : (
             <div className="auth-card login-required">
-              <strong>치지직 로그인 후 DM함을 볼 수 있어요.</strong>
-              <p>로그인하면 치지직 닉네임이 자동으로 연결됩니다.</p>
-              <a className="chzzk-login-button" href="/api/auth/chzzk/start">치지직으로 로그인</a>
+              <strong>상단에서 치지직으로 로그인하면 DM함을 볼 수 있어요.</strong>
+              <p>로그인하면 치지직 닉네임이 자동으로 연동됩니다.</p>
             </div>
           )}
         </div>
