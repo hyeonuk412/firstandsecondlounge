@@ -3790,3 +3790,41 @@ body:has(.cc-page) .kicker,
 .cc-cal-time { flex: 0 0 auto; padding: 5px 11px; border-radius: 999px; background: #fff; color: #0f9b6c; font-size: 13px; font-weight: 800; }
 .cc-cal-list strong { font-size: 15px; font-weight: 700; color: var(--cc-ink); }
 .cc-cal-empty { margin: 0; padding: 22px 14px; text-align: center; border-radius: 14px; background: var(--cc-cream); color: var(--cc-ink-soft); font-weight: 700; }
+
+/* Admin DM thread list — every thread is its own clean card, tidy status */
+.admin-thread-list { gap: 10px; padding: 12px; }
+.admin-thread-card {
+  border: 1px solid var(--cc-line);
+  border-radius: 16px;
+  background: #fff;
+  padding: 12px 14px;
+  box-shadow: var(--cc-shadow-sm);
+}
+.admin-thread-card:hover, .admin-thread-card:focus-visible {
+  border-color: var(--cc-line);
+  background: #fff;
+  transform: translateY(-1px);
+}
+.admin-thread-card.active {
+  border-color: var(--cc-mint);
+  background: var(--cc-mint-soft);
+}
+.admin-thread-card em {
+  justify-self: start;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--cc-mint-soft);
+  color: #0f9b6c;
+  font-size: 11px;
+  font-weight: 800;
+}
+.admin-thread-card.waiting em {
+  background: var(--cc-coral-soft);
+  color: #c33f22;
+}
+/* keep the unread dot clear of the status pill */
+.admin-thread-card.waiting::after {
+  top: 14px;
+  right: 14px;
+}
