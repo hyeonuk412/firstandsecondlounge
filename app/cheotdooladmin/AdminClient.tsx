@@ -248,8 +248,6 @@ export default function CheotdoolAdminClient() {
   const [dmLoading, setDmLoading] = useState(false);
   const [dmError, setDmError] = useState("");
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
-  const [editDrafts, setEditDrafts] = useState<Record<string, string>>({});
-  const [editingMessageId, setEditingMessageId] = useState("");
 
   const sortedNoticeItems = useMemo(() => sortNotices(notices), [notices]);
   const selectedNotice = useMemo(
@@ -380,7 +378,6 @@ export default function CheotdoolAdminClient() {
 
   function openThread(threadId: string) {
     setSelectedThreadId(threadId);
-    setEditingMessageId("");
     setDmError("");
   }
 
@@ -401,29 +398,6 @@ export default function CheotdoolAdminClient() {
     setThreads((items) => sortThreads(items.map((item) => item.id === threadId ? payload.thread : item)));
     setSelectedThreadId(payload.thread.id);
     setReplyDrafts((drafts) => ({ ...drafts, [threadId]: "" }));
-  }
-
-  function startEdit(message: DmMessage) {
-    setEditingMessageId(message.id);
-    setEditDrafts((drafts) => ({ ...drafts, [message.id]: message.message }));
-  }
-
-  async function submitEditReply(threadId: string, messageId: string) {
-    const message = editDrafts[messageId]?.trim() || "";
-    if (!message) return;
-    setDmError("");
-    const response = await fetch(`/api/admin/dms/${encodeURIComponent(threadId)}/reply`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messageId, message }),
-    });
-    if (!response.ok) {
-      setDmError(TEXT.dmEditError);
-      return;
-    }
-    const payload = (await response.json()) as { thread: DmThread };
-    setThreads((items) => items.map((item) => item.id === threadId ? payload.thread : item));
-    setEditingMessageId("");
   }
 
   function addNotice() {
@@ -571,21 +545,14 @@ export default function CheotdoolAdminClient() {
                 <div className="admin-chat-messages" aria-label="DM 대화 내용" ref={chatMessagesRef}>
                   {selectedThread.messages.map((message) => {
                     const isAdminMessage = message.sender === "admin";
-                    const isEditing = editingMessageId === message.id;
                     return (
                       <article className={`admin-chat-row ${isAdminMessage ? "mine" : "theirs"}`} key={message.id}>
                         <div className="admin-chat-stack">
                           <div className="admin-chat-bubble-head">
                             <strong>{isAdminMessage ? TEXT.admin : selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong>
-                            {isAdminMessage && !isEditing ? <button type="button" onClick={() => startEdit(message)}>{TEXT.edit}</button> : null}
                           </div>
                           <div className="admin-chat-bubble">
-                            {isEditing ? (
-                              <div className="admin-edit-reply in-chat">
-                                <textarea value={editDrafts[message.id] || ""} onChange={(event) => setEditDrafts((drafts) => ({ ...drafts, [message.id]: event.target.value }))} rows={3} />
-                                <div><button type="button" onClick={() => submitEditReply(selectedThread.id, message.id)}>{TEXT.editSave}</button><button type="button" className="secondary" onClick={() => setEditingMessageId("")}>{TEXT.cancel}</button></div>
-                              </div>
-                            ) : <p>{message.message}</p>}
+                            <p>{message.message}</p>
                           </div>
                           <time className="admin-chat-time">{formatDate(message.createdAt)}</time>
                         </div>
