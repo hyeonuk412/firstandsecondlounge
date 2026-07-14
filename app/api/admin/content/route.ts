@@ -22,9 +22,9 @@ export async function PUT(request: Request) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let payload: { notices?: unknown[]; schedules?: unknown[] };
+  let payload: { notices?: unknown[]; schedules?: unknown[]; links?: unknown };
   try {
-    payload = (await request.json()) as { notices?: unknown[]; schedules?: unknown[] };
+    payload = (await request.json()) as { notices?: unknown[]; schedules?: unknown[]; links?: unknown };
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }

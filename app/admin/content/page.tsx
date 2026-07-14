@@ -16,9 +16,18 @@ type ScheduleItem = {
   title: string;
 };
 
+type LinkSettings = {
+  discordUrl: string;
+};
+
+const DEFAULT_LINKS: LinkSettings = {
+  discordUrl: "",
+};
+
 type LoungeContent = {
   notices: NoticeItem[];
   schedules: ScheduleItem[];
+  links: LinkSettings;
   updatedAt: string;
 };
 
@@ -32,6 +41,8 @@ const TEXT = {
   login: "\uAD00\uB9AC \uD654\uBA74 \uC5F4\uAE30",
   notices: "\uACF5\uC9C0",
   schedules: "\uC2A4\uCF00\uC904",
+  links: "\uB9C1\uD06C",
+  discordUrl: "\uB514\uC2A4\uCF54\uB4DC \uC8FC\uC18C",
   addNotice: "\uACF5\uC9C0 \uCD94\uAC00",
   addSchedule: "\uC2A4\uCF00\uC904 \uCD94\uAC00",
   save: "\uC800\uC7A5\uD558\uAE30",
@@ -67,6 +78,7 @@ export default function AdminContentPage() {
   const [tokenInput, setTokenInput] = useState("");
   const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [links, setLinks] = useState<LinkSettings>(DEFAULT_LINKS);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -86,6 +98,7 @@ export default function AdminContentPage() {
       const payload = (await response.json()) as LoungeContent;
       setNotices(payload.notices);
       setSchedules(payload.schedules);
+      setLinks(payload.links || DEFAULT_LINKS);
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : TEXT.loadError);
     } finally {
@@ -117,6 +130,7 @@ export default function AdminContentPage() {
     setTokenInput("");
     setNotices([]);
     setSchedules([]);
+    setLinks(DEFAULT_LINKS);
     setError("");
     setSaved(false);
   }
@@ -132,7 +146,7 @@ export default function AdminContentPage() {
         "Content-Type": "application/json",
         "x-admin-token": token,
       },
-      body: JSON.stringify({ notices, schedules }),
+      body: JSON.stringify({ notices, schedules, links }),
     });
 
     if (!response.ok) {
@@ -144,6 +158,7 @@ export default function AdminContentPage() {
     const payload = (await response.json()) as LoungeContent;
     setNotices(payload.notices);
     setSchedules(payload.schedules);
+    setLinks(payload.links || DEFAULT_LINKS);
     setSaving(false);
     setSaved(true);
   }
@@ -181,6 +196,15 @@ export default function AdminContentPage() {
           {error ? <p className="dm-error">{error}</p> : null}
 
           <div className="admin-content-grid">
+            <section className="admin-content-section">
+              <div className="admin-section-head">
+                <h2>{TEXT.links}</h2>
+              </div>
+              <article className="admin-edit-card">
+                <label>{TEXT.discordUrl}<input value={links.discordUrl} onChange={(event) => setLinks({ ...links, discordUrl: event.target.value })} placeholder="https://discord.gg/..." /></label>
+              </article>
+            </section>
+
             <section className="admin-content-section">
               <div className="admin-section-head">
                 <h2>{TEXT.notices}</h2>
