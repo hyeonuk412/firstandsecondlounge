@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useState } from "react";
 const CHZZK_CHANNEL = "https://chzzk.naver.com/48070f8882233efa7aee52519fee8fca";
 const CHZZK_LIVE = "https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca";
 const YOUTUBE = "https://www.youtube.com/@_brother-siste";
-const CHZZK_ICON = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Chzzk_Logo.svg/512px-Chzzk_Logo.svg.png";
+const CHZZK_ICON = "/icons/chzzk.png";
 const YOUTUBE_ICON = "https://cdn.simpleicons.org/youtube/FF0000";
 const MESSENGER_ICON = "https://cdn.simpleicons.org/messenger/0084FF";
 const DISCORD_ICON = "https://cdn.simpleicons.org/discord/5865F2";
