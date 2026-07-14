@@ -37,16 +37,23 @@ export default function LiveStatusCard() {
     };
   }, []);
 
+  const live = !!liveStatus?.live;
+
   return (
-    <aside className={`status-card ${liveStatus?.live ? "is-live" : ""}`} aria-label="broadcast status">
-      <span className={`status-pill ${liveStatus?.live ? "live" : ""}`}>ON AIR</span>
-      <strong>{liveStatus?.live ? liveStatus.title || "라이브 방송 중" : "지금은 방송중이 아니에요."}</strong>
-      {liveStatus?.live ? (
-        <div className="live-meta">
-          <span>{liveStatus.category ? `[${liveStatus.category}] 방송중!` : "방송중!"}</span>
-        </div>
+    <aside className={`cc-live ${live ? "is-live" : ""}`} aria-label="방송 상태">
+      <span className="cc-live-pill">
+        <span className="cc-live-dot" aria-hidden="true" />
+        {live ? "지금 방송 중!" : "방송 준비 중"}
+      </span>
+      <strong className="cc-live-title">
+        {live ? liveStatus?.title || "라이브 방송 중이에요!" : "지금은 방송 준비 중이에요 😴"}
+      </strong>
+      {live && liveStatus?.category ? (
+        <span className="cc-live-cat">[{liveStatus.category}]</span>
       ) : null}
-      <a href={CHZZK_LIVE} target="_blank" rel="noreferrer">{liveStatus?.live ? "지금 라이브 보러가기" : "치지직 LIVE 열기"}</a>
+      <a className="cc-live-btn" href={CHZZK_LIVE} target="_blank" rel="noreferrer">
+        {live ? "보러 가기 →" : "치지직 열기 →"}
+      </a>
     </aside>
   );
 }

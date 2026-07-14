@@ -44,28 +44,30 @@ export default function HomeAuth({ adminNicknames }: HomeAuthProps) {
   }, []);
 
   if (loadingViewer) {
-    return <span className="top-auth-note">로그인 확인 중</span>;
+    return <span className="cc-auth-note">로그인 확인 중…</span>;
   }
 
   if (viewer) {
     return (
       <>
-        <div className="top-viewer">
-          <span>치지직 로그인</span>
-          <strong>{viewer.nickname || viewer.channelName}</strong>
+        <div className="cc-viewer">
+          <span className="cc-viewer-avatar" aria-hidden="true">🙌</span>
+          <span className="cc-viewer-copy">
+            <em>반가워요</em>
+            <strong>{viewer.nickname || viewer.channelName}</strong>
+          </span>
         </div>
-        {isAdminViewer(viewer, adminNicknames) ? <a className="top-admin-link" href="/cheotdooladmin">관리자 페이지</a> : null}
-        <a className="top-logout" href="/api/auth/chzzk/logout">로그아웃</a>
+        {isAdminViewer(viewer, adminNicknames) ? (
+          <a className="cc-chip cc-chip-admin" href="/cheotdooladmin">🔧 관리자</a>
+        ) : null}
+        <a className="cc-chip" href="/api/auth/chzzk/logout">로그아웃</a>
       </>
     );
   }
 
   return (
-    <>
-      <div className="top-auth-copy">
-        <span>로그인하면 치지직 닉네임이 자동으로 연동됩니다</span>
-      </div>
-      <a className="top-login-button" href="/api/auth/chzzk/start">치지직으로 로그인</a>
-    </>
+    <a className="cc-login" href="/api/auth/chzzk/start">
+      💚 치지직으로 로그인
+    </a>
   );
 }
