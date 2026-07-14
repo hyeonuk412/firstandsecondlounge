@@ -75,8 +75,8 @@ function userFields(payload: ChzzkUserPayload) {
   return payload.content ?? payload;
 }
 
-function redirectHome(request: Request, headers: Headers, status = "connected") {
-  const target = new URL(`/?chzzk=${encodeURIComponent(status)}#dm`, request.url);
+function redirectHome(request: Request, headers: Headers) {
+  const target = new URL("/", request.url);
   headers.set("Location", target.toString());
   return new Response(null, { status: 302, headers });
 }
@@ -126,7 +126,7 @@ export async function GET(request: Request) {
 
   if (!code || !state || !savedState || state !== savedState) {
     headers.append("Set-Cookie", clearViewerCookie(request.url));
-    return redirectHome(request, headers, "failed");
+    return redirectHome(request, headers);
   }
 
   try {
@@ -152,6 +152,7 @@ export async function GET(request: Request) {
     return redirectHome(request, headers);
   } catch {
     headers.append("Set-Cookie", clearViewerCookie(request.url));
-    return redirectHome(request, headers, "failed");
+    return redirectHome(request, headers);
   }
 }
+
