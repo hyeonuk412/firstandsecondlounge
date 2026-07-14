@@ -306,7 +306,6 @@ export default function Home() {
           ) : (
             <>
               <div className="top-auth-copy">
-                <strong>치지직으로 로그인</strong>
                 <span>로그인하면 치지직 닉네임이 자동으로 연동됩니다</span>
               </div>
               <a className="top-login-button" href="/api/auth/chzzk/start">치지직으로 로그인</a>
