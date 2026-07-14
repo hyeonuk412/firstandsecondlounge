@@ -44,6 +44,7 @@ const DEFAULT_SCHEDULES: ScheduleItem[] = [];
 
 declare global {
   var __firstAndSecondLoungeContent: LoungeContent | undefined;
+  var __firstAndSecondLoungeContentCache: { expiresAt: number; content: LoungeContent } | undefined;
 }
 
 function now() {
@@ -141,16 +142,32 @@ function contentDoc() {
   return firestore().collection("loungeContent").doc("main");
 }
 
+function readCachedContent() {
+  const cached = globalThis.__firstAndSecondLoungeContentCache;
+  if (cached && cached.expiresAt > Date.now()) return cached.content;
+  return null;
+}
+
+function writeCachedContent(content: LoungeContent) {
+  globalThis.__firstAndSecondLoungeContentCache = { expiresAt: Date.now() + 10000, content };
+}
+
 export async function getLoungeContent() {
   if (!hasFirebaseConfig()) return withDefaults(memoryStore());
+
+  const cached = readCachedContent();
+  if (cached) return cached;
 
   const snapshot = await contentDoc().get();
   if (!snapshot.exists) {
     const initial = withDefaults();
     await contentDoc().set(initial);
+    writeCachedContent(initial);
     return initial;
   }
-  return withDefaults(snapshot.data() as Partial<LoungeContent>);
+  const content = withDefaults(snapshot.data() as Partial<LoungeContent>);
+  writeCachedContent(content);
+  return content;
 }
 
 export async function updateLoungeContent(input: { notices?: unknown[]; schedules?: unknown[]; links?: unknown; settings?: unknown }) {
@@ -172,5 +189,6 @@ export async function updateLoungeContent(input: { notices?: unknown[]; schedule
   }
 
   await contentDoc().set(next);
+  writeCachedContent(next);
   return next;
 }

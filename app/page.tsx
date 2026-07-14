@@ -6,9 +6,9 @@ const CHZZK_CHANNEL = "https://chzzk.naver.com/48070f8882233efa7aee52519fee8fca"
 const CHZZK_LIVE = "https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca";
 const YOUTUBE = "https://www.youtube.com/@_brother-siste";
 const CHZZK_ICON = "/icons/chzzk.png";
-const YOUTUBE_ICON = "https://cdn.simpleicons.org/youtube/FF0000";
-const MESSENGER_ICON = "https://cdn.simpleicons.org/messenger/0084FF";
-const DISCORD_ICON = "https://cdn.simpleicons.org/discord/5865F2";
+const YOUTUBE_ICON = "/icons/youtube.svg";
+const MESSENGER_ICON = "/icons/messenger.svg";
+const DISCORD_ICON = "/icons/discord.svg";
 const DEFAULT_ADMIN_NICKNAMES = ["첫째와둘째", "첫째입니다", "오늘의메뉴"];
 
 type Viewer = {
@@ -139,7 +139,7 @@ export default function Home() {
 
     async function loadLiveStatus() {
       try {
-        const response = await fetch("/api/live-status", { cache: "no-store" });
+        const response = await fetch("/api/live-status");
         if (!response.ok) return;
         const payload = (await response.json()) as LiveStatus;
         if (!cancelled) setLiveStatus(payload);
@@ -148,9 +148,10 @@ export default function Home() {
       }
     }
 
-    loadLiveStatus();
+    const timer = window.setTimeout(loadLiveStatus, 250);
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
     };
   }, []);
 
