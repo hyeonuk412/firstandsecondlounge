@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLoungeContent } from "../../api/lounge-content/store";
 
@@ -31,7 +30,7 @@ export default async function NoticeDetailPage({ params }: { params: Promise<{ i
       <header className="notice-page-header">
         <div>
           <p className="kicker">NOTICE</p>
-          <h1>공지 상세</h1>
+          <h1>공지</h1>
         </div>
         <a className="notice-back" href="/notices">목록으로</a>
       </header>
