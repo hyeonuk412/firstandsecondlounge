@@ -1,14 +1,11 @@
-﻿import { adminConfigured, requireAdmin } from "../../../auth";
+import { requireAdmin } from "../../../auth";
 import { replyDmThread, updateAdminDmReply } from "../../../../dms/store";
 
 export const runtime = "nodejs";
 
-function ensureAdmin(request: Request) {
-  if (!adminConfigured()) {
-    return Response.json({ error: "DM_ADMIN_PASSWORD is not configured" }, { status: 503 });
-  }
-  if (!requireAdmin(request)) {
-    return Response.json({ error: "admin token is required" }, { status: 401 });
+async function ensureAdmin(request: Request) {
+  if (!(await requireAdmin(request))) {
+    return Response.json({ error: "admin login is required" }, { status: 401 });
   }
   return null;
 }
@@ -17,7 +14,7 @@ export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  const adminError = ensureAdmin(request);
+  const adminError = await ensureAdmin(request);
   if (adminError) return adminError;
 
   let payload: { message?: string };
@@ -45,7 +42,7 @@ export async function PUT(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ) {
-  const adminError = ensureAdmin(request);
+  const adminError = await ensureAdmin(request);
   if (adminError) return adminError;
 
   let payload: { messageId?: string; message?: string };
@@ -72,4 +69,3 @@ export async function PUT(
 
   return Response.json({ thread });
 }
-

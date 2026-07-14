@@ -1,13 +1,10 @@
-﻿import { adminConfigured, requireAdmin } from "../auth";
+import { requireAdmin } from "../auth";
 import { getLoungeContent, updateLoungeContent } from "../../lounge-content/store";
 
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  if (!adminConfigured()) {
-    return Response.json({ error: "DM_ADMIN_PASSWORD is not configured" }, { status: 503 });
-  }
-  if (!requireAdmin(request)) {
+  if (!(await requireAdmin(request))) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -17,10 +14,7 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  if (!adminConfigured()) {
-    return Response.json({ error: "DM_ADMIN_PASSWORD is not configured" }, { status: 503 });
-  }
-  if (!requireAdmin(request)) {
+  if (!(await requireAdmin(request))) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 

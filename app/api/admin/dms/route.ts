@@ -1,16 +1,12 @@
-﻿import { adminConfigured, requireAdmin } from "../auth";
-
-export const runtime = "nodejs";
+import { requireAdmin } from "../auth";
 import { listDmThreads } from "../../dms/store";
 
+export const runtime = "nodejs";
+
 export async function GET(request: Request) {
-  if (!adminConfigured()) {
-    return Response.json({ error: "DM_ADMIN_PASSWORD is not configured" }, { status: 503 });
-  }
-  if (!requireAdmin(request)) {
-    return Response.json({ error: "admin token is required" }, { status: 401 });
+  if (!(await requireAdmin(request))) {
+    return Response.json({ error: "admin login is required" }, { status: 401 });
   }
 
   return Response.json({ threads: await listDmThreads() });
 }
-
