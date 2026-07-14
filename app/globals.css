@@ -3029,3 +3029,126 @@ a:focus-visible, button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* =====================================================================
+   ADMIN + DETAIL PAGES CLEAN PASS
+   Visual only (surfaces/borders/radii/shadows/weights) — layout intact
+   ===================================================================== */
+
+/* Cards & panels: solid white, hairline border, soft shadow, no blur */
+.admin-home-card,
+.admin-dm-card,
+.admin-edit-card,
+.admin-nickname-card,
+.admin-calendar-panel,
+.admin-notice-editor,
+.admin-notice-list-panel,
+.admin-content-section {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Nickname card had no styling — give it a clean card body */
+.admin-nickname-card {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+}
+
+/* Dashboard summary cards */
+.admin-home-card:hover,
+.admin-home-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.admin-home-card span {
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.admin-home-card strong { font-weight: 760; letter-spacing: -0.02em; }
+.admin-home-card small { color: var(--muted); font-weight: 500; font-size: 16px; }
+
+/* Segmented tab bar → clean white-pill selection on a soft track */
+.admin-unified-tabs {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  box-shadow: none;
+  padding: 6px;
+  gap: 6px;
+}
+.admin-unified-tabs button {
+  border-color: transparent;
+  border-radius: 10px;
+  color: var(--muted);
+  font-weight: 650;
+}
+.admin-unified-tabs button.active {
+  border-color: transparent;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Section titles */
+.admin-header h1 { font-weight: 780; letter-spacing: -0.03em; }
+.admin-toolbar strong,
+.admin-section-head h2,
+.admin-date-heading h2,
+.admin-messenger-head h2,
+.admin-calendar-head strong { font-weight: 750; letter-spacing: -0.01em; }
+
+/* Admin notice list rows */
+.admin-notice-list button {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  transition: border-color 0.15s ease;
+}
+.admin-notice-list button:hover { border-color: var(--line-strong); }
+
+/* Calendar cells */
+.admin-calendar-grid button {
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-weight: 600;
+}
+.admin-calendar-grid button.has-dms {
+  border-color: rgba(23, 205, 125, 0.32);
+  background: var(--chzzk-soft);
+}
+.admin-calendar-grid button.active {
+  background: var(--chzzk);
+  color: #06130d;
+  box-shadow: none;
+}
+.admin-calendar-head button,
+.admin-calendar-all,
+.admin-date-nav button { border-radius: var(--r-sm); }
+.admin-danger { border-radius: var(--r-sm); }
+
+/* Lighten heavy admin text weights */
+.admin-dm-meta h2,
+.admin-thread-topline strong,
+.admin-chat-profile strong,
+.admin-thread-topic,
+.admin-messenger-head h2 { font-weight: 700; }
+.admin-message p,
+.admin-chat-bubble p,
+.admin-dm-meta p { font-weight: 500; }
+.admin-empty,
+.admin-thread-empty,
+.admin-chat-empty { font-weight: 600; }
+.admin-dm-search input { border-radius: 999px; }
+
+/* Detail-page header consistency */
+.notice-page-header h1 { font-weight: 760; letter-spacing: -0.02em; }
+.notice-detail-date,
+.notice-list-page time,
+.notice-hero-list time { font-weight: 600; }
