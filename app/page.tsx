@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const CHZZK_CHANNEL = "https://chzzk.naver.com/48070f8882233efa7aee52519fee8fca";
 const CHZZK_LIVE = "https://chzzk.naver.com/live/48070f8882233efa7aee52519fee8fca";
@@ -17,21 +17,6 @@ type Viewer = {
   verifiedAt: string;
 };
 
-type DmMessage = {
-  id: string;
-  sender: "viewer" | "admin";
-  message: string;
-  createdAt: string;
-};
-
-type DmThread = {
-  id: string;
-  category: string;
-  status: "waiting" | "answered";
-  createdAt: string;
-  updatedAt: string;
-  messages: DmMessage[];
-};
 
 type NoticeItem = {
   id?: string;
@@ -67,13 +52,6 @@ type LiveStatus = {
   openDate?: string | null;
 };
 
-const categoryLabels: Record<string, string> = {
-  support: "응원",
-  question: "문의",
-  suggestion: "제안",
-  business: "제휴",
-  etc: "기타",
-};
 
 const DEFAULT_LINKS: LinkSettings = {
   discordUrl: "",
@@ -103,32 +81,10 @@ function formatNoticeDate(value?: string) {
   }).format(date);
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
-
-function firstViewerMessage(thread: DmThread) {
-  return thread.messages.find((message) => message.sender === "viewer")?.message || "";
-}
-
-function latestAdminReply(thread: DmThread) {
-  return thread.messages.filter((message) => message.sender === "admin").at(-1);
-}
 
 export default function Home() {
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [loadingViewer, setLoadingViewer] = useState(true);
-  const [loadingDms, setLoadingDms] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
-  const [isComposing, setIsComposing] = useState(false);
-  const [dmThreads, setDmThreads] = useState<DmThread[]>([]);
-  const [selectedThreadId, setSelectedThreadId] = useState("");
   const [notices, setNotices] = useState<NoticeItem[]>(DEFAULT_NOTICES);
   const [schedules, setSchedules] = useState<ScheduleItem[]>(DEFAULT_SCHEDULES);
   const [links, setLinks] = useState<LinkSettings>(DEFAULT_LINKS);
@@ -177,20 +133,6 @@ export default function Home() {
     };
   }, []);
 
-  async function loadDmThreads() {
-    setLoadingDms(true);
-    try {
-      const response = await fetch("/api/dms/my", { cache: "no-store" });
-      if (!response.ok) throw new Error("DM을 불러오지 못했어요.");
-      const payload = (await response.json()) as { threads: DmThread[] };
-      setDmThreads(payload.threads);
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "DM을 불러오지 못했어요.");
-    } finally {
-      setLoadingDms(false);
-    }
-  }
-
   useEffect(() => {
     let cancelled = false;
 
@@ -212,74 +154,6 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    if (viewer) {
-      loadDmThreads();
-    } else {
-      setDmThreads([]);
-      setSelectedThreadId("");
-    }
-  }, [viewer]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!viewer) return;
-
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const category = String(formData.get("category") || "etc");
-    const message = String(formData.get("message") || "").trim();
-    if (!message) return;
-
-    setError("");
-    setSent(false);
-    const response = await fetch("/api/dms", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ category, message }),
-    });
-
-    if (!response.ok) {
-      setError("DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
-      return;
-    }
-
-    const payload = (await response.json()) as { thread: DmThread };
-    setDmThreads((threads) => [payload.thread, ...threads]);
-    setSelectedThreadId("");
-    setSent(true);
-    setIsComposing(false);
-    form.reset();
-  }
-
-  async function handleAppendSubmit(event: FormEvent<HTMLFormElement>, threadId: string) {
-    event.preventDefault();
-    if (!viewer) return;
-
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const message = String(formData.get("message") || "").trim();
-    if (!message) return;
-
-    setError("");
-    setSent(false);
-    const response = await fetch("/api/dms", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ threadId, message }),
-    });
-
-    if (!response.ok) {
-      setError("DM\uC744 \uBCF4\uB0B4\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574\uC8FC\uC138\uC694.");
-      return;
-    }
-
-    const payload = (await response.json()) as { thread: DmThread };
-    setDmThreads((threads) => [payload.thread, ...threads.filter((thread) => thread.id !== payload.thread.id)]);
-    setSelectedThreadId(payload.thread.id);
-    setSent(true);
-    form.reset();
-  }
 
   return (
     <main className="lounge-page">
@@ -349,7 +223,7 @@ export default function Home() {
         {[
           { label: "치지직 LIVE", href: CHZZK_LIVE, tone: "chzzk", icon: CHZZK_ICON },
           { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: YOUTUBE_ICON },
-          { label: "DM", href: "#dm", tone: "dm", icon: MESSENGER_ICON },
+          { label: "DM", href: "/dm", tone: "dm", icon: MESSENGER_ICON },
           { label: "디스코드", href: links.discordUrl || "#", tone: "discord", icon: DISCORD_ICON },
         ].map((link) => (
           <a className={`quick-card ${link.tone}`} href={link.href} target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noreferrer" : undefined} aria-label={link.label} title={link.label} key={link.label}>
@@ -377,122 +251,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="dm-panel" id="dm" aria-labelledby="dm-title">
-        <div className="dm-copy">
-          <p className="kicker">DIRECT MESSAGE</p>
-          <h2 id="dm-title">내 DM함</h2>
-        </div>
-
-        <div className="dm-auth-area">
-          {loadingViewer ? (
-            <div className="auth-card">
-              <strong>로그인 상태를 확인하고 있어요.</strong>
-              <p>잠시만 기다려주세요.</p>
-            </div>
-          ) : viewer ? (
-            <div className="dm-compose">
-              <div className="viewer-greeting">
-                <div>
-                  <span>치지직 로그인 완료</span>
-                  <h3>{viewer.nickname || viewer.channelName}님 안녕하세요.</h3>
-                  <p>이 계정으로 보낸 DM과 답변을 확인할 수 있어요.</p>
-                </div>
-              </div>
-
-              <div className="dm-inbox-head">
-                <div>
-                  <strong>내 DM</strong>
-                  <span>{dmThreads.length}개</span>
-                </div>
-                <button type="button" onClick={() => { setSent(false); setSelectedThreadId(""); setIsComposing((value) => !value); }}>
-                  {isComposing ? "작성 닫기" : "새 DM 보내기"}
-                </button>
-              </div>
-
-              <div className="dm-thread-list" aria-label="내 DM 목록">
-                {loadingDms ? (
-                  <div className="dm-empty"><strong>DM을 불러오고 있어요.</strong></div>
-                ) : dmThreads.length > 0 ? (
-                  dmThreads.map((thread) => {
-                    const reply = latestAdminReply(thread);
-                    const isSelected = selectedThreadId === thread.id;
-                    return (
-                      <article className="dm-thread-item" key={thread.id}>
-                        <button className={`dm-thread ${isSelected ? "selected" : ""}`} type="button" aria-expanded={isSelected} onClick={() => { setSent(false); setIsComposing(false); setSelectedThreadId(isSelected ? "" : thread.id); }}>
-                          <div>
-                            <span>{categoryLabels[thread.category] || "\uAE30\uD0C0"}</span>
-                            {isSelected ? <strong>{"DM \uB300\uD654"}</strong> : <strong>{firstViewerMessage(thread)}</strong>}
-                            {!isSelected && reply ? <p className="dm-reply">{"\uB2F5\uBCC0: "}{reply.message}</p> : null}
-                            <small>{thread.messages.length}{"\uAC1C\uC758 \uBA54\uC2DC\uC9C0 / "}{formatDate(thread.updatedAt)}</small>
-                          </div>
-                          <em>{thread.status === "answered" ? "\uB2F5\uBCC0 \uC644\uB8CC" : "\uB2F5\uBCC0 \uB300\uAE30"}</em>
-                        </button>
-                        {isSelected ? (
-                          <div className="dm-thread-detail">
-                            <div className="dm-thread-detail-head">
-                              <strong>{"\uB300\uD654 \uB0B4\uC6A9"}</strong>
-                            </div>
-                            <div className="dm-conversation">
-                              {thread.messages.map((message) => (
-                                <div className={`dm-bubble ${message.sender}`} key={message.id}>
-                                  <strong>{message.sender === "admin" ? "\uCCAB\uC9F8\uC640\uB458\uC9F8" : viewer.nickname || viewer.channelName}</strong>
-                                  <p>{message.message}</p>
-                                  <small>{formatDate(message.createdAt)}</small>
-                                </div>
-                              ))}
-                            </div>
-                            <form className="dm-append-form" onSubmit={(event) => handleAppendSubmit(event, thread.id)}>
-                              <label>
-                                {"\uCD94\uAC00 DM"}
-                                <textarea name="message" placeholder={"\uC774 DM\uC5D0 \uC774\uC5B4\uC11C \uBCF4\uB0BC \uB0B4\uC6A9\uC744 \uC801\uC5B4\uC8FC\uC138\uC694."} rows={4} required />
-                              </label>
-                              <button type="submit">{"\uCD94\uAC00\uB85C \uBCF4\uB0B4\uAE30"}</button>
-                            </form>
-                          </div>
-                        ) : null}
-                      </article>
-                    );
-                  })
-                ) : (
-                  <div className="dm-empty">
-                    <strong>아직 보낸 DM이 없어요.</strong>
-                    <p>새 DM을 보내면 이곳에서 상태와 답변을 확인할 수 있어요.</p>
-                  </div>
-                )}
-              </div>
-
-              {sent ? <p className="sent">{"DM\uC744 \uBC1C\uC1A1\uD588\uC5B4\uC694."}</p> : null}
-              {error ? <p className="dm-error">{error}</p> : null}
-
-              {isComposing ? (
-                <form className="dm-form" onSubmit={handleSubmit}>
-                  <label>
-                    카테고리
-                    <select name="category" defaultValue="support">
-                      <option value="support">응원</option>
-                      <option value="question">문의</option>
-                      <option value="suggestion">제안</option>
-                      <option value="business">제휴</option>
-                      <option value="etc">기타</option>
-                    </select>
-                  </label>
-                  <label className="wide">
-                    DM 내용
-                    <textarea name="message" placeholder="전하고 싶은 이야기를 적어주세요." rows={6} required />
-                  </label>
-
-                  <button type="submit">DM 보내기</button>
-                </form>
-              ) : null}
-            </div>
-          ) : (
-            <div className="auth-card login-required">
-              <strong>상단에서 치지직으로 로그인하면 DM함을 볼 수 있어요.</strong>
-              <p>DM은 로그인 후 보낼 수 있어요.</p>
-            </div>
-          )}
-        </div>
-      </section>
     </main>
   );
 }
