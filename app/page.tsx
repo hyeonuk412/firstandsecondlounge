@@ -400,7 +400,6 @@ export default function Home() {
         <div className="dm-copy">
           <p className="kicker">DIRECT MESSAGE</p>
           <h2 id="dm-title">내 DM함</h2>
-          <p>DM은 치지직 로그인 후 보낼 수 있어요. 답변도 같은 계정 기준으로 확인할 수 있게 준비합니다.</p>
         </div>
 
         <div className="dm-auth-area">
@@ -508,7 +507,7 @@ export default function Home() {
           ) : (
             <div className="auth-card login-required">
               <strong>상단에서 치지직으로 로그인하면 DM함을 볼 수 있어요.</strong>
-              <p>로그인하면 치지직 닉네임이 자동으로 연동됩니다.</p>
+              <p>DM은 로그인 후 보낼 수 있어요.</p>
             </div>
           )}
         </div>
