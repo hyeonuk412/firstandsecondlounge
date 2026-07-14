@@ -1328,3 +1328,28 @@ button, input, select, textarea { font: inherit; }
     text-align: center;
   }
 }
+
+/* Keep the logged-out DM prompt compact and readable */
+.dm-login-screen {
+  min-height: 360px;
+  padding: clamp(30px, 5vw, 44px);
+}
+
+.dm-login-screen h1 {
+  max-width: none;
+  font-size: clamp(34px, 4.1vw, 48px);
+  line-height: 1.08;
+  white-space: nowrap;
+}
+
+.dm-login-screen p:not(.kicker) {
+  max-width: 760px;
+  font-size: 18px;
+}
+
+@media (max-width: 700px) {
+  .dm-login-screen h1 {
+    max-width: 420px;
+    white-space: normal;
+  }
+}
