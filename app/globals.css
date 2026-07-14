@@ -3442,32 +3442,46 @@ body:has(.cc-home) {
 }
 .cc-more:hover { transform: translateY(-2px); }
 
+/* Colored section cards so the white item chips pop */
+.cc-notice { background: var(--cc-lav-soft); }
+.cc-schedule { background: var(--cc-mint-soft); }
+
 .cc-notice-list { display: grid; gap: 10px; }
 .cc-notice-item {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  display: grid; grid-template-columns: 12px minmax(0, 1fr) auto;
   align-items: center; gap: 12px;
-  padding: 15px 16px; border-radius: 18px;
-  background: var(--cc-cream);
-  transition: transform 0.12s ease, background 0.15s ease;
+  padding: 14px 16px; border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--cc-shadow-sm);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
-.cc-notice-item:hover { transform: translateX(3px); background: var(--cc-butter-soft); }
+.cc-notice-item::before {
+  content: ""; width: 11px; height: 11px; border-radius: 50%;
+  background: var(--cc-coral);
+}
+.cc-notice-item:nth-child(3n + 2)::before { background: var(--cc-lav); }
+.cc-notice-item:nth-child(3n)::before { background: var(--cc-mint); }
+.cc-notice-item:hover { transform: translateY(-2px); box-shadow: var(--cc-shadow); }
 .cc-notice-item strong { font-size: 16px; font-weight: 700; color: var(--cc-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cc-notice-item time { font-size: 13px; font-weight: 700; color: var(--cc-ink-soft); white-space: nowrap; }
+.cc-notice-item time { font-size: 12px; font-weight: 800; color: var(--cc-ink-soft); white-space: nowrap; padding: 5px 11px; border-radius: 999px; background: var(--cc-cream); }
 
 .cc-schedule-list { display: grid; gap: 10px; }
 .cc-schedule-item {
   display: grid; grid-template-columns: auto auto minmax(0, 1fr);
   align-items: center; gap: 12px;
-  padding: 12px 14px; border-radius: 18px;
-  background: var(--cc-cream);
+  padding: 10px 12px; border-radius: 16px;
+  background: #fff;
+  box-shadow: var(--cc-shadow-sm);
 }
 .cc-day {
   display: inline-grid; place-items: center;
-  min-width: 46px; min-height: 40px; padding: 0 10px;
+  min-width: 48px; min-height: 44px; padding: 0 10px;
   border-radius: 14px; background: var(--cc-mint); color: #08321f;
-  font-size: 16px;
+  font-size: 16px; line-height: 1.05;
 }
-.cc-time { font-size: 14px; font-weight: 800; color: var(--cc-lav); }
+.cc-schedule-item:nth-child(3n) .cc-day { background: var(--cc-lav); color: #fff; }
+.cc-schedule-item:nth-child(3n + 2) .cc-day { background: var(--cc-coral); color: #fff; }
+.cc-time { font-size: 13px; font-weight: 800; color: var(--cc-ink-soft); padding: 4px 10px; border-radius: 999px; background: var(--cc-cream); }
 .cc-sched-title { font-size: 15px; font-weight: 700; color: var(--cc-ink); }
 
 .cc-empty {
@@ -3491,3 +3505,141 @@ body:has(.cc-home) {
   .cc-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cc-top { justify-content: center; }
 }
+
+/* =====================================================================
+   CUTE COMMUNITY — INNER PAGES (notices / DM / admin)
+   Warm backdrop, Jua headings, rounded pastel cards, mint pill buttons.
+   DM & admin keep their markup/logic; restyled via existing classes.
+   ===================================================================== */
+
+/* Warm backdrop on every inner page, like the home */
+body:has(.cc-page),
+body:has(.dm-page),
+body:has(.admin-page),
+body:has(.cheotdool-admin-page) {
+  background:
+    radial-gradient(circle at 6% -4%, rgba(139, 123, 245, 0.12), transparent 26rem),
+    radial-gradient(circle at 96% 4%, rgba(53, 205, 154, 0.12), transparent 24rem),
+    var(--cc-cream);
+}
+
+/* Jua on inner-page headings */
+.cc-page-title, .cc-detail-title,
+.dm-sidebar-head h1, .dm-login-screen h1, .dm-empty-chat h2, .dm-chat-head h2,
+.admin-header h1, .admin-messenger-head h2, .admin-section-head h2,
+.admin-date-heading h2, .admin-toolbar strong, .admin-home-card strong,
+.admin-unified-tabs button {
+  font-family: "Jua", "Pretendard Variable", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Notices (cc-page shell) ---- */
+.cc-page {
+  position: relative;
+  width: min(860px, calc(100% - 32px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 22px 0 64px;
+  color: var(--cc-ink);
+}
+.cc-page-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.cc-back {
+  display: inline-flex; align-items: center;
+  min-height: 42px; padding: 0 16px; border-radius: 999px;
+  background: #fff; color: var(--cc-ink); font-size: 14px; font-weight: 800;
+  box-shadow: var(--cc-shadow-sm); transition: transform 0.12s ease;
+}
+.cc-back:hover { transform: translateX(-3px); }
+.cc-page-title { margin: 0; font-size: clamp(28px, 5vw, 40px); color: var(--cc-ink); display: inline-flex; align-items: center; gap: 10px; }
+
+.cc-notice-page-list { display: grid; gap: 12px; }
+.cc-notice-card {
+  display: grid; grid-template-columns: 46px minmax(0, 1fr) auto;
+  align-items: center; gap: 14px;
+  padding: 16px 18px; border-radius: 22px;
+  background: #fff; box-shadow: var(--cc-shadow-sm);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.cc-notice-card:hover { transform: translateY(-3px); box-shadow: var(--cc-shadow); }
+.cc-notice-num {
+  display: grid; place-items: center; width: 46px; height: 46px;
+  border-radius: 15px; background: var(--cc-lav-soft); color: var(--cc-lav);
+  font-family: "Jua", sans-serif; font-size: 18px;
+}
+.cc-notice-card:nth-child(3n + 2) .cc-notice-num { background: var(--cc-mint-soft); color: var(--cc-mint); }
+.cc-notice-card:nth-child(3n) .cc-notice-num { background: var(--cc-coral-soft); color: var(--cc-coral); }
+.cc-notice-copy { display: grid; gap: 4px; min-width: 0; }
+.cc-notice-copy strong { font-size: 17px; font-weight: 700; color: var(--cc-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-notice-copy time { font-size: 13px; font-weight: 700; color: var(--cc-ink-soft); }
+.cc-notice-go { color: var(--cc-ink-soft); font-size: 20px; font-weight: 800; }
+
+.cc-detail-card { padding: clamp(26px, 5vw, 44px); border-radius: 30px; background: #fff; box-shadow: var(--cc-shadow); }
+.cc-detail-date { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px; background: var(--cc-butter-soft); color: #9a6b12; font-size: 14px; font-weight: 800; }
+.cc-detail-title { margin: 16px 0 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.22; color: var(--cc-ink); }
+.cc-detail-body { margin-top: 20px; font-size: 17px; font-weight: 500; line-height: 1.8; color: var(--cc-ink); white-space: pre-wrap; }
+
+/* ---- DM page (restyled) ---- */
+.dm-layout, .dm-login-screen { border: 1px solid var(--cc-line); border-radius: 28px; background: #fff; box-shadow: var(--cc-shadow); }
+.dm-sidebar { background: var(--cc-cream); border-color: var(--cc-line); }
+.dm-chat-panel { background: #fff; }
+.dm-chat-head, .dm-sidebar-head { background: #fff; border-color: var(--cc-line); }
+.dm-home-link, .dm-header-user a {
+  border: 1px solid var(--cc-line); border-radius: 999px;
+  background: #fff; color: var(--cc-ink); font-weight: 800;
+  box-shadow: var(--cc-shadow-sm);
+}
+.dm-home-link:hover { transform: translateX(-2px); }
+.dm-login-cta, .dm-sidebar-head button, .dm-empty-chat button, .dm-new-form button {
+  border-radius: 999px; background: var(--cc-mint); color: #08321f;
+  font-weight: 800; box-shadow: var(--cc-shadow-sm);
+  transition: transform 0.12s ease;
+}
+.dm-login-cta:hover, .dm-sidebar-head button:hover, .dm-new-form button:hover { transform: translateY(-2px); }
+.dm-chat-input button { border-radius: 16px; background: var(--cc-mint); color: #08321f; box-shadow: none; }
+.dm-thread-card.active, .dm-thread-card:hover, .dm-thread-card:focus-visible { background: #fff; border-color: var(--cc-line); box-shadow: var(--cc-shadow-sm); }
+.dm-thread-avatar { border-radius: 16px; background: var(--cc-lav-soft); color: var(--cc-lav); }
+.dm-message-bubble { border: 1px solid var(--cc-line); border-radius: 18px; }
+.dm-message-row.mine .dm-message-bubble { background: var(--cc-mint); color: #08321f; border-color: transparent; }
+.dm-message-row.theirs .dm-message-bubble { background: #fff; }
+.dm-new-form textarea, .dm-new-form select, .dm-chat-input textarea { border-radius: 16px; border-color: var(--cc-line); }
+.dm-login-screen h1, .dm-empty-chat h2 { color: var(--cc-ink); }
+
+/* ---- Admin (restyled) ---- */
+.admin-header, .admin-login, .admin-dm-shell, .admin-calendar,
+.admin-home-card, .admin-edit-card, .admin-nickname-card,
+.admin-calendar-panel, .admin-notice-editor, .admin-notice-list-panel,
+.admin-content-section, .admin-messenger {
+  border: 1px solid var(--cc-line);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: var(--cc-shadow);
+}
+.admin-messenger-sidebar { background: var(--cc-cream); border-color: var(--cc-line); }
+.admin-chat-panel { background: #fff; }
+.admin-chat-head, .admin-messenger-head { background: #fff; border-color: var(--cc-line); }
+.admin-home-card span { color: var(--cc-lav); }
+.admin-home-card strong { color: var(--cc-ink); }
+.admin-unified-tabs { border: 1px solid var(--cc-line); border-radius: 999px; background: #fff; box-shadow: var(--cc-shadow-sm); }
+.admin-unified-tabs button { border-radius: 999px; color: var(--cc-ink-soft); }
+.admin-unified-tabs button.active { background: var(--cc-mint); color: #08321f; box-shadow: none; }
+.admin-header button, .admin-messenger-head button, .admin-section-head button,
+.admin-toolbar button, .admin-login button, .admin-chat-reply button,
+.admin-notice-editor button, .admin-schedule-editor button, .admin-nickname-card button,
+.admin-edit-card button:not(.admin-danger):not(.secondary),
+.admin-edit-reply button:not(.secondary) {
+  border-radius: 999px; background: var(--cc-mint); color: #08321f;
+  font-weight: 800; box-shadow: var(--cc-shadow-sm);
+  transition: transform 0.12s ease;
+}
+.admin-header button:hover, .admin-messenger-head button:hover, .admin-section-head button:hover { transform: translateY(-2px); }
+.admin-header-actions a, .admin-danger { border-radius: 999px; }
+.admin-thread-avatar { border-radius: 16px; background: var(--cc-lav-soft); color: var(--cc-lav); }
+.admin-thread-card.active, .admin-thread-card:hover, .admin-thread-card:focus-visible { background: #fff; border-color: var(--cc-line); }
+.admin-chat-bubble { border: 1px solid var(--cc-line); border-radius: 18px; }
+.admin-chat-row.mine .admin-chat-bubble { background: var(--cc-mint); color: #08321f; border-color: transparent; }
+.admin-calendar-grid button { border-radius: 14px; }
+.admin-calendar-grid button.active { background: var(--cc-mint); color: #08321f; }
+.admin-calendar-grid button.has-dms { background: var(--cc-mint-soft); border-color: transparent; }
+.admin-notice-list button { border-radius: 16px; background: var(--cc-cream); border-color: var(--cc-line); }
+.admin-dm-search input { border-radius: 999px; border-color: var(--cc-line); }

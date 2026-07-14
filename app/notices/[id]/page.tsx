@@ -26,19 +26,15 @@ export default async function NoticeDetailPage({ params }: { params: Promise<{ i
   if (!notice) notFound();
 
   return (
-    <main className="notice-page">
-      <header className="notice-page-header">
-        <div>
-          <p className="kicker">NOTICE</p>
-          <h1>공지</h1>
-        </div>
-        <a className="notice-back" href="/notices">목록으로</a>
+    <main className="cc-page cc-notice-detail">
+      <header className="cc-page-head">
+        <a className="cc-back" href="/notices">← 목록으로</a>
       </header>
 
-      <article className="notice-detail-card">
-        <time className="notice-detail-date">{noticeDate(notice.date)}</time>
-        <h1>{notice.title}</h1>
-        <div className="notice-detail-body">{notice.body}</div>
+      <article className="cc-detail-card">
+        <time className="cc-detail-date">📅 {noticeDate(notice.date)}</time>
+        <h1 className="cc-detail-title">{notice.title}</h1>
+        <div className="cc-detail-body">{notice.body}</div>
       </article>
     </main>
   );

@@ -23,23 +23,24 @@ export default async function NoticesPage() {
   const notices = content.notices.slice().sort(byNewest);
 
   return (
-    <main className="notice-page">
-      <header className="notice-page-header compact">
-        <div>
-          <p className="kicker">NOTICE</p>
-          <h1>공지</h1>
-        </div>
-        <a className="notice-back" href="/">라운지로</a>
+    <main className="cc-page cc-notices">
+      <header className="cc-page-head">
+        <a className="cc-back" href="/">← 라운지로</a>
+        <h1 className="cc-page-title"><span aria-hidden="true">📢</span> 공지</h1>
       </header>
 
-      <section className="notice-list-page" aria-label="공지 목록">
-        {notices.map((notice) => (
-          <a href={`/notices/${encodeURIComponent(notice.id)}`} key={notice.id}>
-            <strong>{notice.title}</strong>
-            <time>{noticeDate(notice.date)}</time>
+      <section className="cc-notice-page-list" aria-label="공지 목록">
+        {notices.map((notice, i) => (
+          <a className="cc-notice-card" href={`/notices/${encodeURIComponent(notice.id)}`} key={notice.id}>
+            <span className="cc-notice-num">{i + 1}</span>
+            <span className="cc-notice-copy">
+              <strong>{notice.title}</strong>
+              <time>{noticeDate(notice.date)}</time>
+            </span>
+            <span className="cc-notice-go" aria-hidden="true">→</span>
           </a>
         ))}
-        {!notices.length ? <p className="home-empty-line">등록된 공지가 없어요.</p> : null}
+        {!notices.length ? <p className="cc-empty">아직 공지가 없어요 🍃</p> : null}
       </section>
     </main>
   );
