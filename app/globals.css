@@ -3643,3 +3643,22 @@ body:has(.cheotdool-admin-page) {
 .admin-calendar-grid button.has-dms { background: var(--cc-mint-soft); border-color: transparent; }
 .admin-notice-list button { border-radius: 16px; background: var(--cc-cream); border-color: var(--cc-line); }
 .admin-dm-search input { border-radius: 999px; border-color: var(--cc-line); }
+
+/* Admin warmth — pastel header + playful dashboard cards (match home) */
+.admin-header {
+  border-radius: 28px;
+  border-color: transparent;
+  background:
+    radial-gradient(circle at 93% 8%, var(--cc-pink-soft), transparent 55%),
+    linear-gradient(135deg, #ffffff, var(--cc-butter-soft));
+}
+.admin-header p:not(.kicker) { color: var(--cc-ink-soft); font-weight: 700; }
+.admin-home-card { border-radius: 24px; box-shadow: var(--cc-shadow-sm); transition: transform 0.14s ease, box-shadow 0.14s ease; }
+.admin-home-card:hover, .admin-home-card:focus-visible { transform: translateY(-3px); box-shadow: var(--cc-shadow); }
+.admin-home-grid .admin-home-card:nth-child(4n + 1) { background: var(--cc-mint-soft); }
+.admin-home-grid .admin-home-card:nth-child(4n + 2) { background: var(--cc-coral-soft); }
+.admin-home-grid .admin-home-card:nth-child(4n + 3) { background: var(--cc-lav-soft); }
+.admin-home-grid .admin-home-card:nth-child(4n) { background: var(--cc-butter-soft); }
+.admin-home-card span { color: var(--cc-ink-soft); }
+.admin-home-card strong { color: var(--cc-ink); }
+.admin-home-card small { color: var(--cc-ink-soft); font-weight: 700; }
