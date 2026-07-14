@@ -79,15 +79,24 @@ export default function ScheduleCalendar({ schedules, initialMonth, today }: Pro
       <div className="cc-cal-grid">
         {cells.map((cell) => {
           if (!cell.date) return <span className="cc-cal-blank" key={cell.key} />;
-          const count = itemsOn(cell.date).length;
+          const items = itemsOn(cell.date);
+          const dow = new Date(cell.date + "T00:00:00").getDay();
           const classes = ["cc-cal-day"];
           if (cell.date === selected) classes.push("selected");
           if (cell.date === today) classes.push("today");
-          if (count) classes.push("has");
+          if (dow === 0) classes.push("sun");
+          if (dow === 6) classes.push("sat");
           return (
             <button type="button" className={classes.join(" ")} onClick={() => setSelected(cell.date!)} key={cell.key}>
               <b>{cell.day}</b>
-              {count ? <i aria-hidden="true" /> : null}
+              {items.length ? (
+                <span className="cc-cal-events">
+                  {items.slice(0, 3).map((s, i) => (
+                    <em className="cc-cal-chip" key={s.id || i}>{s.title || "방송"}</em>
+                  ))}
+                  {items.length > 3 ? <em className="cc-cal-more">+{items.length - 3}</em> : null}
+                </span>
+              ) : null}
             </button>
           );
         })}
