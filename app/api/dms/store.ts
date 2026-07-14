@@ -86,6 +86,17 @@ export function appendViewerDmThread(input: {
   return thread;
 }
 
+export function updateAdminDmReply(threadId: string, messageId: string, message: string) {
+  const thread = store().find((item) => item.id === threadId);
+  if (!thread) return null;
+
+  const existing = thread.messages.find((item) => item.id === messageId && item.sender === "admin");
+  if (!existing) return null;
+
+  existing.message = message;
+  return thread;
+}
+
 export function replyDmThread(threadId: string, message: string) {
   const thread = store().find((item) => item.id === threadId);
   if (!thread) return null;

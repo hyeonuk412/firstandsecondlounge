@@ -246,3 +246,32 @@ button, input, select, textarea { font: inherit; }
   .admin-header-actions a, .admin-header-actions button { width: 100%; }
   .admin-edit-row.compact, .admin-edit-row.schedule-row { grid-template-columns: 1fr; }
 }
+
+.admin-date-nav { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 12px; margin-bottom: 6px; }
+.admin-date-nav button { flex: 0 0 auto; min-height: 40px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.72); color: var(--muted); padding: 0 14px; font-weight: 900; cursor: pointer; }
+.admin-date-nav button.active { border-color: rgba(0,208,132,.5); background: rgba(0,255,163,.22); color: #08754f; }
+.admin-date-nav span { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 22px; margin-left: 5px; border-radius: 999px; background: rgba(36,31,40,.08); color: var(--text); font-size: 13px; }
+.admin-dm-list.by-date { gap: 18px; }
+.admin-date-section { display: grid; gap: 12px; }
+.admin-date-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 2px 2px 0; }
+.admin-date-heading h2 { margin: 0; font-size: 28px; font-weight: 900; }
+.admin-date-heading span { flex: 0 0 auto; border-radius: 999px; background: #f1efff; color: var(--accent); padding: 7px 10px; font-size: 13px; font-weight: 900; }
+.admin-dm-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 12px; border-radius: 14px; background: rgba(255,255,255,.64); }
+.admin-dm-summary div { display: grid; gap: 3px; min-width: 0; }
+.admin-dm-summary span { color: var(--muted); font-size: 13px; font-weight: 900; }
+.admin-dm-summary strong { color: var(--text); font-size: 16px; font-weight: 900; }
+.admin-dm-summary p { grid-column: 1 / -1; margin: 0; padding: 10px 12px; border-radius: 12px; background: rgba(0,255,163,.14); color: #0c6f4a; font-size: 16px; font-weight: 900; line-height: 1.35; white-space: pre-wrap; }
+.admin-message-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.admin-message-head button { min-height: 30px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.78); color: var(--text); padding: 0 11px; font-size: 13px; font-weight: 900; cursor: pointer; }
+.admin-edit-reply { display: grid; gap: 8px; margin-top: 8px; }
+.admin-edit-reply textarea { width: 100%; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.9); color: var(--text); padding: 12px 13px; outline: none; resize: vertical; }
+.admin-edit-reply textarea:focus { border-color: rgba(0, 208, 132, 0.7); box-shadow: 0 0 0 4px rgba(0, 255, 163, 0.18); }
+.admin-edit-reply div { display: flex; justify-content: flex-end; gap: 8px; }
+.admin-edit-reply button { min-height: 36px; border: 0; border-radius: 12px; background: var(--chzzk); color: #101814; padding: 0 13px; font-weight: 900; cursor: pointer; }
+.admin-edit-reply button.secondary { border: 1px solid var(--line); background: rgba(255,255,255,.78); color: var(--muted); }
+
+@media (max-width: 700px) {
+  .admin-dm-summary { grid-template-columns: 1fr; }
+  .admin-date-heading { align-items: flex-start; flex-direction: column; }
+  .admin-edit-reply div { flex-direction: column; }
+}
