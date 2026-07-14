@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 
@@ -29,6 +29,7 @@ type NoticeItem = {
 
 type ScheduleItem = {
   id?: string;
+  date?: string;
   day: string;
   time: string;
   title: string;
@@ -65,17 +66,9 @@ const DEFAULT_LINKS: LinkSettings = {
 };
 
 
-const DEFAULT_NOTICES: NoticeItem[] = [
-  { id: "notice-open", tag: "공지", title: "팬 라운지 오픈", body: "방송 링크와 DM 창구를 먼저 열어두었어요.", date: "2026-07-14" },
-  { id: "notice-login", tag: "DM", title: "치지직 로그인 필요", body: "DM과 답변함은 치지직 계정 기준으로 연결됩니다.", date: "2026-07-14" },
-  { id: "notice-schedule", tag: "일정", title: "방송 일정 준비 중", body: "확정되는 일정부터 이곳에 업데이트합니다.", date: "2026-07-14" },
-];
+const DEFAULT_NOTICES: NoticeItem[] = [];
 
-const DEFAULT_SCHEDULES: ScheduleItem[] = [
-  { day: "화", time: "20:00", title: "소통 방송" },
-  { day: "목", time: "20:00", title: "게임 방송" },
-  { day: "토", time: "21:00", title: "팬 참여 방송" },
-];
+const DEFAULT_SCHEDULES: ScheduleItem[] = [];
 
 function isAdminViewer(viewer: Viewer, adminNicknames: string[]) {
   const admins = new Set(adminNicknames);
@@ -94,6 +87,20 @@ function formatNoticeDate(value?: string) {
 }
 
 
+
+function byNewestNotice(a: NoticeItem, b: NoticeItem) {
+  return (b.date || "").localeCompare(a.date || "");
+}
+
+function scheduleLabel(item: ScheduleItem) {
+  if (!item.date) return item.day;
+  const date = new Date(item.date + "T00:00:00");
+  if (Number.isNaN(date.getTime())) return item.date;
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+  }).format(date);
+}
 export default function Home() {
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [loadingViewer, setLoadingViewer] = useState(true);
@@ -112,8 +119,8 @@ export default function Home() {
         if (!response.ok) return;
         const payload = (await response.json()) as LoungeContent;
         if (cancelled) return;
-        setNotices(payload.notices?.length ? payload.notices : DEFAULT_NOTICES);
-        setSchedules(payload.schedules?.length ? payload.schedules : DEFAULT_SCHEDULES);
+        setNotices(Array.isArray(payload.notices) ? payload.notices : DEFAULT_NOTICES);
+        setSchedules(Array.isArray(payload.schedules) ? payload.schedules : DEFAULT_SCHEDULES);
         setLinks({ discordUrl: payload.settings?.discordUrl || payload.links?.discordUrl || "" });
         setAdminNicknames(payload.settings?.adminNicknames?.length ? payload.settings.adminNicknames : DEFAULT_ADMIN_NICKNAMES);
       } catch {
@@ -213,7 +220,7 @@ export default function Home() {
             <a className="notice-more" href="/notices">전체보기</a>
           </div>
           <div className="notice-hero-list">
-            {notices.slice(0, 5).map((notice) => (
+            {notices.slice().sort(byNewestNotice).slice(0, 3).map((notice) => (
               <a href={`/notices/${encodeURIComponent(notice.id || notice.title)}`} key={notice.id || notice.title}>
                 <strong>{notice.title}</strong>
                 <time>{formatNoticeDate(notice.date)}</time>
@@ -257,7 +264,7 @@ export default function Home() {
           <div className="schedule-list">
             {schedules.map((item) => (
               <article key={`${item.day}-${item.title}`}>
-                <b>{item.day}</b>
+                <b>{scheduleLabel(item)}</b>
                 <span>{item.time}</span>
                 <strong>{item.title}</strong>
               </article>

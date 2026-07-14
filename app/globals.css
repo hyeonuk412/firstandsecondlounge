@@ -1915,3 +1915,248 @@ button, input, select, textarea { font: inherit; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* Admin dashboard, notice list, and schedule calendar */
+.admin-home-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-home-card {
+  display: grid;
+  gap: 10px;
+  min-height: 180px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  padding: 22px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.admin-home-card:hover,
+.admin-home-card:focus-visible {
+  transform: translateY(-2px);
+  outline: none;
+  box-shadow: 0 24px 56px rgba(64, 52, 92, 0.18);
+}
+
+.admin-home-card span {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.admin-home-card strong {
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 0.95;
+}
+
+.admin-home-card small {
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.admin-notice-manager,
+.admin-calendar-layout {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  gap: 14px;
+}
+
+.admin-notice-list-panel,
+.admin-notice-editor,
+.admin-calendar-panel,
+.admin-schedule-editor {
+  min-width: 0;
+}
+
+.admin-notice-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.admin-notice-list button {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-notice-list button.active,
+.admin-notice-list button:hover,
+.admin-notice-list button:focus-visible {
+  border-color: rgba(0, 208, 132, 0.42);
+  background: rgba(0, 255, 163, 0.13);
+  outline: none;
+}
+
+.admin-notice-list span {
+  display: inline-flex;
+  justify-content: center;
+  border-radius: 999px;
+  background: #f1efff;
+  color: var(--accent);
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.admin-notice-list strong {
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-notice-list time {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.admin-edit-row.notice-row {
+  grid-template-columns: minmax(0, 1fr) 170px;
+}
+
+.admin-calendar-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-calendar-head strong {
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.admin-calendar-head button {
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--text);
+  padding: 0 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-calendar-weekdays,
+.admin-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.admin-calendar-weekdays span {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.admin-calendar-grid button,
+.admin-calendar-grid .blank {
+  aspect-ratio: 1;
+  min-width: 0;
+  border-radius: 14px;
+}
+
+.admin-calendar-grid button {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  padding: 9px;
+  cursor: pointer;
+}
+
+.admin-calendar-grid button:hover,
+.admin-calendar-grid button:focus-visible,
+.admin-calendar-grid button.active {
+  border-color: rgba(0, 208, 132, 0.48);
+  background: rgba(0, 255, 163, 0.15);
+  outline: none;
+}
+
+.admin-calendar-grid button strong {
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.admin-calendar-grid button span {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--chzzk);
+  color: #101814;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.admin-schedule-editor .admin-section-head h2 {
+  font-size: 25px;
+}
+
+@media (max-width: 900px) {
+  .admin-home-grid,
+  .admin-notice-manager,
+  .admin-calendar-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .admin-home-card {
+    min-height: 132px;
+  }
+
+  .admin-notice-list button {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-edit-row.notice-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-calendar-weekdays,
+  .admin-calendar-grid {
+    gap: 5px;
+  }
+
+  .admin-calendar-grid button {
+    padding: 6px;
+  }
+}
