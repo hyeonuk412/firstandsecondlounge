@@ -317,39 +317,18 @@ export default function Home() {
       </header>
 
       <section className="hero" id="top">
-        <a
-          className={`hero-main live-preview ${liveStatus?.live ? "is-live" : "is-offline"}`}
-          href={CHZZK_LIVE}
-          target="_blank"
-          rel="noreferrer"
-          style={liveStatus?.live && liveStatus.thumbnailUrl ? { backgroundImage: `linear-gradient(90deg, rgba(17, 14, 21, 0.84), rgba(17, 14, 21, 0.24)), url(${liveStatus.thumbnailUrl})` } : undefined}
-        >
-          <div className="live-preview-content">
-            <span className={`status-pill ${liveStatus?.live ? "live" : ""}`}>ON AIR</span>
-            {liveStatus?.live ? (
-              <>
-                <h1>{liveStatus.title || "라이브 방송 중"}</h1>
-                <div className="live-preview-meta">
-                  {typeof liveStatus.viewerCount === "number" ? <span>{liveStatus.viewerCount.toLocaleString("ko-KR")}명 시청 중</span> : null}
-                  {liveStatus.category ? <span>{liveStatus.category}</span> : null}
-                </div>
-              </>
-            ) : (
-              <>
-                <h1>지금은 방송중이 아니에요.</h1>
-                <p className="hero-text">클릭하면 치지직 라이브 페이지로 이동해요.</p>
-              </>
-            )}
-          </div>
-        </a>
+        <div className="hero-main">
+          <p className="kicker">FIRST & SECOND FAN LOUNGE</p>
+          <h1>방송 보러오고, 소식 보고, DM 남기는 곳</h1>
+          <p className="hero-text">첫째와둘째 팬들을 위한 공식 라운지입니다.</p>
+        </div>
 
         <aside className={`status-card ${liveStatus?.live ? "is-live" : ""}`} aria-label="broadcast status">
           <span className={`status-pill ${liveStatus?.live ? "live" : ""}`}>ON AIR</span>
-          <strong>{liveStatus?.live ? liveStatus.title || "\uB77C\uC774\uBE0C \uBC29\uC1A1 \uC911" : "\uC624\uB298\uC740 \uACF5\uC9C0\uC640 \uC2A4\uCF00\uC904\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694."}</strong>
+          <strong>{liveStatus?.live ? liveStatus.title || "\uB77C\uC774\uBE0C \uBC29\uC1A1 \uC911" : "\uC9C0\uAE08\uC740 \uBC29\uC1A1\uC911\uC774 \uC544\uB2C8\uC5D0\uC694."}</strong>
           {liveStatus?.live ? (
             <div className="live-meta">
-              {liveStatus.category ? <span>{liveStatus.category}</span> : null}
-              {typeof liveStatus.viewerCount === "number" ? <span>{liveStatus.viewerCount.toLocaleString("ko-KR")}{"\uBA85 \uC2DC\uCCAD \uC911"}</span> : null}
+              <span>{liveStatus.category ? `[${liveStatus.category}] \uBC29\uC1A1\uC911!` : "\uBC29\uC1A1\uC911!"}</span>
             </div>
           ) : null}
           <a href={CHZZK_LIVE} target="_blank" rel="noreferrer">{liveStatus?.live ? "\uC9C0\uAE08 \uB77C\uC774\uBE0C \uBCF4\uB7EC\uAC00\uAE30" : "\uCE58\uC9C0\uC9C1 LIVE \uC5F4\uAE30"}</a>
