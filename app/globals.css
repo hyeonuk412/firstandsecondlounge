@@ -275,3 +275,9 @@ button, input, select, textarea { font: inherit; }
   .admin-date-heading { align-items: flex-start; flex-direction: column; }
   .admin-edit-reply div { flex-direction: column; }
 }
+
+.dm-thread-item:has(.dm-thread.selected) { border-color: rgba(0,208,132,.42); box-shadow: 0 12px 28px rgba(0,208,132,.08); }
+.dm-thread:hover strong, .dm-thread:focus-visible strong { color: var(--accent); }
+.dm-thread:focus-visible { outline: 3px solid rgba(0,255,163,.3); outline-offset: 4px; border-radius: 12px; }
+.dm-thread-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dm-thread-detail-head strong { color: var(--text); font-size: 18px; font-weight: 900; }

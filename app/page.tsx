@@ -212,7 +212,7 @@ export default function Home() {
 
     const payload = (await response.json()) as { thread: DmThread };
     setDmThreads((threads) => [payload.thread, ...threads]);
-    setSelectedThreadId(payload.thread.id);
+    setSelectedThreadId("");
     setSent(true);
     setIsComposing(false);
     form.reset();
@@ -370,14 +370,17 @@ export default function Home() {
                         <button className={`dm-thread ${isSelected ? "selected" : ""}`} type="button" aria-expanded={isSelected} onClick={() => { setSent(false); setIsComposing(false); setSelectedThreadId(isSelected ? "" : thread.id); }}>
                           <div>
                             <span>{categoryLabels[thread.category] || "\uAE30\uD0C0"}</span>
-                            <strong>{firstViewerMessage(thread)}</strong>
-                            {reply ? <p className="dm-reply">{"\uB2F5\uBCC0: "}{reply.message}</p> : null}
-                            <small>{formatDate(thread.createdAt)}</small>
+                            {isSelected ? <strong>{"DM \uB300\uD654"}</strong> : <strong>{firstViewerMessage(thread)}</strong>}
+                            {!isSelected && reply ? <p className="dm-reply">{"\uB2F5\uBCC0: "}{reply.message}</p> : null}
+                            <small>{thread.messages.length}{"\uAC1C\uC758 \uBA54\uC2DC\uC9C0 / "}{formatDate(thread.updatedAt)}</small>
                           </div>
                           <em>{thread.status === "answered" ? "\uB2F5\uBCC0 \uC644\uB8CC" : "\uB2F5\uBCC0 \uB300\uAE30"}</em>
                         </button>
                         {isSelected ? (
                           <div className="dm-thread-detail">
+                            <div className="dm-thread-detail-head">
+                              <strong>{"\uB300\uD654 \uB0B4\uC6A9"}</strong>
+                            </div>
                             <div className="dm-conversation">
                               {thread.messages.map((message) => (
                                 <div className={`dm-bubble ${message.sender}`} key={message.id}>
