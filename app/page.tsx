@@ -361,24 +361,6 @@ export default function Home() {
       </section>
 
       <section className="content-grid">
-        <div className="panel notices" id="notice">
-          <div className="panel-head">
-            <p className="kicker">NOTICE</p>
-            <h2>공지</h2>
-          </div>
-          <div className="notice-list">
-            {notices.map((notice) => (
-              <article key={notice.title}>
-                <span>{notice.tag}</span>
-                <div>
-                  <h3>{notice.title}</h3>
-                  <p>{notice.body}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
         <div className="panel schedule" id="schedule">
           <div className="panel-head">
             <p className="kicker">SCHEDULE</p>
