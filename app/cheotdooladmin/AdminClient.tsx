@@ -149,6 +149,18 @@ function itemDate(item: ScheduleItem) {
   return item.date || "";
 }
 
+function weekdayKey(dateStr: string) {
+  const d = new Date(dateStr + "T00:00:00");
+  return Number.isNaN(d.getTime()) ? "" : WEEKDAYS[d.getDay()];
+}
+
+// Match by explicit date, or by weekday for recurring (weekday-only) schedules.
+function scheduleMatchesDate(item: ScheduleItem, dateStr: string) {
+  if (item.date) return item.date === dateStr;
+  if (item.day) return item.day === weekdayKey(dateStr);
+  return false;
+}
+
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -246,7 +258,7 @@ export default function CheotdoolAdminClient() {
   );
   const monthCells = useMemo(() => calendarCells(calendarMonth), [calendarMonth]);
   const schedulesBySelectedDate = useMemo(
-    () => schedules.filter((schedule) => itemDate(schedule) === selectedScheduleDate),
+    () => schedules.filter((schedule) => scheduleMatchesDate(schedule, selectedScheduleDate)),
     [schedules, selectedScheduleDate],
   );
   const waitingCount = useMemo(() => threads.filter((thread) => thread.status === "waiting").length, [threads]);
@@ -641,7 +653,8 @@ export default function CheotdoolAdminClient() {
               <div className="admin-calendar-weekdays">{WEEKDAYS.map((day) => <span key={day}>{day}</span>)}</div>
               <div className="admin-calendar-grid">
                 {monthCells.map((cell) => {
-                  const daySchedules = cell.date ? schedules.filter((schedule) => itemDate(schedule) === cell.date) : [];
+                  const cellDate = cell.date;
+                  const daySchedules = cellDate ? schedules.filter((schedule) => scheduleMatchesDate(schedule, cellDate)) : [];
                   return cell.date ? (
                     <button className={selectedScheduleDate === cell.date ? "active" : ""} type="button" onClick={() => setSelectedScheduleDate(cell.date || todayKey())} key={cell.key}>
                       <strong>{cell.day}</strong>

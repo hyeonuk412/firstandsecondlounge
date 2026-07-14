@@ -33,6 +33,19 @@ function calendarCells(month: string) {
   return cells;
 }
 
+function weekdayOf(dateStr: string) {
+  const d = new Date(dateStr + "T00:00:00");
+  return Number.isNaN(d.getTime()) ? "" : WEEKDAYS[d.getDay()];
+}
+
+// A schedule matches a calendar date by its explicit date, or — if it only
+// has a weekday (recurring) — by matching that weekday.
+function matchesDate(s: ScheduleItem, dateStr: string) {
+  if (s.date) return s.date === dateStr;
+  if (s.day) return s.day === weekdayOf(dateStr);
+  return false;
+}
+
 type Props = { schedules: ScheduleItem[]; initialMonth: string; today: string };
 
 export default function ScheduleCalendar({ schedules, initialMonth, today }: Props) {
@@ -40,18 +53,14 @@ export default function ScheduleCalendar({ schedules, initialMonth, today }: Pro
   const [selected, setSelected] = useState(today);
 
   const cells = useMemo(() => calendarCells(month), [month]);
-  const byDate = useMemo(() => {
-    const map = new Map<string, ScheduleItem[]>();
-    schedules.forEach((s) => {
-      if (!s.date) return;
-      const list = map.get(s.date) || [];
-      list.push(s);
-      map.set(s.date, list);
-    });
-    return map;
-  }, [schedules]);
 
-  const selectedItems = (byDate.get(selected) || []).slice().sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+  const itemsOn = (dateStr: string) =>
+    schedules
+      .filter((s) => matchesDate(s, dateStr))
+      .slice()
+      .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+
+  const selectedItems = itemsOn(selected);
 
   return (
     <div className="cc-cal">
@@ -70,7 +79,7 @@ export default function ScheduleCalendar({ schedules, initialMonth, today }: Pro
       <div className="cc-cal-grid">
         {cells.map((cell) => {
           if (!cell.date) return <span className="cc-cal-blank" key={cell.key} />;
-          const count = byDate.get(cell.date)?.length || 0;
+          const count = itemsOn(cell.date).length;
           const classes = ["cc-cal-day"];
           if (cell.date === selected) classes.push("selected");
           if (cell.date === today) classes.push("today");
