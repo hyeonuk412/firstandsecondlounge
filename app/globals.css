@@ -221,3 +221,28 @@ button, input, select, textarea { font: inherit; }
   .viewer-greeting, .dm-thread, .dm-inbox-head, .admin-header, .admin-dm-meta { align-items: stretch; flex-direction: column; }
   .dm-inbox-head button, .logout-link, .admin-header button { width: 100%; }
 }
+
+.admin-header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.admin-header-actions a { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.72); color: var(--text); padding: 0 16px; font-weight: 900; }
+.admin-content-shell { display: grid; gap: 14px; }
+.admin-content-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.admin-content-section { display: grid; gap: 12px; }
+.admin-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.admin-section-head h2 { margin: 0; font-size: 28px; font-weight: 900; }
+.admin-section-head button { min-height: 38px; border: 0; border-radius: 14px; background: var(--chzzk); color: #101814; padding: 0 14px; font-weight: 900; cursor: pointer; }
+.admin-edit-list { display: grid; gap: 12px; }
+.admin-edit-card { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.72); }
+.admin-edit-card label { display: grid; gap: 7px; color: var(--muted); font-size: 15px; font-weight: 900; }
+.admin-edit-card input, .admin-edit-card textarea { width: 100%; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.86); color: var(--text); padding: 12px 13px; outline: none; }
+.admin-edit-card input:focus, .admin-edit-card textarea:focus { border-color: rgba(0, 208, 132, 0.7); box-shadow: 0 0 0 4px rgba(0, 255, 163, 0.18); }
+.admin-edit-card textarea { resize: vertical; }
+.admin-edit-row { display: grid; gap: 10px; }
+.admin-edit-row.compact { grid-template-columns: 140px minmax(0, 1fr); }
+.admin-edit-row.schedule-row { grid-template-columns: 90px 120px minmax(0, 1fr); }
+.admin-danger { justify-self: end; min-height: 36px; border: 1px solid rgba(225,91,56,.22); border-radius: 12px; background: #fff0ec; color: #a33a22; padding: 0 14px; font-weight: 900; cursor: pointer; }
+
+@media (max-width: 700px) {
+  .admin-header-actions { width: 100%; justify-content: stretch; }
+  .admin-header-actions a, .admin-header-actions button { width: 100%; }
+  .admin-edit-row.compact, .admin-edit-row.schedule-row { grid-template-columns: 1fr; }
+}

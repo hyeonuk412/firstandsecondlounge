@@ -29,6 +29,25 @@ type DmThread = {
   messages: DmMessage[];
 };
 
+type NoticeItem = {
+  id?: string;
+  tag: string;
+  title: string;
+  body: string;
+};
+
+type ScheduleItem = {
+  id?: string;
+  day: string;
+  time: string;
+  title: string;
+};
+
+type LoungeContent = {
+  notices: NoticeItem[];
+  schedules: ScheduleItem[];
+};
+
 const categoryLabels: Record<string, string> = {
   support: "응원",
   question: "문의",
@@ -61,13 +80,13 @@ const quickLinks = [
   },
 ];
 
-const notices = [
+const DEFAULT_NOTICES: NoticeItem[] = [
   { tag: "공지", title: "팬 라운지 오픈", body: "방송 링크와 DM 창구를 먼저 열어두었어요." },
   { tag: "DM", title: "치지직 로그인 필요", body: "DM과 답변함은 치지직 계정 기준으로 연결됩니다." },
   { tag: "일정", title: "방송 일정 준비 중", body: "확정되는 일정부터 이곳에 업데이트합니다." },
 ];
 
-const schedules = [
+const DEFAULT_SCHEDULES: ScheduleItem[] = [
   { day: "화", time: "20:00", title: "소통 방송" },
   { day: "목", time: "20:00", title: "게임 방송" },
   { day: "토", time: "21:00", title: "팬 참여 방송" },
@@ -99,6 +118,30 @@ export default function Home() {
   const [isComposing, setIsComposing] = useState(false);
   const [dmThreads, setDmThreads] = useState<DmThread[]>([]);
   const [selectedThreadId, setSelectedThreadId] = useState("");
+  const [notices, setNotices] = useState<NoticeItem[]>(DEFAULT_NOTICES);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>(DEFAULT_SCHEDULES);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadContent() {
+      try {
+        const response = await fetch("/api/lounge-content", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as LoungeContent;
+        if (cancelled) return;
+        setNotices(payload.notices?.length ? payload.notices : DEFAULT_NOTICES);
+        setSchedules(payload.schedules?.length ? payload.schedules : DEFAULT_SCHEDULES);
+      } catch {
+        // Keep the built-in defaults if the editable content API is unavailable.
+      }
+    }
+
+    loadContent();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function loadDmThreads() {
     setLoadingDms(true);

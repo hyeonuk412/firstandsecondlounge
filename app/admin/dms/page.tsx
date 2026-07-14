@@ -125,7 +125,10 @@ export default function AdminDmsPage() {
           <h1>DM 관리</h1>
           <p>팬 라운지에서 들어온 DM을 확인하고 답변합니다.</p>
         </div>
-        {token ? <button type="button" onClick={handleLogout}>관리자 로그아웃</button> : null}
+        <div className="admin-header-actions">
+          <a href="/admin/content">{"\uACF5\uC9C0 / \uC2A4\uCF00\uC904"}</a>
+          {token ? <button type="button" onClick={handleLogout}>{"\uAD00\uB9AC\uC790 \uB85C\uADF8\uC544\uC6C3"}</button> : null}
+        </div>
       </header>
 
       {!token ? (
