@@ -1,5 +1,5 @@
-﻿import { readViewerSession } from "../auth/chzzk/session";
-import { createDmThread } from "./store";
+import { readViewerSession } from "../auth/chzzk/session";
+import { appendViewerDmThread, createDmThread } from "./store";
 
 const ALLOWED_CATEGORIES = new Set(["support", "question", "suggestion", "business", "etc"]);
 
@@ -9,9 +9,9 @@ export async function POST(request: Request) {
     return Response.json({ error: "CHZZK login is required" }, { status: 401 });
   }
 
-  let payload: { category?: string; message?: string };
+  let payload: { category?: string; message?: string; threadId?: string };
   try {
-    payload = (await request.json()) as { category?: string; message?: string };
+    payload = (await request.json()) as { category?: string; message?: string; threadId?: string };
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
@@ -23,6 +23,20 @@ export async function POST(request: Request) {
   }
   if (message.length > 2000) {
     return Response.json({ error: "message is too long" }, { status: 400 });
+  }
+
+  if (payload.threadId) {
+    const thread = appendViewerDmThread({
+      threadId: payload.threadId,
+      channelId: viewer.channelId,
+      message,
+    });
+
+    if (!thread) {
+      return Response.json({ error: "DM not found" }, { status: 404 });
+    }
+
+    return Response.json({ thread });
   }
 
   const thread = createDmThread({

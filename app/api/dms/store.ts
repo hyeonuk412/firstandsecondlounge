@@ -1,4 +1,4 @@
-﻿export type DmMessage = {
+export type DmMessage = {
   id: string;
   sender: "viewer" | "admin";
   message: string;
@@ -63,6 +63,26 @@ export function createDmThread(input: {
     ],
   };
   store().unshift(thread);
+  return thread;
+}
+
+export function appendViewerDmThread(input: {
+  threadId: string;
+  channelId: string;
+  message: string;
+}) {
+  const thread = store().find((item) => item.id === input.threadId && item.viewer.channelId === input.channelId);
+  if (!thread) return null;
+
+  const createdAt = now();
+  thread.messages.push({
+    id: crypto.randomUUID(),
+    sender: "viewer",
+    message: input.message,
+    createdAt,
+  });
+  thread.status = "waiting";
+  thread.updatedAt = createdAt;
   return thread;
 }
 

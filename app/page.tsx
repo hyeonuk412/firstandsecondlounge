@@ -98,6 +98,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [dmThreads, setDmThreads] = useState<DmThread[]>([]);
+  const [selectedThreadId, setSelectedThreadId] = useState("");
 
   async function loadDmThreads() {
     setLoadingDms(true);
@@ -139,6 +140,7 @@ export default function Home() {
       loadDmThreads();
     } else {
       setDmThreads([]);
+      setSelectedThreadId("");
     }
   }, [viewer]);
 
@@ -153,6 +155,7 @@ export default function Home() {
     if (!message) return;
 
     setError("");
+    setSent(false);
     const response = await fetch("/api/dms", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -166,8 +169,38 @@ export default function Home() {
 
     const payload = (await response.json()) as { thread: DmThread };
     setDmThreads((threads) => [payload.thread, ...threads]);
+    setSelectedThreadId(payload.thread.id);
     setSent(true);
     setIsComposing(false);
+    form.reset();
+  }
+
+  async function handleAppendSubmit(event: FormEvent<HTMLFormElement>, threadId: string) {
+    event.preventDefault();
+    if (!viewer) return;
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const message = String(formData.get("message") || "").trim();
+    if (!message) return;
+
+    setError("");
+    setSent(false);
+    const response = await fetch("/api/dms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ threadId, message }),
+    });
+
+    if (!response.ok) {
+      setError("DM\uC744 \uBCF4\uB0B4\uC9C0 \uBABB\uD588\uC5B4\uC694. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574\uC8FC\uC138\uC694.");
+      return;
+    }
+
+    const payload = (await response.json()) as { thread: DmThread };
+    setDmThreads((threads) => [payload.thread, ...threads.filter((thread) => thread.id !== payload.thread.id)]);
+    setSelectedThreadId(payload.thread.id);
+    setSent(true);
     form.reset();
   }
 
@@ -277,7 +310,7 @@ export default function Home() {
                   <strong>내 DM</strong>
                   <span>{dmThreads.length}개</span>
                 </div>
-                <button type="button" onClick={() => { setSent(false); setIsComposing((value) => !value); }}>
+                <button type="button" onClick={() => { setSent(false); setSelectedThreadId(""); setIsComposing((value) => !value); }}>
                   {isComposing ? "작성 닫기" : "새 DM 보내기"}
                 </button>
               </div>
@@ -288,15 +321,38 @@ export default function Home() {
                 ) : dmThreads.length > 0 ? (
                   dmThreads.map((thread) => {
                     const reply = latestAdminReply(thread);
+                    const isSelected = selectedThreadId === thread.id;
                     return (
-                      <article className="dm-thread" key={thread.id}>
-                        <div>
-                          <span>{categoryLabels[thread.category] || "기타"}</span>
-                          <strong>{firstViewerMessage(thread)}</strong>
-                          {reply ? <p className="dm-reply">답변: {reply.message}</p> : null}
-                          <small>{formatDate(thread.createdAt)}</small>
-                        </div>
-                        <em>{thread.status === "answered" ? "답변 완료" : "답변 대기"}</em>
+                      <article className="dm-thread-item" key={thread.id}>
+                        <button className={`dm-thread ${isSelected ? "selected" : ""}`} type="button" aria-expanded={isSelected} onClick={() => { setSent(false); setIsComposing(false); setSelectedThreadId(isSelected ? "" : thread.id); }}>
+                          <div>
+                            <span>{categoryLabels[thread.category] || "\uAE30\uD0C0"}</span>
+                            <strong>{firstViewerMessage(thread)}</strong>
+                            {reply ? <p className="dm-reply">{"\uB2F5\uBCC0: "}{reply.message}</p> : null}
+                            <small>{formatDate(thread.createdAt)}</small>
+                          </div>
+                          <em>{thread.status === "answered" ? "\uB2F5\uBCC0 \uC644\uB8CC" : "\uB2F5\uBCC0 \uB300\uAE30"}</em>
+                        </button>
+                        {isSelected ? (
+                          <div className="dm-thread-detail">
+                            <div className="dm-conversation">
+                              {thread.messages.map((message) => (
+                                <div className={`dm-bubble ${message.sender}`} key={message.id}>
+                                  <strong>{message.sender === "admin" ? "\uAD00\uB9AC\uC790" : viewer.nickname || viewer.channelName}</strong>
+                                  <p>{message.message}</p>
+                                  <small>{formatDate(message.createdAt)}</small>
+                                </div>
+                              ))}
+                            </div>
+                            <form className="dm-append-form" onSubmit={(event) => handleAppendSubmit(event, thread.id)}>
+                              <label>
+                                {"\uCD94\uAC00 DM"}
+                                <textarea name="message" placeholder={"\uC774 DM\uC5D0 \uC774\uC5B4\uC11C \uBCF4\uB0BC \uB0B4\uC6A9\uC744 \uC801\uC5B4\uC8FC\uC138\uC694."} rows={4} required />
+                              </label>
+                              <button type="submit">{"\uCD94\uAC00\uB85C \uBCF4\uB0B4\uAE30"}</button>
+                            </form>
+                          </div>
+                        ) : null}
                       </article>
                     );
                   })
@@ -308,7 +364,7 @@ export default function Home() {
                 )}
               </div>
 
-              {sent ? <p className="sent">DM이 도착했어요. 확인 후 필요한 경우 답변드릴게요.</p> : null}
+              {sent ? <p className="sent">{"DM\uC744 \uBC1C\uC1A1\uD588\uC5B4\uC694."}</p> : null}
               {error ? <p className="dm-error">{error}</p> : null}
 
               {isComposing ? (
