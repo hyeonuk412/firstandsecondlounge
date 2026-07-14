@@ -2348,3 +2348,72 @@ body {
 .notice-page-header h1 {
   font-size: clamp(24px, 3vw, 32px);
 }
+/* Typography polish */
+body {
+  font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.kicker,
+.topnav,
+.brand b,
+.brand small,
+.notice-hero-list time,
+.notice-list-page time,
+.dm-thread-time,
+.admin-thread-topline time,
+.admin-calendar-weekday {
+  font-weight: 700;
+}
+
+.hero h1,
+.notice-hero h1,
+.notice-page-header h1,
+.notice-detail-card h1,
+.dm-login-screen h1,
+.dm-sidebar-head h1,
+.dm-empty-chat h2,
+.admin-header h1,
+.admin-home-card strong {
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+.panel-head h2,
+.dm-copy h2,
+.notice-list h3,
+.notice-hero-list strong,
+.notice-list-page strong,
+.quick-card strong,
+.status-card strong,
+.dm-chat-head h2,
+.admin-section-head h2,
+.admin-date-heading h2,
+.admin-thread-name,
+.admin-chat-head h2,
+.admin-notice-list strong {
+  font-weight: 700;
+}
+
+.hero-text,
+.notice-list p,
+.quick-card small,
+.auth-card p,
+.dm-message-bubble p,
+.admin-chat-bubble p,
+.admin-message p,
+.notice-detail-body {
+  font-weight: 500;
+}
+
+button,
+.notice-back,
+.top-login-button,
+.chzzk-login-button,
+.dm-new-button,
+.dm-send-button,
+.admin-header-actions a,
+.admin-unified-tabs button {
+  font-weight: 700;
+}
