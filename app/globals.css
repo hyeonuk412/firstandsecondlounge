@@ -1353,3 +1353,11 @@ button, input, select, textarea { font: inherit; }
     white-space: normal;
   }
 }
+
+.dm-empty-chat.compact {
+  min-height: 100%;
+}
+
+.dm-empty-chat.compact button {
+  min-width: 140px;
+}

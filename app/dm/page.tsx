@@ -268,10 +268,7 @@ export default function DmPage() {
                 );
               })
             ) : (
-              <div className="dm-thread-placeholder">
-                <strong>아직 DM이 없어요.</strong>
-                <span>새 DM을 보내면 스레드가 만들어져요.</span>
-              </div>
+              <div className="dm-thread-placeholder">비어 있음</div>
             )}
           </div>
         </aside>
@@ -331,10 +328,7 @@ export default function DmPage() {
               </form>
             </>
           ) : (
-            <div className="dm-empty-chat">
-              <p className="kicker">THREAD</p>
-              <h2>스레드를 선택하거나 새 DM을 보내주세요.</h2>
-              <p>DM은 하나의 메시지 스레드 기준으로 이어집니다.</p>
+            <div className="dm-empty-chat compact">
               <button type="button" onClick={startCompose}>새 DM 보내기</button>
             </div>
           )}
@@ -346,3 +340,5 @@ export default function DmPage() {
     </main>
   );
 }
+
+
