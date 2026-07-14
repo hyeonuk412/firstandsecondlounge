@@ -3227,7 +3227,6 @@ body:has(.cc-home) {
 
 /* Font roles */
 .cc-brand-name b,
-.cc-hero-title,
 .cc-hero-kicker,
 .cc-card-head h2,
 .cc-link-label,
@@ -3308,7 +3307,13 @@ body:has(.cc-home) {
 .cc-hero-card {
   position: relative;
   overflow: hidden;
-  padding: clamp(28px, 4vw, 46px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 12px;
+  min-height: 150px;
+  padding: clamp(28px, 4vw, 44px);
   border-radius: 34px;
   background:
     radial-gradient(circle at 88% 12%, var(--cc-pink-soft), transparent 60%),
@@ -3316,8 +3321,9 @@ body:has(.cc-home) {
   box-shadow: var(--cc-shadow);
 }
 .cc-hero-kicker {
-  margin: 0 0 14px;
+  margin: 0;
   display: inline-block;
+  white-space: nowrap;
   padding: 7px 14px;
   border-radius: 999px;
   background: #fff;
@@ -3325,18 +3331,12 @@ body:has(.cc-home) {
   font-size: 15px;
   box-shadow: var(--cc-shadow-sm);
 }
-.cc-hero-title {
-  margin: 0;
-  font-size: clamp(38px, 6vw, 62px);
-  line-height: 1.04;
-  color: var(--cc-ink);
-}
 .cc-hero-sub {
-  margin: 16px 0 0;
-  max-width: 30ch;
-  font-size: clamp(16px, 2vw, 19px);
-  font-weight: 600;
-  color: var(--cc-ink-soft);
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(18px, 2.2vw, 22px);
+  font-weight: 700;
+  color: var(--cc-ink);
   line-height: 1.5;
 }
 /* ---- Live status card (cute sticker) ---- */
@@ -3409,7 +3409,6 @@ body:has(.cc-home) {
 }
 .cc-link-icon img { width: 38px; height: 38px; object-fit: contain; }
 .cc-link-label { font-size: 17px; color: var(--cc-ink); }
-.cc-link-emoji { position: absolute; top: 12px; right: 14px; font-size: 17px; opacity: 0.9; }
 .cc-link.chzzk .cc-link-icon { background: var(--cc-mint-soft); }
 .cc-link.youtube .cc-link-icon { background: var(--cc-coral-soft); }
 .cc-link.dm .cc-link-icon { background: var(--cc-lav-soft); }
@@ -3491,5 +3490,4 @@ body:has(.cc-home) {
   .cc-home { width: min(100% - 22px, 1080px); }
   .cc-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cc-top { justify-content: center; }
-  .cc-hero-title { font-size: 34px; }
 }

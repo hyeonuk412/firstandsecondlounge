@@ -45,10 +45,10 @@ export default async function Home() {
   const adminNicknames = content.settings?.adminNicknames?.length ? content.settings.adminNicknames : DEFAULT_ADMIN_NICKNAMES;
 
   const links = [
-    { label: "치지직 LIVE", href: CHZZK_LIVE, tone: "chzzk", icon: CHZZK_ICON, emoji: "📺" },
-    { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: YOUTUBE_ICON, emoji: "▶️" },
-    { label: "쪽지 DM", href: "/dm", tone: "dm", icon: MESSENGER_ICON, emoji: "💌" },
-    { label: "디스코드", href: discordUrl || "#", tone: "discord", icon: DISCORD_ICON, emoji: "💬" },
+    { label: "치지직 LIVE", href: CHZZK_LIVE, tone: "chzzk", icon: CHZZK_ICON },
+    { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: YOUTUBE_ICON },
+    { label: "쪽지 DM", href: "/dm", tone: "dm", icon: MESSENGER_ICON },
+    { label: "디스코드", href: discordUrl || "#", tone: "discord", icon: DISCORD_ICON },
   ];
 
   const topNotices = notices.slice().sort(byNewestNotice).slice(0, 3);
@@ -76,7 +76,6 @@ export default async function Home() {
       <section className="cc-hero">
         <div className="cc-hero-card">
           <p className="cc-hero-kicker">✨ 첫째와둘째 팬 라운지</p>
-          <h1 className="cc-hero-title">놀러 와요,<br />우리 라운지!</h1>
           <p className="cc-hero-sub">방송 소식부터 쪽지까지, 팬들을 위한 아지트예요 💛</p>
         </div>
         <LiveStatusCard />
@@ -95,7 +94,6 @@ export default async function Home() {
               <img src={link.icon} alt="" width="40" height="40" loading="lazy" decoding="async" />
             </span>
             <span className="cc-link-label">{link.label}</span>
-            <span className="cc-link-emoji" aria-hidden="true">{link.emoji}</span>
           </a>
         ))}
       </section>
