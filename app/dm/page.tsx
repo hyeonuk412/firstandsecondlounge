@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
@@ -92,11 +92,16 @@ export default function DmPage() {
     }
 
     loadDmThreads();
+    const timer = window.setInterval(() => {
+      loadDmThreads({ silent: true });
+    }, 5000);
+
+    return () => window.clearInterval(timer);
   }, [viewer]);
 
-  async function loadDmThreads() {
-    setLoadingDms(true);
-    setError("");
+  async function loadDmThreads(options?: { silent?: boolean }) {
+    if (!options?.silent) setLoadingDms(true);
+    if (!options?.silent) setError("");
     try {
       const response = await fetch("/api/dms/my", { cache: "no-store" });
       if (!response.ok) throw new Error("DM을 불러오지 못했어요.");
@@ -109,7 +114,7 @@ export default function DmPage() {
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "DM을 불러오지 못했어요.");
     } finally {
-      setLoadingDms(false);
+      if (!options?.silent) setLoadingDms(false);
     }
   }
 

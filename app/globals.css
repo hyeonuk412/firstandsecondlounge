@@ -16,8 +16,8 @@
   --line: rgba(36, 31, 40, 0.12);
   --surface: rgba(255, 255, 255, 0.76);
   --accent: #6d5dfc;
-  --chzzk: #00ffa3;
-  --chzzk-strong: #00d084;
+  --chzzk: #bdf4d1;
+  --chzzk-strong: #6fd69d;
   --mint: #0f8f82;
   --red: #e15b38;
   --shadow: 0 18px 48px rgba(64, 52, 92, 0.13);
@@ -2159,4 +2159,74 @@ button, input, select, textarea { font: inherit; }
   .admin-calendar-grid button {
     padding: 6px;
   }
+}
+/* Softer lounge green and contained DM scrolling */
+@media (min-width: 861px) {
+  .dm-page {
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+    padding: 18px 0;
+  }
+
+  .dm-layout {
+    height: calc(100vh - 96px);
+    min-height: 0;
+  }
+
+  .dm-sidebar,
+  .dm-chat-panel,
+  .dm-compose-view {
+    min-height: 0;
+  }
+
+  .dm-thread-list-panel,
+  .dm-message-list {
+    min-height: 0;
+    overscroll-behavior: contain;
+  }
+
+  .dm-compose-view {
+    overflow-y: auto;
+  }
+
+  .admin-messenger {
+    height: min(760px, calc(100vh - 250px));
+    min-height: 0;
+  }
+
+  .admin-messenger-sidebar,
+  .admin-chat-panel {
+    min-height: 0;
+  }
+
+  .admin-thread-list,
+  .admin-chat-messages {
+    min-height: 0;
+    overscroll-behavior: contain;
+  }
+}
+
+.dm-message-row.mine .dm-message-bubble,
+.admin-chat-row.mine .admin-chat-bubble {
+  background: #dff8e8;
+  border-color: rgba(111, 214, 157, 0.42);
+}
+
+.dm-sidebar-head button,
+.dm-empty-chat button,
+.dm-login-cta,
+.dm-new-form button,
+.dm-chat-input button,
+.admin-messenger-head button,
+.admin-chat-reply button,
+.admin-unified-tabs button.active,
+.top-login-button,
+.chzzk-login-button,
+.dm-form button,
+.dm-append-form button,
+.admin-toolbar button,
+.admin-section-head button {
+  background: var(--chzzk);
+  box-shadow: 0 10px 22px rgba(111, 214, 157, 0.16);
 }

@@ -285,9 +285,9 @@ export default function CheotdoolAdminClient() {
     }
   }
 
-  async function loadThreads() {
-    setDmLoading(true);
-    setDmError("");
+  async function loadThreads(options?: { silent?: boolean }) {
+    if (!options?.silent) setDmLoading(true);
+    if (!options?.silent) setDmError("");
     try {
       const response = await fetch("/api/admin/dms", { cache: "no-store" });
       if (!response.ok) throw new Error(response.status === 401 ? TEXT.wrongCode : TEXT.dmLoadError);
@@ -298,7 +298,7 @@ export default function CheotdoolAdminClient() {
     } catch (loadError) {
       setDmError(loadError instanceof Error ? loadError.message : TEXT.dmLoadError);
     } finally {
-      setDmLoading(false);
+      if (!options?.silent) setDmLoading(false);
     }
   }
 
@@ -306,6 +306,14 @@ export default function CheotdoolAdminClient() {
     loadContent();
     loadThreads();
   }, []);
+
+  useEffect(() => {
+    if (activePanel !== "home" && activePanel !== "dms") return;
+    const timer = window.setInterval(() => {
+      loadThreads({ silent: true });
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [activePanel]);
 
   async function saveContent() {
     const cleanSettings = {
