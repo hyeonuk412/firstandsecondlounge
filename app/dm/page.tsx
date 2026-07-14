@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
 
 type Viewer = {
   channelId: string;
@@ -55,7 +55,6 @@ export default function DmPage() {
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [isComposing, setIsComposing] = useState(false);
   const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
   const selectedThread = useMemo(
@@ -128,7 +127,6 @@ export default function DmPage() {
     if (!message) return;
 
     setSending(true);
-    setSent(false);
     setError("");
     try {
       const response = await fetch("/api/dms", {
@@ -141,7 +139,6 @@ export default function DmPage() {
       setThreads((current) => [payload.thread, ...current.filter((thread) => thread.id !== payload.thread.id)]);
       setSelectedThreadId(payload.thread.id);
       setIsComposing(false);
-      setSent(true);
       form.reset();
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
@@ -160,7 +157,6 @@ export default function DmPage() {
     if (!message) return;
 
     setSending(true);
-    setSent(false);
     setError("");
     try {
       const response = await fetch("/api/dms", {
@@ -172,7 +168,6 @@ export default function DmPage() {
       const payload = (await response.json()) as { thread: DmThread };
       setThreads((current) => [payload.thread, ...current.filter((thread) => thread.id !== payload.thread.id)]);
       setSelectedThreadId(payload.thread.id);
-      setSent(true);
       form.reset();
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
@@ -181,17 +176,21 @@ export default function DmPage() {
     }
   }
 
+  function submitTextareaOnEnter(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
+  }
+
   function startCompose() {
     setIsComposing(true);
     setSelectedThreadId("");
-    setSent(false);
     setError("");
   }
 
   function openThread(threadId: string) {
     setIsComposing(false);
     setSelectedThreadId(threadId);
-    setSent(false);
     setError("");
   }
 
@@ -281,7 +280,7 @@ export default function DmPage() {
               <form className="dm-new-form" onSubmit={handleCreate}>
                 <label>
                   DM 내용
-                  <textarea name="message" placeholder="첫째와둘째에게 전하고 싶은 내용을 적어주세요." rows={8} required />
+                  <textarea name="message" placeholder="첫째와둘째에게 전하고 싶은 내용을 적어주세요." rows={8} onKeyDown={submitTextareaOnEnter} required />
                 </label>
                 <button type="submit" disabled={sending}>{sending ? "보내는 중" : "DM 보내기"}</button>
               </form>
@@ -298,17 +297,19 @@ export default function DmPage() {
               <div className="dm-message-list" aria-label="DM 대화 내용">
                 {selectedThread.messages.map((message) => (
                   <article className={`dm-message-row ${message.sender === "viewer" ? "mine" : "theirs"}`} key={message.id}>
-                    <div className="dm-message-bubble">
-                      <strong>{message.sender === "viewer" ? viewer.nickname || viewer.channelName : "첫째와둘째"}</strong>
-                      <p>{message.message}</p>
-                      <time>{formatDate(message.createdAt)}</time>
+                    <div className="dm-message-stack">
+                      <strong className="dm-message-author">{message.sender === "viewer" ? viewer.nickname || viewer.channelName : "첫째와둘째"}</strong>
+                      <div className="dm-message-bubble">
+                        <p>{message.message}</p>
+                      </div>
+                      <time className="dm-message-time">{formatDate(message.createdAt)}</time>
                     </div>
                   </article>
                 ))}
               </div>
 
               <form className="dm-chat-input" onSubmit={handleAppend}>
-                <textarea name="message" placeholder="이 스레드에 이어서 DM 보내기" rows={2} required />
+                <textarea name="message" placeholder="이 스레드에 이어서 DM 보내기" rows={2} onKeyDown={submitTextareaOnEnter} required />
                 <button type="submit" disabled={sending}>{sending ? "전송 중" : "보내기"}</button>
               </form>
             </>
@@ -317,12 +318,9 @@ export default function DmPage() {
               <button type="button" onClick={startCompose}>새 DM 보내기</button>
             </div>
           )}
-
-          {sent ? <p className="dm-page-sent">DM을 발송했어요.</p> : null}
           {error ? <p className="dm-page-error">{error}</p> : null}
         </section>
       </section>
     </main>
   );
 }
-

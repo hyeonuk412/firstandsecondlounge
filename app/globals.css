@@ -2417,3 +2417,71 @@ button,
 .admin-unified-tabs button {
   font-weight: 700;
 }
+/* Compact messenger bubbles */
+.dm-message-stack,
+.admin-chat-stack {
+  display: grid;
+  gap: 4px;
+  max-width: min(68%, 520px);
+}
+
+.dm-message-row.mine .dm-message-stack,
+.admin-chat-row.mine .admin-chat-stack {
+  justify-items: end;
+  margin-left: auto;
+}
+
+.dm-message-row.theirs .dm-message-stack,
+.admin-chat-row.theirs .admin-chat-stack {
+  justify-items: start;
+  margin-right: auto;
+}
+
+.dm-message-author,
+.admin-chat-bubble-head strong {
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dm-message-row.mine .dm-message-author,
+.admin-chat-row.mine .admin-chat-bubble-head strong {
+  color: rgba(16, 24, 20, 0.54);
+}
+
+.dm-message-bubble,
+.admin-chat-bubble {
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 11px;
+  border-radius: 15px;
+  box-shadow: 0 6px 16px rgba(64, 52, 92, 0.05);
+}
+
+.dm-message-bubble p,
+.admin-chat-bubble p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.42;
+}
+
+.dm-message-time,
+.admin-chat-time {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.dm-message-row.mine .dm-message-time,
+.admin-chat-row.mine .admin-chat-time {
+  color: rgba(16, 24, 20, 0.48);
+}
+
+.admin-chat-bubble-head {
+  width: fit-content;
+  max-width: 100%;
+}

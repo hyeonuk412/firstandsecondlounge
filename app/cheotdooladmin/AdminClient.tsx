@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { KeyboardEvent, useEffect, useMemo, useState } from "react";
 
 type NoticeItem = {
   id: string;
@@ -354,6 +354,12 @@ export default function CheotdoolAdminClient() {
     setContentSaved(true);
   }
 
+  function submitTextareaOnEnter(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
+  }
+
   function openThread(threadId: string) {
     setSelectedThreadId(threadId);
     setEditingMessageId("");
@@ -550,25 +556,27 @@ export default function CheotdoolAdminClient() {
                     const isEditing = editingMessageId === message.id;
                     return (
                       <article className={`admin-chat-row ${isAdminMessage ? "mine" : "theirs"}`} key={message.id}>
-                        <div className="admin-chat-bubble">
+                        <div className="admin-chat-stack">
                           <div className="admin-chat-bubble-head">
                             <strong>{isAdminMessage ? TEXT.admin : selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong>
                             {isAdminMessage && !isEditing ? <button type="button" onClick={() => startEdit(message)}>{TEXT.edit}</button> : null}
                           </div>
-                          {isEditing ? (
-                            <div className="admin-edit-reply in-chat">
-                              <textarea value={editDrafts[message.id] || ""} onChange={(event) => setEditDrafts((drafts) => ({ ...drafts, [message.id]: event.target.value }))} rows={3} />
-                              <div><button type="button" onClick={() => submitEditReply(selectedThread.id, message.id)}>{TEXT.editSave}</button><button type="button" className="secondary" onClick={() => setEditingMessageId("")}>{TEXT.cancel}</button></div>
-                            </div>
-                          ) : <p>{message.message}</p>}
-                          <time>{formatDate(message.createdAt)}</time>
+                          <div className="admin-chat-bubble">
+                            {isEditing ? (
+                              <div className="admin-edit-reply in-chat">
+                                <textarea value={editDrafts[message.id] || ""} onChange={(event) => setEditDrafts((drafts) => ({ ...drafts, [message.id]: event.target.value }))} rows={3} />
+                                <div><button type="button" onClick={() => submitEditReply(selectedThread.id, message.id)}>{TEXT.editSave}</button><button type="button" className="secondary" onClick={() => setEditingMessageId("")}>{TEXT.cancel}</button></div>
+                              </div>
+                            ) : <p>{message.message}</p>}
+                          </div>
+                          <time className="admin-chat-time">{formatDate(message.createdAt)}</time>
                         </div>
                       </article>
                     );
                   })}
                 </div>
                 <form className="admin-chat-reply" onSubmit={(event) => { event.preventDefault(); submitReply(selectedThread.id); }}>
-                  <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} placeholder={TEXT.replyPlaceholder} rows={2} />
+                  <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} onKeyDown={submitTextareaOnEnter} placeholder={TEXT.replyPlaceholder} rows={2} />
                   <button type="submit">{TEXT.replySave}</button>
                 </form>
               </>
