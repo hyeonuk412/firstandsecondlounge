@@ -1,0 +1,40 @@
+﻿import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getLoungeContent } from "../../api/lounge-content/store";
+
+export const dynamic = "force-dynamic";
+
+function noticeDate(value?: string) {
+  if (!value) return "날짜 미정";
+  const date = new Date(value + "T00:00:00");
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+export default async function NoticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const notice = getLoungeContent().notices.find((item) => item.id === decodeURIComponent(id));
+  if (!notice) notFound();
+
+  return (
+    <main className="notice-page">
+      <header className="notice-page-header">
+        <div>
+          <p className="kicker">NOTICE</p>
+          <h1>공지 상세</h1>
+        </div>
+        <Link className="notice-back" href="/notices">목록으로</Link>
+      </header>
+
+      <article className="notice-detail-card">
+        <time className="notice-detail-date">{noticeDate(notice.date)}</time>
+        <h1>{notice.title}</h1>
+        <div className="notice-detail-body">{notice.body}</div>
+      </article>
+    </main>
+  );
+}

@@ -3,6 +3,7 @@
   tag: string;
   title: string;
   body: string;
+  date: string;
 };
 
 export type ScheduleItem = {
@@ -24,9 +25,9 @@ export type LoungeContent = {
 };
 
 const DEFAULT_NOTICES: NoticeItem[] = [
-  { id: "notice-open", tag: "\uACF5\uC9C0", title: "\uD32C \uB77C\uC6B4\uC9C0 \uC624\uD508", body: "\uBC29\uC1A1 \uB9C1\uD06C\uC640 DM \uCC3D\uAD6C\uB97C \uBA3C\uC800 \uC5F4\uC5B4\uB450\uC5C8\uC5B4\uC694." },
-  { id: "notice-login", tag: "DM", title: "\uCE58\uC9C0\uC9C1 \uB85C\uADF8\uC778 \uD544\uC694", body: "DM\uACFC \uB2F5\uBCC0\uD568\uC740 \uCE58\uC9C0\uC9C1 \uACC4\uC815 \uAE30\uC900\uC73C\uB85C \uC5F0\uACB0\uB429\uB2C8\uB2E4." },
-  { id: "notice-schedule", tag: "\uC77C\uC815", title: "\uBC29\uC1A1 \uC77C\uC815 \uC900\uBE44 \uC911", body: "\uD655\uC815\uB418\uB294 \uC77C\uC815\uBD80\uD130 \uC774\uACF3\uC5D0 \uC5C5\uB370\uC774\uD2B8\uD569\uB2C8\uB2E4." },
+  { id: "notice-open", tag: "\uACF5\uC9C0", title: "\uD32C \uB77C\uC6B4\uC9C0 \uC624\uD508", body: "\uBC29\uC1A1 \uB9C1\uD06C\uC640 DM \uCC3D\uAD6C\uB97C \uBA3C\uC800 \uC5F4\uC5B4\uB450\uC5C8\uC5B4\uC694.", date: "2026-07-14" },
+  { id: "notice-login", tag: "DM", title: "\uCE58\uC9C0\uC9C1 \uB85C\uADF8\uC778 \uD544\uC694", body: "DM\uACFC \uB2F5\uBCC0\uD568\uC740 \uCE58\uC9C0\uC9C1 \uACC4\uC815 \uAE30\uC900\uC73C\uB85C \uC5F0\uACB0\uB429\uB2C8\uB2E4.", date: "2026-07-14" },
+  { id: "notice-schedule", tag: "\uC77C\uC815", title: "\uBC29\uC1A1 \uC77C\uC815 \uC900\uBE44 \uC911", body: "\uD655\uC815\uB418\uB294 \uC77C\uC815\uBD80\uD130 \uC774\uACF3\uC5D0 \uC5C5\uB370\uC774\uD2B8\uD569\uB2C8\uB2E4.", date: "2026-07-14" },
 ];
 
 const DEFAULT_LINKS: LinkSettings = {
@@ -76,13 +77,15 @@ function cleanNotice(item: unknown, index: number): NoticeItem | null {
   const value = item as Partial<NoticeItem>;
   const tag = cleanText(value.tag, 12) || "\uACF5\uC9C0";
   const title = cleanText(value.title, 80);
-  const body = cleanText(value.body, 280);
+  const body = cleanText(value.body, 2000);
+  const date = cleanText(value.date, 20) || now().slice(0, 10);
   if (!title && !body) return null;
   return {
     id: cleanText(value.id, 80) || crypto.randomUUID() || "notice-" + Date.now() + "-" + index,
     tag,
     title: title || "\uC81C\uBAA9 \uC5C6\uC74C",
     body,
+    date,
   };
 }
 
@@ -105,7 +108,7 @@ export function getLoungeContent() {
 }
 
 export function updateLoungeContent(input: { notices?: unknown[]; schedules?: unknown[]; links?: unknown }) {
-  const notices = Array.isArray(input.notices) ? input.notices.map(cleanNotice).filter((item): item is NoticeItem => Boolean(item)).slice(0, 8) : DEFAULT_NOTICES;
+  const notices = Array.isArray(input.notices) ? input.notices.map(cleanNotice).filter((item): item is NoticeItem => Boolean(item)).slice(0, 100) : DEFAULT_NOTICES;
   const schedules = Array.isArray(input.schedules) ? input.schedules.map(cleanSchedule).filter((item): item is ScheduleItem => Boolean(item)).slice(0, 8) : DEFAULT_SCHEDULES;
   const links = cleanLinks(input.links);
 

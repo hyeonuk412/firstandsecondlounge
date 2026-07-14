@@ -7,6 +7,7 @@ type NoticeItem = {
   tag: string;
   title: string;
   body: string;
+  date: string;
 };
 
 type ScheduleItem = {
@@ -53,6 +54,7 @@ const TEXT = {
   tag: "\uD0DC\uADF8",
   noticeTitle: "\uC81C\uBAA9",
   noticeBody: "\uB0B4\uC6A9",
+  noticeDate: "\uB0A0\uC9DC",
   day: "\uC694\uC77C",
   time: "\uC2DC\uAC04",
   scheduleTitle: "\uC77C\uC815\uBA85",
@@ -66,7 +68,7 @@ function newId(prefix: string) {
 }
 
 function emptyNotice(): NoticeItem {
-  return { id: newId("notice"), tag: "\uACF5\uC9C0", title: "", body: "" };
+  return { id: newId("notice"), tag: "\uACF5\uC9C0", title: "", body: "", date: new Date().toISOString().slice(0, 10) };
 }
 
 function emptySchedule(): ScheduleItem {
@@ -213,9 +215,10 @@ export default function AdminContentPage() {
               <div className="admin-edit-list">
                 {notices.map((notice, index) => (
                   <article className="admin-edit-card" key={notice.id}>
-                    <div className="admin-edit-row compact">
+                    <div className="admin-edit-row notice-row">
                       <label>{TEXT.tag}<input value={notice.tag} onChange={(event) => setNotices((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, tag: event.target.value } : item))} /></label>
                       <label>{TEXT.noticeTitle}<input value={notice.title} onChange={(event) => setNotices((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, title: event.target.value } : item))} /></label>
+                      <label>{TEXT.noticeDate}<input type="date" value={notice.date || ""} onChange={(event) => setNotices((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, date: event.target.value } : item))} /></label>
                     </div>
                     <label>{TEXT.noticeBody}<textarea rows={4} value={notice.body} onChange={(event) => setNotices((items) => items.map((item, itemIndex) => itemIndex === index ? { ...item, body: event.target.value } : item))} /></label>
                     <button className="admin-danger" type="button" onClick={() => setNotices((items) => items.filter((_, itemIndex) => itemIndex !== index))}>{TEXT.delete}</button>
