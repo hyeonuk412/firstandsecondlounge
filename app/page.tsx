@@ -78,11 +78,6 @@ export default async function Home() {
           <p className="cc-hero-kicker">✨ 첫째와둘째 팬 라운지</p>
           <h1 className="cc-hero-title">놀러 와요,<br />우리 라운지!</h1>
           <p className="cc-hero-sub">방송 소식부터 쪽지까지, 팬들을 위한 아지트예요 💛</p>
-          <div className="cc-hero-tags" aria-hidden="true">
-            <span>🐣 첫째</span>
-            <span>🐥 둘째</span>
-            <span>💚 치지직</span>
-          </div>
         </div>
         <LiveStatusCard />
       </section>

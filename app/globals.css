@@ -3339,14 +3339,6 @@ body:has(.cc-home) {
   color: var(--cc-ink-soft);
   line-height: 1.5;
 }
-.cc-hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
-.cc-hero-tags span {
-  padding: 8px 14px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.8);
-  font-size: 14px; font-weight: 800; color: var(--cc-ink);
-  box-shadow: var(--cc-shadow-sm);
-}
-
 /* ---- Live status card (cute sticker) ---- */
 .cc-live {
   display: flex;
