@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type Viewer = {
   channelId: string;
@@ -61,6 +61,12 @@ export default function DmPage() {
     () => threads.find((thread) => thread.id === selectedThreadId) || null,
     [threads, selectedThreadId],
   );
+
+  const messageListRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = messageListRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [selectedThreadId, selectedThread?.messages.length]);
 
   useEffect(() => {
     let cancelled = false;
@@ -294,7 +300,7 @@ export default function DmPage() {
                 <em>{selectedThread.status === "answered" ? "답변 완료" : "답변 대기"}</em>
               </div>
 
-              <div className="dm-message-list" aria-label="DM 대화 내용">
+              <div className="dm-message-list" aria-label="DM 대화 내용" ref={messageListRef}>
                 {selectedThread.messages.map((message) => (
                   <article className={`dm-message-row ${message.sender === "viewer" ? "mine" : "theirs"}`} key={message.id}>
                     <div className="dm-message-stack">

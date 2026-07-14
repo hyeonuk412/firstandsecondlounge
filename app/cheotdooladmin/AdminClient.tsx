@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent, useEffect, useMemo, useState } from "react";
+import { KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 
 type NoticeItem = {
   id: string;
@@ -277,6 +277,12 @@ export default function CheotdoolAdminClient() {
     () => threads.find((thread) => thread.id === selectedThreadId) || null,
     [threads, selectedThreadId],
   );
+
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = chatMessagesRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [selectedThreadId, selectedThread?.messages.length]);
 
   async function loadContent() {
     setContentLoading(true);
@@ -562,7 +568,7 @@ export default function CheotdoolAdminClient() {
                   </div>
                   <em className={selectedThread.status === "waiting" ? "waiting" : ""}>{selectedThread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
                 </div>
-                <div className="admin-chat-messages" aria-label="DM 대화 내용">
+                <div className="admin-chat-messages" aria-label="DM 대화 내용" ref={chatMessagesRef}>
                   {selectedThread.messages.map((message) => {
                     const isAdminMessage = message.sender === "admin";
                     const isEditing = editingMessageId === message.id;
@@ -608,7 +614,7 @@ export default function CheotdoolAdminClient() {
           {contentError ? <p className="dm-error">{contentError}</p> : null}
           <div className="admin-notice-manager">
             <section className="admin-notice-list-panel">
-              <div className="admin-section-head"><h2>{TEXT.notices}</h2><button type="button" onClick={addNotice}>{TEXT.addNotice}</button></div>
+              <div className="admin-section-head"><h2>목록</h2><button type="button" onClick={addNotice}>{TEXT.addNotice}</button></div>
               <div className="admin-notice-list">
                 {sortedNoticeItems.length ? sortedNoticeItems.map((notice) => (
                   <button className={selectedNotice?.id === notice.id ? "active" : ""} type="button" onClick={() => setSelectedNoticeId(notice.id)} key={notice.id}>
