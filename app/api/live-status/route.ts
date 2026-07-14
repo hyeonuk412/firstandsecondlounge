@@ -18,6 +18,11 @@ type ChzzkLiveDetail = {
   } | null;
 };
 
+function thumbnailUrl(value?: string | null) {
+  if (!value) return null;
+  return value.replace(/\{type\}/g, "1080");
+}
+
 function isLive(content: NonNullable<ChzzkLiveDetail["content"]>) {
   const status = String(content.status || "").toUpperCase();
   if (["CLOSE", "CLOSED", "ENDED", "FINISH", "NONE"].includes(status)) return false;
@@ -47,7 +52,7 @@ export async function GET() {
       title: live ? content?.liveTitle || null : null,
       viewerCount: live ? content?.concurrentUserCount ?? null : null,
       category: live ? content?.liveCategoryValue || content?.liveCategory || null : null,
-      thumbnailUrl: live ? content?.liveImageUrl || content?.defaultThumbnailImageUrl || null : null,
+      thumbnailUrl: live ? thumbnailUrl(content?.liveImageUrl || content?.defaultThumbnailImageUrl) : null,
       openDate: live ? content?.openDate || null : null,
       checkedAt: new Date().toISOString(),
     }, { headers: { "Cache-Control": "no-store" } });
