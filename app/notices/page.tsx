@@ -1,9 +1,7 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { getLoungeContent, type NoticeItem } from "../api/lounge-content/store";
 
-export const dynamic = "force-dynamic";
-
-const PAGE_SIZE = 10;
+export const revalidate = 10;
 
 function noticeDate(value?: string) {
   if (!value) return "날짜 미정";
@@ -20,41 +18,29 @@ function byNewest(a: NoticeItem, b: NoticeItem) {
   return (b.date || "").localeCompare(a.date || "");
 }
 
-export default async function NoticesPage({ searchParams }: { searchParams?: Promise<{ page?: string }> }) {
-  const params = await searchParams;
+export default async function NoticesPage() {
   const content = await getLoungeContent();
   const notices = content.notices.slice().sort(byNewest);
-  const requestedPage = Number(params?.page || "1");
-  const totalPages = Math.max(1, Math.ceil(notices.length / PAGE_SIZE));
-  const page = Math.min(Math.max(Number.isFinite(requestedPage) ? requestedPage : 1, 1), totalPages);
-  const visibleNotices = notices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <main className="notice-page">
-      <header className="notice-page-header">
+      <header className="notice-page-header compact">
         <div>
           <p className="kicker">NOTICE</p>
           <h1>공지</h1>
-          <p>첫째와둘째 팬 라운지 공지 목록입니다.</p>
         </div>
-        <Link className="notice-back" href="/">라운지로</Link>
+        <a className="notice-back" href="/">라운지로</a>
       </header>
 
       <section className="notice-list-page" aria-label="공지 목록">
-        {visibleNotices.map((notice) => (
-          <Link href={`/notices/${encodeURIComponent(notice.id)}`} key={notice.id}>
+        {notices.map((notice) => (
+          <a href={`/notices/${encodeURIComponent(notice.id)}`} key={notice.id}>
             <strong>{notice.title}</strong>
             <time>{noticeDate(notice.date)}</time>
-          </Link>
+          </a>
         ))}
+        {!notices.length ? <p className="home-empty-line">등록된 공지가 없어요.</p> : null}
       </section>
-
-      <nav className="notice-pager" aria-label="공지 페이지 이동">
-        {page > 1 ? <Link href={`/notices?page=${page - 1}`}>이전</Link> : <span>이전</span>}
-        <span>{page} / {totalPages}</span>
-        {page < totalPages ? <Link href={`/notices?page=${page + 1}`}>다음</Link> : <span>다음</span>}
-      </nav>
     </main>
   );
 }
-

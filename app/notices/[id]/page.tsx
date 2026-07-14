@@ -1,9 +1,14 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLoungeContent } from "../../api/lounge-content/store";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 10;
 
+
+export async function generateStaticParams() {
+  const content = await getLoungeContent();
+  return content.notices.map((notice) => ({ id: notice.id }));
+}
 function noticeDate(value?: string) {
   if (!value) return "날짜 미정";
   const date = new Date(value + "T00:00:00");
@@ -28,7 +33,7 @@ export default async function NoticeDetailPage({ params }: { params: Promise<{ i
           <p className="kicker">NOTICE</p>
           <h1>공지 상세</h1>
         </div>
-        <Link className="notice-back" href="/notices">목록으로</Link>
+        <a className="notice-back" href="/notices">목록으로</a>
       </header>
 
       <article className="notice-detail-card">
@@ -39,4 +44,3 @@ export default async function NoticeDetailPage({ params }: { params: Promise<{ i
     </main>
   );
 }
-
