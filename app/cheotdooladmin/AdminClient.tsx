@@ -31,11 +31,14 @@ type LoungeContent = {
   updatedAt: string;
 };
 
+type DmAttachment = { url: string; name: string; type: string };
+
 type DmMessage = {
   id: string;
   sender: "viewer" | "admin";
   message: string;
   createdAt: string;
+  attachment?: DmAttachment;
 };
 
 type DmThread = {
@@ -552,7 +555,16 @@ export default function CheotdoolAdminClient() {
                             <strong>{isAdminMessage ? TEXT.admin : selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong>
                           </div>
                           <div className="admin-chat-bubble">
-                            <p>{message.message}</p>
+                            {message.message ? <p>{message.message}</p> : null}
+                            {message.attachment ? (
+                              message.attachment.type.startsWith("image/") ? (
+                                <a className="admin-chat-attach" href={message.attachment.url} target="_blank" rel="noreferrer">
+                                  <img src={message.attachment.url} alt={message.attachment.name} loading="lazy" />
+                                </a>
+                              ) : (
+                                <a className="admin-chat-attach-file" href={message.attachment.url} target="_blank" rel="noreferrer">📎 {message.attachment.name}</a>
+                              )
+                            ) : null}
                           </div>
                           <time className="admin-chat-time">{formatDate(message.createdAt)}</time>
                         </div>

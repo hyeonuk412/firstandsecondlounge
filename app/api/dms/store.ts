@@ -1,11 +1,30 @@
 ﻿import { hasFirebaseConfig, firestore } from "../firebase";
 
+export type DmAttachment = {
+  url: string;
+  name: string;
+  type: string;
+};
+
 export type DmMessage = {
   id: string;
   sender: "viewer" | "admin";
   message: string;
   createdAt: string;
+  attachment?: DmAttachment;
 };
+
+function normalizeAttachment(value: unknown): DmAttachment | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const a = value as Partial<DmAttachment>;
+  if (!a.url) return undefined;
+  return { url: String(a.url), name: String(a.name || ""), type: String(a.type || "") };
+}
+
+function buildMessage(sender: "viewer" | "admin", message: string, createdAt: string, attachment?: DmAttachment): DmMessage {
+  const base: DmMessage = { id: crypto.randomUUID(), sender, message, createdAt };
+  return attachment ? { ...base, attachment } : base;
+}
 
 export type DmThread = {
   id: string;
@@ -52,12 +71,16 @@ function normalizeThread(data: FirebaseFirestore.DocumentData | undefined, fallb
     status: data.status === "answered" ? "answered" : "waiting",
     createdAt: String(data.createdAt || now()),
     updatedAt: String(data.updatedAt || data.createdAt || now()),
-    messages: messages.map((message: Partial<DmMessage>) => ({
-      id: String(message.id || crypto.randomUUID()),
-      sender: message.sender === "admin" ? "admin" : "viewer",
-      message: String(message.message || ""),
-      createdAt: String(message.createdAt || now()),
-    })),
+    messages: messages.map((message: Partial<DmMessage>) => {
+      const attachment = normalizeAttachment(message.attachment);
+      const base: DmMessage = {
+        id: String(message.id || crypto.randomUUID()),
+        sender: message.sender === "admin" ? "admin" : "viewer",
+        message: String(message.message || ""),
+        createdAt: String(message.createdAt || now()),
+      };
+      return attachment ? { ...base, attachment } : base;
+    }),
   };
 }
 
@@ -87,6 +110,7 @@ export async function createDmThread(input: {
   viewer: DmThread["viewer"];
   category: string;
   message: string;
+  attachment?: DmAttachment;
 }) {
   const createdAt = now();
   const thread: DmThread = {
@@ -96,14 +120,7 @@ export async function createDmThread(input: {
     status: "waiting",
     createdAt,
     updatedAt: createdAt,
-    messages: [
-      {
-        id: crypto.randomUUID(),
-        sender: "viewer",
-        message: input.message,
-        createdAt,
-      },
-    ],
+    messages: [buildMessage("viewer", input.message, createdAt, input.attachment)],
   };
 
   if (!hasFirebaseConfig()) {
@@ -119,12 +136,13 @@ export async function appendViewerDmThread(input: {
   threadId: string;
   channelId: string;
   message: string;
+  attachment?: DmAttachment;
 }) {
   if (!hasFirebaseConfig()) {
     const thread = memoryStore().find((item) => item.id === input.threadId && item.viewer.channelId === input.channelId);
     if (!thread) return null;
     const createdAt = now();
-    thread.messages.push({ id: crypto.randomUUID(), sender: "viewer", message: input.message, createdAt });
+    thread.messages.push(buildMessage("viewer", input.message, createdAt, input.attachment));
     thread.status = "waiting";
     thread.updatedAt = createdAt;
     return thread;
@@ -141,7 +159,7 @@ export async function appendViewerDmThread(input: {
       ...thread,
       status: "waiting",
       updatedAt: createdAt,
-      messages: [...thread.messages, { id: crypto.randomUUID(), sender: "viewer", message: input.message, createdAt }],
+      messages: [...thread.messages, buildMessage("viewer", input.message, createdAt, input.attachment)],
     };
     transaction.set(ref, next);
     return next;
@@ -171,12 +189,12 @@ export async function updateAdminDmReply(threadId: string, messageId: string, me
   });
 }
 
-export async function replyDmThread(threadId: string, message: string) {
+export async function replyDmThread(threadId: string, message: string, attachment?: DmAttachment) {
   if (!hasFirebaseConfig()) {
     const thread = memoryStore().find((item) => item.id === threadId);
     if (!thread) return null;
     const createdAt = now();
-    thread.messages.push({ id: crypto.randomUUID(), sender: "admin", message, createdAt });
+    thread.messages.push(buildMessage("admin", message, createdAt, attachment));
     thread.status = "answered";
     thread.updatedAt = createdAt;
     return thread;
@@ -193,7 +211,7 @@ export async function replyDmThread(threadId: string, message: string) {
       ...thread,
       status: "answered",
       updatedAt: createdAt,
-      messages: [...thread.messages, { id: crypto.randomUUID(), sender: "admin", message, createdAt }],
+      messages: [...thread.messages, buildMessage("admin", message, createdAt, attachment)],
     };
     transaction.set(ref, next);
     return next;

@@ -9,12 +9,39 @@ type Viewer = {
   verifiedAt: string;
 };
 
+type DmAttachment = { url: string; name: string; type: string };
+
 type DmMessage = {
   id: string;
   sender: "viewer" | "admin";
   message: string;
   createdAt: string;
+  attachment?: DmAttachment;
 };
+
+async function uploadAttachment(file: File): Promise<DmAttachment | null> {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch("/api/dms/upload", { method: "POST", body: form });
+  if (!response.ok) return null;
+  return (await response.json()) as DmAttachment;
+}
+
+function AttachmentView({ attachment }: { attachment: DmAttachment }) {
+  const isImage = attachment.type.startsWith("image/");
+  if (isImage) {
+    return (
+      <a className="dm-attach" href={attachment.url} target="_blank" rel="noreferrer">
+        <img src={attachment.url} alt={attachment.name} loading="lazy" />
+      </a>
+    );
+  }
+  return (
+    <a className="dm-attach-file" href={attachment.url} target="_blank" rel="noreferrer">
+      <span aria-hidden="true">📎</span> {attachment.name}
+    </a>
+  );
+}
 
 type DmThread = {
   id: string;
@@ -67,6 +94,9 @@ export default function DmPage() {
     const el = messageListRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [selectedThreadId, selectedThread?.messages.length]);
+
+  const [newAttachName, setNewAttachName] = useState("");
+  const [replyAttachName, setReplyAttachName] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -130,15 +160,22 @@ export default function DmPage() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const message = String(formData.get("message") || "").trim();
-    if (!message) return;
+    const file = formData.get("file");
+    const hasFile = file instanceof File && file.size > 0;
+    if (!message && !hasFile) return;
 
     setSending(true);
     setError("");
     try {
+      let attachment: DmAttachment | null = null;
+      if (hasFile) {
+        attachment = await uploadAttachment(file);
+        if (!attachment) throw new Error("첨부 파일을 올리지 못했어요. (이미지·PDF, 8MB 이하)");
+      }
       const response = await fetch("/api/dms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, attachment }),
       });
       if (!response.ok) throw new Error("DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
       const payload = (await response.json()) as { thread: DmThread };
@@ -146,6 +183,7 @@ export default function DmPage() {
       setSelectedThreadId(payload.thread.id);
       setIsComposing(false);
       form.reset();
+      setNewAttachName("");
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
     } finally {
@@ -160,21 +198,29 @@ export default function DmPage() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const message = String(formData.get("message") || "").trim();
-    if (!message) return;
+    const file = formData.get("file");
+    const hasFile = file instanceof File && file.size > 0;
+    if (!message && !hasFile) return;
 
     setSending(true);
     setError("");
     try {
+      let attachment: DmAttachment | null = null;
+      if (hasFile) {
+        attachment = await uploadAttachment(file);
+        if (!attachment) throw new Error("첨부 파일을 올리지 못했어요. (이미지·PDF, 8MB 이하)");
+      }
       const response = await fetch("/api/dms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ threadId: selectedThread.id, message }),
+        body: JSON.stringify({ threadId: selectedThread.id, message, attachment }),
       });
       if (!response.ok) throw new Error("DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
       const payload = (await response.json()) as { thread: DmThread };
       setThreads((current) => [payload.thread, ...current.filter((thread) => thread.id !== payload.thread.id)]);
       setSelectedThreadId(payload.thread.id);
       form.reset();
+      setReplyAttachName("");
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
     } finally {
@@ -286,7 +332,11 @@ export default function DmPage() {
               <form className="dm-new-form" onSubmit={handleCreate}>
                 <label>
                   DM 내용
-                  <textarea name="message" placeholder="첫째와둘째에게 전하고 싶은 내용을 적어주세요." rows={8} onKeyDown={submitTextareaOnEnter} required />
+                  <textarea name="message" placeholder="첫째와둘째에게 전하고 싶은 내용을 적어주세요." rows={8} onKeyDown={submitTextareaOnEnter} />
+                </label>
+                <label className="dm-attach-btn">
+                  <span aria-hidden="true">📎</span> {newAttachName || "사진·파일 첨부 (이미지·PDF, 8MB)"}
+                  <input type="file" name="file" accept="image/*,application/pdf" hidden onChange={(event) => setNewAttachName(event.target.files?.[0]?.name || "")} />
                 </label>
                 <button type="submit" disabled={sending}>{sending ? "보내는 중" : "DM 보내기"}</button>
               </form>
@@ -306,7 +356,8 @@ export default function DmPage() {
                     <div className="dm-message-stack">
                       <strong className="dm-message-author">{message.sender === "viewer" ? viewer.nickname || viewer.channelName : "첫째와둘째"}</strong>
                       <div className="dm-message-bubble">
-                        <p>{message.message}</p>
+                        {message.message ? <p>{message.message}</p> : null}
+                        {message.attachment ? <AttachmentView attachment={message.attachment} /> : null}
                       </div>
                       <time className="dm-message-time">{formatDate(message.createdAt)}</time>
                     </div>
@@ -315,7 +366,12 @@ export default function DmPage() {
               </div>
 
               <form className="dm-chat-input" onSubmit={handleAppend}>
-                <textarea name="message" placeholder="이 스레드에 이어서 DM 보내기" rows={2} onKeyDown={submitTextareaOnEnter} required />
+                {replyAttachName ? <span className="dm-attach-chip"><span aria-hidden="true">📎</span> {replyAttachName}</span> : null}
+                <label className="dm-attach-icon" title="파일 첨부 (이미지·PDF)">
+                  📎
+                  <input type="file" name="file" accept="image/*,application/pdf" hidden onChange={(event) => setReplyAttachName(event.target.files?.[0]?.name || "")} />
+                </label>
+                <textarea name="message" placeholder="이 스레드에 이어서 DM 보내기" rows={2} onKeyDown={submitTextareaOnEnter} />
                 <button type="submit" disabled={sending}>{sending ? "전송 중" : "보내기"}</button>
               </form>
             </>
