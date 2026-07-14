@@ -281,3 +281,10 @@ button, input, select, textarea { font: inherit; }
 .dm-thread:focus-visible { outline: 3px solid rgba(0,255,163,.3); outline-offset: 4px; border-radius: 12px; }
 .dm-thread-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .dm-thread-detail-head strong { color: var(--text); font-size: 18px; font-weight: 900; }
+
+.status-card.is-live { background: #101814; box-shadow: 0 22px 58px rgba(0, 208, 132, 0.18); }
+.status-card.is-live strong { color: #fff; }
+.status-pill.live { display: inline-flex; align-items: center; gap: 8px; background: var(--chzzk); color: #101814; box-shadow: 0 0 0 6px rgba(0, 255, 163, 0.12), 0 0 28px rgba(0, 255, 163, 0.32); }
+.status-pill.live::before { content: ""; width: 8px; height: 8px; border-radius: 999px; background: #101814; box-shadow: 0 0 12px rgba(16, 24, 20, 0.7); }
+.live-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.live-meta span { display: inline-flex; align-items: center; min-height: 30px; border-radius: 999px; background: rgba(255,255,255,.1); color: rgba(255,255,255,.78); padding: 0 11px; font-size: 14px; font-weight: 900; }

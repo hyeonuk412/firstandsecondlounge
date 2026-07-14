@@ -48,6 +48,14 @@ type LoungeContent = {
   schedules: ScheduleItem[];
 };
 
+type LiveStatus = {
+  live: boolean;
+  title?: string | null;
+  viewerCount?: number | null;
+  category?: string | null;
+  openDate?: string | null;
+};
+
 const categoryLabels: Record<string, string> = {
   support: "응원",
   question: "문의",
@@ -120,6 +128,7 @@ export default function Home() {
   const [selectedThreadId, setSelectedThreadId] = useState("");
   const [notices, setNotices] = useState<NoticeItem[]>(DEFAULT_NOTICES);
   const [schedules, setSchedules] = useState<ScheduleItem[]>(DEFAULT_SCHEDULES);
+  const [liveStatus, setLiveStatus] = useState<LiveStatus | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -138,6 +147,26 @@ export default function Home() {
     }
 
     loadContent();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadLiveStatus() {
+      try {
+        const response = await fetch("/api/live-status", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as LiveStatus;
+        if (!cancelled) setLiveStatus(payload);
+      } catch {
+        if (!cancelled) setLiveStatus({ live: false });
+      }
+    }
+
+    loadLiveStatus();
     return () => {
       cancelled = true;
     };
@@ -271,10 +300,16 @@ export default function Home() {
           <p className="hero-text">첫째와둘째 팬들을 위한 공식 라운지입니다.</p>
         </div>
 
-        <aside className="status-card" aria-label="방송 상태">
-          <span className="status-pill">다음 방송 준비 중</span>
-          <strong>오늘은 공지와 스케줄을 확인해주세요.</strong>
-          <a href={CHZZK_LIVE} target="_blank" rel="noreferrer">치지직 LIVE 열기</a>
+        <aside className={`status-card ${liveStatus?.live ? "is-live" : ""}`} aria-label="broadcast status">
+          <span className={`status-pill ${liveStatus?.live ? "live" : ""}`}>{liveStatus?.live ? "ON AIR" : "\uB2E4\uC74C \uBC29\uC1A1 \uC900\uBE44 \uC911"}</span>
+          <strong>{liveStatus?.live ? liveStatus.title || "\uB77C\uC774\uBE0C \uBC29\uC1A1 \uC911" : "\uC624\uB298\uC740 \uACF5\uC9C0\uC640 \uC2A4\uCF00\uC904\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694."}</strong>
+          {liveStatus?.live ? (
+            <div className="live-meta">
+              {liveStatus.category ? <span>{liveStatus.category}</span> : null}
+              {typeof liveStatus.viewerCount === "number" ? <span>{liveStatus.viewerCount.toLocaleString("ko-KR")}{"\uBA85 \uC2DC\uCCAD \uC911"}</span> : null}
+            </div>
+          ) : null}
+          <a href={CHZZK_LIVE} target="_blank" rel="noreferrer">{liveStatus?.live ? "\uC9C0\uAE08 \uB77C\uC774\uBE0C \uBCF4\uB7EC\uAC00\uAE30" : "\uCE58\uC9C0\uC9C1 LIVE \uC5F4\uAE30"}</a>
         </aside>
       </section>
 
