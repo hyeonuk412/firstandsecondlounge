@@ -3882,3 +3882,23 @@ body:has(.cc-page) .kicker,
 }
 .admin-notice-list-panel .admin-section-head,
 .admin-content-section .admin-section-head { margin-top: 4px; }
+
+/* Admin schedule: bigger calendar, count badge clear of the date, wider date field */
+.admin-calendar-layout { grid-template-columns: minmax(0, 440px) minmax(0, 1fr); }
+.admin-calendar-grid { gap: 7px; }
+.admin-calendar-grid button {
+  aspect-ratio: auto;
+  min-height: 58px;
+  place-items: start;
+  padding: 8px 9px;
+}
+.admin-calendar-grid button strong { font-size: 16px; line-height: 1; }
+.admin-calendar-grid button span { top: 6px; right: 6px; min-width: 19px; height: 19px; }
+.admin-edit-row.schedule-row { grid-template-columns: minmax(150px, 170px) 104px minmax(0, 1fr); }
+
+@media (max-width: 980px) {
+  .admin-calendar-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .admin-edit-row.schedule-row { grid-template-columns: 1fr; }
+}
