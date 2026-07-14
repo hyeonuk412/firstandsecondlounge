@@ -9,7 +9,7 @@ const CHZZK_ICON = "/icons/chzzk.png";
 const YOUTUBE_ICON = "https://cdn.simpleicons.org/youtube/FF0000";
 const MESSENGER_ICON = "https://cdn.simpleicons.org/messenger/0084FF";
 const DISCORD_ICON = "https://cdn.simpleicons.org/discord/5865F2";
-const ADMIN_NICKNAMES = new Set(["첫째와둘째", "첫째입니다", "오늘의메뉴"]);
+const DEFAULT_ADMIN_NICKNAMES = ["첫째와둘째", "첫째입니다", "오늘의메뉴"];
 
 type Viewer = {
   channelId: string;
@@ -38,10 +38,16 @@ type LinkSettings = {
   discordUrl: string;
 };
 
+type SiteSettings = {
+  discordUrl: string;
+  adminNicknames: string[];
+};
+
 type LoungeContent = {
   notices: NoticeItem[];
   schedules: ScheduleItem[];
   links?: LinkSettings;
+  settings?: SiteSettings;
 };
 
 type LiveStatus = {
@@ -71,8 +77,9 @@ const DEFAULT_SCHEDULES: ScheduleItem[] = [
   { day: "토", time: "21:00", title: "팬 참여 방송" },
 ];
 
-function isAdminViewer(viewer: Viewer) {
-  return ADMIN_NICKNAMES.has(viewer.nickname) || ADMIN_NICKNAMES.has(viewer.channelName);
+function isAdminViewer(viewer: Viewer, adminNicknames: string[]) {
+  const admins = new Set(adminNicknames);
+  return admins.has(viewer.nickname) || admins.has(viewer.channelName);
 }
 
 function formatNoticeDate(value?: string) {
@@ -93,6 +100,7 @@ export default function Home() {
   const [notices, setNotices] = useState<NoticeItem[]>(DEFAULT_NOTICES);
   const [schedules, setSchedules] = useState<ScheduleItem[]>(DEFAULT_SCHEDULES);
   const [links, setLinks] = useState<LinkSettings>(DEFAULT_LINKS);
+  const [adminNicknames, setAdminNicknames] = useState<string[]>(DEFAULT_ADMIN_NICKNAMES);
   const [liveStatus, setLiveStatus] = useState<LiveStatus | null>(null);
 
   useEffect(() => {
@@ -106,7 +114,8 @@ export default function Home() {
         if (cancelled) return;
         setNotices(payload.notices?.length ? payload.notices : DEFAULT_NOTICES);
         setSchedules(payload.schedules?.length ? payload.schedules : DEFAULT_SCHEDULES);
-        setLinks(payload.links || DEFAULT_LINKS);
+        setLinks({ discordUrl: payload.settings?.discordUrl || payload.links?.discordUrl || "" });
+        setAdminNicknames(payload.settings?.adminNicknames?.length ? payload.settings.adminNicknames : DEFAULT_ADMIN_NICKNAMES);
       } catch {
         // Keep the built-in defaults if the editable content API is unavailable.
       }
@@ -180,7 +189,7 @@ export default function Home() {
                 <span>치지직 로그인</span>
                 <strong>{viewer.nickname || viewer.channelName}</strong>
               </div>
-              {isAdminViewer(viewer) ? <a className="top-admin-link" href="/cheotdooladmin">관리자 페이지</a> : null}
+              {isAdminViewer(viewer, adminNicknames) ? <a className="top-admin-link" href="/cheotdooladmin">관리자 페이지</a> : null}
               <a className="top-logout" href="/api/auth/chzzk/logout">로그아웃</a>
             </>
           ) : (
@@ -260,4 +269,5 @@ export default function Home() {
     </main>
   );
 }
+
 

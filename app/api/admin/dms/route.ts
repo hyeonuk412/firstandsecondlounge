@@ -1,4 +1,6 @@
 ﻿import { adminConfigured, requireAdmin } from "../auth";
+
+export const runtime = "nodejs";
 import { listDmThreads } from "../../dms/store";
 
 export async function GET(request: Request) {
@@ -9,5 +11,6 @@ export async function GET(request: Request) {
     return Response.json({ error: "admin token is required" }, { status: 401 });
   }
 
-  return Response.json({ threads: listDmThreads() });
+  return Response.json({ threads: await listDmThreads() });
 }
+

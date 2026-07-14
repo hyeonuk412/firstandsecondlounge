@@ -17,7 +17,8 @@ function noticeDate(value?: string) {
 
 export default async function NoticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const notice = getLoungeContent().notices.find((item) => item.id === decodeURIComponent(id));
+  const content = await getLoungeContent();
+  const notice = content.notices.find((item) => item.id === decodeURIComponent(id));
   if (!notice) notFound();
 
   return (
@@ -38,3 +39,4 @@ export default async function NoticeDetailPage({ params }: { params: Promise<{ i
     </main>
   );
 }
+

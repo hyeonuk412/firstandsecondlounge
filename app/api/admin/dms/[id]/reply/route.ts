@@ -1,6 +1,8 @@
 ﻿import { adminConfigured, requireAdmin } from "../../../auth";
 import { replyDmThread, updateAdminDmReply } from "../../../../dms/store";
 
+export const runtime = "nodejs";
+
 function ensureAdmin(request: Request) {
   if (!adminConfigured()) {
     return Response.json({ error: "DM_ADMIN_PASSWORD is not configured" }, { status: 503 });
@@ -31,7 +33,7 @@ export async function POST(
   }
 
   const { id } = await context.params;
-  const thread = replyDmThread(id, message);
+  const thread = await replyDmThread(id, message);
   if (!thread) {
     return Response.json({ error: "DM not found" }, { status: 404 });
   }
@@ -63,10 +65,11 @@ export async function PUT(
   }
 
   const { id } = await context.params;
-  const thread = updateAdminDmReply(id, messageId, message);
+  const thread = await updateAdminDmReply(id, messageId, message);
   if (!thread) {
     return Response.json({ error: "DM reply not found" }, { status: 404 });
   }
 
   return Response.json({ thread });
 }
+

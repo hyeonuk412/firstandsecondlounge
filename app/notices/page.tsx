@@ -22,7 +22,7 @@ function byNewest(a: NoticeItem, b: NoticeItem) {
 
 export default async function NoticesPage({ searchParams }: { searchParams?: Promise<{ page?: string }> }) {
   const params = await searchParams;
-  const content = getLoungeContent();
+  const content = await getLoungeContent();
   const notices = content.notices.slice().sort(byNewest);
   const requestedPage = Number(params?.page || "1");
   const totalPages = Math.max(1, Math.ceil(notices.length / PAGE_SIZE));
@@ -57,3 +57,4 @@ export default async function NoticesPage({ searchParams }: { searchParams?: Pro
     </main>
   );
 }
+

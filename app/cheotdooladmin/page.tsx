@@ -17,14 +17,16 @@ type ScheduleItem = {
   title: string;
 };
 
-type LinkSettings = {
+type SiteSettings = {
   discordUrl: string;
+  adminNicknames: string[];
 };
 
 type LoungeContent = {
   notices: NoticeItem[];
   schedules: ScheduleItem[];
-  links: LinkSettings;
+  settings: SiteSettings;
+  links?: { discordUrl: string };
   updatedAt: string;
 };
 
@@ -49,24 +51,26 @@ type DmThread = {
   messages: DmMessage[];
 };
 
-const DEFAULT_LINKS: LinkSettings = {
+const DEFAULT_SETTINGS: SiteSettings = {
   discordUrl: "",
+  adminNicknames: ["첫째와둘째", "첫째입니다", "오늘의메뉴"],
 };
 
 const TEXT = {
   kicker: "FIRST & SECOND ADMIN",
   title: "관리자 페이지",
-  desc: "공지, 스케줄, 링크, DM을 한 곳에서 관리합니다.",
+  desc: "공지, 스케줄, 설정, DM을 한 곳에서 관리합니다.",
   logout: "관리자 로그아웃",
   adminCode: "관리자 코드",
   adminPlaceholder: "관리자 코드를 입력하세요",
   login: "관리 화면 열기",
   dms: "DM",
-  content: "공지 / 스케줄",
   notices: "공지",
   schedules: "스케줄",
-  links: "링크",
+  settings: "설정",
   discordUrl: "디스코드 주소",
+  adminNicknames: "관리자 닉네임",
+  addNickname: "닉네임 추가",
   addNotice: "공지 추가",
   addSchedule: "스케줄 추가",
   save: "저장하기",
@@ -144,11 +148,11 @@ function shortText(value: string, maxLength = 54) {
 export default function CheotdoolAdminPage() {
   const [token, setToken] = useState("");
   const [tokenInput, setTokenInput] = useState("");
-  const [activePanel, setActivePanel] = useState<"dms" | "content">("dms");
+  const [activePanel, setActivePanel] = useState<"dms" | "notices" | "schedules" | "settings">("dms");
 
   const [notices, setNotices] = useState<NoticeItem[]>([]);
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
-  const [links, setLinks] = useState<LinkSettings>(DEFAULT_LINKS);
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const [contentLoading, setContentLoading] = useState(false);
   const [contentSaving, setContentSaving] = useState(false);
   const [contentSaved, setContentSaved] = useState(false);
@@ -192,7 +196,11 @@ export default function CheotdoolAdminPage() {
       const payload = (await response.json()) as LoungeContent;
       setNotices(payload.notices);
       setSchedules(payload.schedules);
-      setLinks(payload.links || DEFAULT_LINKS);
+      setSettings({
+        ...DEFAULT_SETTINGS,
+        ...payload.settings,
+        discordUrl: payload.settings?.discordUrl || payload.links?.discordUrl || "",
+      });
     } catch (loadError) {
       setContentError(loadError instanceof Error ? loadError.message : TEXT.contentLoadError);
     } finally {
@@ -213,10 +221,7 @@ export default function CheotdoolAdminPage() {
       const payload = (await response.json()) as { threads: DmThread[] };
       const sortedThreads = sortThreads(payload.threads);
       setThreads(sortedThreads);
-      setSelectedThreadId((current) => {
-        if (current && sortedThreads.some((thread) => thread.id === current)) return current;
-        return sortedThreads[0]?.id || "";
-      });
+      setSelectedThreadId((current) => current && sortedThreads.some((thread) => thread.id === current) ? current : sortedThreads[0]?.id || "");
     } catch (loadError) {
       setDmError(loadError instanceof Error ? loadError.message : TEXT.dmLoadError);
     } finally {
@@ -250,7 +255,7 @@ export default function CheotdoolAdminPage() {
     setTokenInput("");
     setNotices([]);
     setSchedules([]);
-    setLinks(DEFAULT_LINKS);
+    setSettings(DEFAULT_SETTINGS);
     setThreads([]);
     setSelectedThreadId("");
     setQuery("");
@@ -261,6 +266,10 @@ export default function CheotdoolAdminPage() {
 
   async function saveContent() {
     if (!token) return;
+    const cleanSettings = {
+      ...settings,
+      adminNicknames: Array.from(new Set(settings.adminNicknames.map((item) => item.trim()).filter(Boolean))),
+    };
     setContentSaving(true);
     setContentError("");
     setContentSaved(false);
@@ -270,7 +279,7 @@ export default function CheotdoolAdminPage() {
         "Content-Type": "application/json",
         "x-admin-token": token,
       },
-      body: JSON.stringify({ notices, schedules, links }),
+      body: JSON.stringify({ notices, schedules, settings: cleanSettings }),
     });
 
     if (!response.ok) {
@@ -282,7 +291,7 @@ export default function CheotdoolAdminPage() {
     const payload = (await response.json()) as LoungeContent;
     setNotices(payload.notices);
     setSchedules(payload.schedules);
-    setLinks(payload.links || DEFAULT_LINKS);
+    setSettings({ ...DEFAULT_SETTINGS, ...payload.settings });
     setContentSaving(false);
     setContentSaved(true);
   }
@@ -296,22 +305,16 @@ export default function CheotdoolAdminPage() {
   async function submitReply(threadId: string) {
     const message = replyDrafts[threadId]?.trim() || "";
     if (!message || !token) return;
-
     setDmError("");
     const response = await fetch(`/api/admin/dms/${encodeURIComponent(threadId)}/reply`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-admin-token": token,
-      },
+      headers: { "Content-Type": "application/json", "x-admin-token": token },
       body: JSON.stringify({ message }),
     });
-
     if (!response.ok) {
       setDmError(TEXT.dmSaveError);
       return;
     }
-
     const payload = (await response.json()) as { thread: DmThread };
     setThreads((items) => sortThreads(items.map((item) => item.id === threadId ? payload.thread : item)));
     setSelectedThreadId(payload.thread.id);
@@ -326,25 +329,33 @@ export default function CheotdoolAdminPage() {
   async function submitEditReply(threadId: string, messageId: string) {
     const message = editDrafts[messageId]?.trim() || "";
     if (!message || !token) return;
-
     setDmError("");
     const response = await fetch(`/api/admin/dms/${encodeURIComponent(threadId)}/reply`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "x-admin-token": token,
-      },
+      headers: { "Content-Type": "application/json", "x-admin-token": token },
       body: JSON.stringify({ messageId, message }),
     });
-
     if (!response.ok) {
       setDmError(TEXT.dmEditError);
       return;
     }
-
     const payload = (await response.json()) as { thread: DmThread };
     setThreads((items) => items.map((item) => item.id === threadId ? payload.thread : item));
     setEditingMessageId("");
+  }
+
+  function updateAdminNickname(index: number, value: string) {
+    setSettings((current) => ({
+      ...current,
+      adminNicknames: current.adminNicknames.map((item, itemIndex) => itemIndex === index ? value : item),
+    }));
+  }
+
+  function removeAdminNickname(index: number) {
+    setSettings((current) => ({
+      ...current,
+      adminNicknames: current.adminNicknames.filter((_, itemIndex) => itemIndex !== index),
+    }));
   }
 
   return (
@@ -374,7 +385,9 @@ export default function CheotdoolAdminPage() {
         <>
           <nav className="admin-unified-tabs" aria-label="관리 메뉴">
             <button className={activePanel === "dms" ? "active" : ""} type="button" onClick={() => setActivePanel("dms")}>{TEXT.dms}</button>
-            <button className={activePanel === "content" ? "active" : ""} type="button" onClick={() => setActivePanel("content")}>{TEXT.content}</button>
+            <button className={activePanel === "notices" ? "active" : ""} type="button" onClick={() => setActivePanel("notices")}>{TEXT.notices}</button>
+            <button className={activePanel === "schedules" ? "active" : ""} type="button" onClick={() => setActivePanel("schedules")}>{TEXT.schedules}</button>
+            <button className={activePanel === "settings" ? "active" : ""} type="button" onClick={() => setActivePanel("settings")}>{TEXT.settings}</button>
           </nav>
 
           {activePanel === "dms" ? (
@@ -387,12 +400,10 @@ export default function CheotdoolAdminPage() {
                   </div>
                   <button type="button" onClick={() => loadThreads()} disabled={dmLoading}>{dmLoading ? TEXT.refreshing : TEXT.refresh}</button>
                 </div>
-
                 <label className="admin-dm-search">
                   <span className="visually-hidden">DM 검색</span>
                   <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="닉네임 또는 내용 검색" />
                 </label>
-
                 <div className="admin-thread-list" aria-label="DM 스레드 목록">
                   {filteredThreads.length > 0 ? filteredThreads.map((thread) => {
                     const firstMessage = firstViewerMessage(thread);
@@ -403,36 +414,26 @@ export default function CheotdoolAdminPage() {
                       <button className={`admin-thread-card ${active ? "active" : ""} ${thread.status === "waiting" ? "waiting" : ""}`} type="button" onClick={() => openThread(thread.id)} key={thread.id}>
                         <span className="admin-thread-avatar">{viewerName.slice(0, 1)}</span>
                         <span className="admin-thread-body">
-                          <span className="admin-thread-topline">
-                            <strong>{viewerName}</strong>
-                            <time>{formatDate(thread.updatedAt)}</time>
-                          </span>
+                          <span className="admin-thread-topline"><strong>{viewerName}</strong><time>{formatDate(thread.updatedAt)}</time></span>
                           <span className="admin-thread-topic">{shortText(firstMessage?.message || latest?.message || "")}</span>
                           <span className="admin-thread-preview">{latest?.sender === "admin" ? `${TEXT.admin}: ` : ""}{shortText(latest?.message || "")}</span>
                         </span>
                         <em>{thread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
                       </button>
                     );
-                  }) : (
-                    <div className="admin-thread-empty">{TEXT.empty}</div>
-                  )}
+                  }) : <div className="admin-thread-empty">{TEXT.empty}</div>}
                 </div>
               </aside>
-
               <section className="admin-chat-panel">
                 {selectedThread ? (
                   <>
                     <div className="admin-chat-head">
                       <div className="admin-chat-profile">
                         <span className="admin-thread-avatar large">{(selectedThread.viewer.nickname || selectedThread.viewer.channelName || TEXT.viewer).slice(0, 1)}</span>
-                        <div>
-                          <strong>{selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong>
-                          <span>{selectedThread.viewer.channelId}</span>
-                        </div>
+                        <div><strong>{selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong><span>{selectedThread.viewer.channelId}</span></div>
                       </div>
                       <em className={selectedThread.status === "waiting" ? "waiting" : ""}>{selectedThread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
                     </div>
-
                     <div className="admin-chat-messages" aria-label="DM 대화 내용">
                       {selectedThread.messages.map((message) => {
                         const isAdminMessage = message.sender === "admin";
@@ -447,57 +448,36 @@ export default function CheotdoolAdminPage() {
                               {isEditing ? (
                                 <div className="admin-edit-reply in-chat">
                                   <textarea value={editDrafts[message.id] || ""} onChange={(event) => setEditDrafts((drafts) => ({ ...drafts, [message.id]: event.target.value }))} rows={3} />
-                                  <div>
-                                    <button type="button" onClick={() => submitEditReply(selectedThread.id, message.id)}>{TEXT.editSave}</button>
-                                    <button type="button" className="secondary" onClick={() => setEditingMessageId("")}>{TEXT.cancel}</button>
-                                  </div>
+                                  <div><button type="button" onClick={() => submitEditReply(selectedThread.id, message.id)}>{TEXT.editSave}</button><button type="button" className="secondary" onClick={() => setEditingMessageId("")}>{TEXT.cancel}</button></div>
                                 </div>
-                              ) : (
-                                <p>{message.message}</p>
-                              )}
+                              ) : <p>{message.message}</p>}
                               <time>{formatDate(message.createdAt)}</time>
                             </div>
                           </article>
                         );
                       })}
                     </div>
-
                     <form className="admin-chat-reply" onSubmit={(event) => { event.preventDefault(); submitReply(selectedThread.id); }}>
                       <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} placeholder={TEXT.replyPlaceholder} rows={2} />
                       <button type="submit">{TEXT.replySave}</button>
                     </form>
                   </>
-                ) : (
-                  <div className="admin-chat-empty">{TEXT.noSelection}</div>
-                )}
-
+                ) : <div className="admin-chat-empty">{TEXT.noSelection}</div>}
                 {dmError ? <p className="admin-chat-error">{dmError}</p> : null}
               </section>
             </section>
           ) : (
             <section className="admin-dm-shell admin-content-shell">
               <div className="admin-toolbar">
-                <strong>{contentLoading ? "Loading" : TEXT.content}</strong>
+                <strong>{contentLoading ? "Loading" : activePanel === "notices" ? TEXT.notices : activePanel === "schedules" ? TEXT.schedules : TEXT.settings}</strong>
                 <button type="button" onClick={saveContent} disabled={contentSaving}>{contentSaving ? TEXT.saving : TEXT.save}</button>
               </div>
               {contentSaved ? <p className="sent">{TEXT.saved}</p> : null}
               {contentError ? <p className="dm-error">{contentError}</p> : null}
 
-              <div className="admin-content-grid">
+              {activePanel === "notices" ? (
                 <section className="admin-content-section">
-                  <div className="admin-section-head">
-                    <h2>{TEXT.links}</h2>
-                  </div>
-                  <article className="admin-edit-card">
-                    <label>{TEXT.discordUrl}<input value={links.discordUrl} onChange={(event) => setLinks({ ...links, discordUrl: event.target.value })} placeholder="https://discord.gg/..." /></label>
-                  </article>
-                </section>
-
-                <section className="admin-content-section">
-                  <div className="admin-section-head">
-                    <h2>{TEXT.notices}</h2>
-                    <button type="button" onClick={() => setNotices((items) => [...items, emptyNotice()])}>{TEXT.addNotice}</button>
-                  </div>
+                  <div className="admin-section-head"><h2>{TEXT.notices}</h2><button type="button" onClick={() => setNotices((items) => [...items, emptyNotice()])}>{TEXT.addNotice}</button></div>
                   <div className="admin-edit-list">
                     {notices.map((notice, index) => (
                       <article className="admin-edit-card" key={notice.id}>
@@ -512,12 +492,11 @@ export default function CheotdoolAdminPage() {
                     ))}
                   </div>
                 </section>
+              ) : null}
 
+              {activePanel === "schedules" ? (
                 <section className="admin-content-section">
-                  <div className="admin-section-head">
-                    <h2>{TEXT.schedules}</h2>
-                    <button type="button" onClick={() => setSchedules((items) => [...items, emptySchedule()])}>{TEXT.addSchedule}</button>
-                  </div>
+                  <div className="admin-section-head"><h2>{TEXT.schedules}</h2><button type="button" onClick={() => setSchedules((items) => [...items, emptySchedule()])}>{TEXT.addSchedule}</button></div>
                   <div className="admin-edit-list">
                     {schedules.map((schedule, index) => (
                       <article className="admin-edit-card" key={schedule.id}>
@@ -531,7 +510,25 @@ export default function CheotdoolAdminPage() {
                     ))}
                   </div>
                 </section>
-              </div>
+              ) : null}
+
+              {activePanel === "settings" ? (
+                <section className="admin-content-section">
+                  <div className="admin-section-head"><h2>{TEXT.settings}</h2></div>
+                  <article className="admin-edit-card">
+                    <label>{TEXT.discordUrl}<input value={settings.discordUrl} onChange={(event) => setSettings((current) => ({ ...current, discordUrl: event.target.value }))} placeholder="https://discord.gg/..." /></label>
+                  </article>
+                  <div className="admin-section-head"><h2>{TEXT.adminNicknames}</h2><button type="button" onClick={() => setSettings((current) => ({ ...current, adminNicknames: [...current.adminNicknames, ""] }))}>{TEXT.addNickname}</button></div>
+                  <div className="admin-edit-list">
+                    {settings.adminNicknames.map((nickname, index) => (
+                      <article className="admin-edit-card admin-nickname-card" key={`${nickname}-${index}`}>
+                        <label>{TEXT.adminNicknames}<input value={nickname} onChange={(event) => updateAdminNickname(index, event.target.value)} placeholder="치지직 닉네임" /></label>
+                        <button className="admin-danger" type="button" onClick={() => removeAdminNickname(index)}>{TEXT.delete}</button>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
             </section>
           )}
         </>

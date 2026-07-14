@@ -1,5 +1,7 @@
-import { readViewerSession } from "../auth/chzzk/session";
+﻿import { readViewerSession } from "../auth/chzzk/session";
 import { appendViewerDmThread, createDmThread } from "./store";
+
+export const runtime = "nodejs";
 
 const ALLOWED_CATEGORIES = new Set(["support", "question", "suggestion", "business", "etc"]);
 
@@ -26,7 +28,7 @@ export async function POST(request: Request) {
   }
 
   if (payload.threadId) {
-    const thread = appendViewerDmThread({
+    const thread = await appendViewerDmThread({
       threadId: payload.threadId,
       channelId: viewer.channelId,
       message,
@@ -39,7 +41,7 @@ export async function POST(request: Request) {
     return Response.json({ thread });
   }
 
-  const thread = createDmThread({
+  const thread = await createDmThread({
     viewer: {
       channelId: viewer.channelId,
       channelName: viewer.channelName,
@@ -51,3 +53,4 @@ export async function POST(request: Request) {
 
   return Response.json({ thread }, { status: 201 });
 }
+
