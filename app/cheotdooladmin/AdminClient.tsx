@@ -114,11 +114,17 @@ function newId(prefix: string) {
 }
 
 function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  const value = new Date();
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function monthKey(value = new Date()) {
-  return value.toISOString().slice(0, 7);
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
 }
 
 function emptyNotice(): NoticeItem {
@@ -304,14 +310,14 @@ export default function CheotdoolAdminClient() {
 
   useEffect(() => {
     loadContent();
-    loadThreads();
   }, []);
 
   useEffect(() => {
-    if (activePanel !== "home" && activePanel !== "dms") return;
+    if (activePanel !== "dms") return;
+    loadThreads({ silent: threads.length > 0 });
     const timer = window.setInterval(() => {
       loadThreads({ silent: true });
-    }, 5000);
+    }, 10000);
     return () => window.clearInterval(timer);
   }, [activePanel]);
 
@@ -473,8 +479,8 @@ export default function CheotdoolAdminClient() {
         <section className="admin-home-grid" aria-label="관리자 첫 화면">
           <button type="button" className="admin-home-card" onClick={() => openPanel("dms")}>
             <span>DIRECT MESSAGE</span>
-            <strong>{threads.length}{TEXT.countSuffix}</strong>
-            <small>{waitingCount > 0 ? waitingCount + TEXT.countSuffix + " 답변 대기" : "DM 확인하기"}</small>
+            <strong>DM</strong>
+            <small>{threads.length > 0 && waitingCount > 0 ? waitingCount + TEXT.countSuffix + " 답변 대기" : "눌러서 확인하기"}</small>
           </button>
           <button type="button" className="admin-home-card" onClick={() => openPanel("notices")}>
             <span>NOTICE</span>
@@ -586,7 +592,6 @@ export default function CheotdoolAdminClient() {
               <div className="admin-notice-list">
                 {sortedNoticeItems.length ? sortedNoticeItems.map((notice) => (
                   <button className={selectedNotice?.id === notice.id ? "active" : ""} type="button" onClick={() => setSelectedNoticeId(notice.id)} key={notice.id}>
-                    <span>{notice.tag || "공지"}</span>
                     <strong>{notice.title || "제목 없음"}</strong>
                     <time>{formatPlainDate(notice.date)}</time>
                   </button>

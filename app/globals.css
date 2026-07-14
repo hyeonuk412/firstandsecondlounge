@@ -2230,3 +2230,53 @@ button, input, select, textarea { font: inherit; }
   background: var(--chzzk);
   box-shadow: 0 10px 22px rgba(111, 214, 157, 0.16);
 }
+/* Simpler admin notice list and corrected calendar controls */
+.admin-notice-list {
+  gap: 0;
+  border-top: 1px solid var(--line);
+}
+
+.admin-notice-list button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  padding: 12px 2px;
+}
+
+.admin-notice-list button.active,
+.admin-notice-list button:hover,
+.admin-notice-list button:focus-visible {
+  background: rgba(189, 244, 209, 0.16);
+}
+
+.admin-notice-list strong {
+  min-width: 0;
+  font-size: 18px;
+}
+
+.admin-notice-list time {
+  flex: 0 0 auto;
+}
+
+.admin-calendar-head button {
+  flex: 0 0 auto;
+}
+
+.admin-calendar-head strong {
+  min-width: 120px;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .admin-notice-list button {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
