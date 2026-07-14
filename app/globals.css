@@ -1857,3 +1857,61 @@ button, input, select, textarea { font: inherit; }
     text-align: center;
   }
 }
+
+.top-admin-link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  border: 1px solid rgba(0, 208, 132, 0.34);
+  border-radius: 14px;
+  background: rgba(0, 255, 163, 0.18);
+  color: #08754f;
+  padding: 0 14px;
+  font-weight: 900;
+}
+
+.admin-unified-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 12px 30px rgba(64, 52, 92, 0.08);
+}
+
+.admin-unified-tabs button {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--muted);
+  padding: 0 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-unified-tabs button.active {
+  border-color: rgba(0, 208, 132, 0.38);
+  background: var(--chzzk);
+  color: #101814;
+  box-shadow: 0 10px 22px rgba(0, 208, 132, 0.16);
+}
+
+.cheotdool-admin-page .admin-messenger {
+  min-height: min(760px, calc(100vh - 260px));
+}
+
+@media (max-width: 700px) {
+  .top-admin-link {
+    min-width: 116px;
+  }
+
+  .admin-unified-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

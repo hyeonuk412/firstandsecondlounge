@@ -9,6 +9,7 @@ const CHZZK_ICON = "/icons/chzzk.png";
 const YOUTUBE_ICON = "https://cdn.simpleicons.org/youtube/FF0000";
 const MESSENGER_ICON = "https://cdn.simpleicons.org/messenger/0084FF";
 const DISCORD_ICON = "https://cdn.simpleicons.org/discord/5865F2";
+const ADMIN_NICKNAMES = new Set(["첫째와둘째", "첫째입니다", "오늘의메뉴"]);
 
 type Viewer = {
   channelId: string;
@@ -69,6 +70,10 @@ const DEFAULT_SCHEDULES: ScheduleItem[] = [
   { day: "목", time: "20:00", title: "게임 방송" },
   { day: "토", time: "21:00", title: "팬 참여 방송" },
 ];
+
+function isAdminViewer(viewer: Viewer) {
+  return ADMIN_NICKNAMES.has(viewer.nickname) || ADMIN_NICKNAMES.has(viewer.channelName);
+}
 
 function formatNoticeDate(value?: string) {
   if (!value) return "날짜 미정";
@@ -175,6 +180,7 @@ export default function Home() {
                 <span>치지직 로그인</span>
                 <strong>{viewer.nickname || viewer.channelName}</strong>
               </div>
+              {isAdminViewer(viewer) ? <a className="top-admin-link" href="/cheotdooladmin">관리자 페이지</a> : null}
               <a className="top-logout" href="/api/auth/chzzk/logout">로그아웃</a>
             </>
           ) : (
@@ -254,3 +260,4 @@ export default function Home() {
     </main>
   );
 }
+
