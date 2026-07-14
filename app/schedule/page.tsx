@@ -3,17 +3,24 @@ import ScheduleCalendar from "../ScheduleCalendar";
 
 export const revalidate = 10;
 
-function pad(n: number) {
-  return String(n).padStart(2, "0");
+// Compute "today" in Korea time (KST) so it doesn't lag a day on a UTC server.
+function todayInSeoul() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find((p) => p.type === type)?.value || "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 export default async function SchedulePage() {
   const content = await getLoungeContent();
   const schedules = Array.isArray(content.schedules) ? content.schedules : [];
 
-  const now = new Date();
-  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  const initialMonth = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+  const today = todayInSeoul();
+  const initialMonth = today.slice(0, 7);
 
   return (
     <main className="cc-page cc-schedule-page">
