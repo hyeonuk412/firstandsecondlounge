@@ -24,44 +24,40 @@ type DmThread = {
 };
 
 const TEXT = {
-  title: "DM \uAD00\uB9AC",
-  desc: "\uD32C \uB77C\uC6B4\uC9C0\uC5D0\uC11C \uB4E4\uC5B4\uC628 DM\uC744 \uB0A0\uC9DC\uBCC4\uB85C \uD655\uC778\uD558\uACE0 \uB2F5\uBCC0\uD569\uB2C8\uB2E4.",
-  contentLink: "\uACF5\uC9C0 / \uC2A4\uCF00\uC904",
-  logout: "\uAD00\uB9AC\uC790 \uB85C\uADF8\uC544\uC6C3",
-  adminCode: "\uAD00\uB9AC\uC790 \uCF54\uB4DC",
-  adminPlaceholder: "\uAD00\uB9AC\uC790 \uCF54\uB4DC\uB97C \uC785\uB825\uD558\uC138\uC694",
-  login: "DM \uD655\uC778\uD558\uAE30",
-  wrongCode: "\uAD00\uB9AC\uC790 \uCF54\uB4DC\uAC00 \uB9DE\uC9C0 \uC54A\uC544\uC694.",
-  loadError: "DM \uBAA9\uB85D\uC744 \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC5B4\uC694.",
-  saveError: "\uB2F5\uBCC0\uC744 \uC800\uC7A5\uD558\uC9C0 \uBABB\uD588\uC5B4\uC694.",
-  editError: "\uB2F5\uBCC0\uC744 \uC218\uC815\uD558\uC9C0 \uBABB\uD588\uC5B4\uC694.",
-  refresh: "\uC0C8\uB85C\uACE0\uCE68",
-  refreshing: "\uC0C8\uB85C\uACE0\uCE68 \uC911",
-  all: "\uC804\uCCB4",
-  allDates: "\uC804\uCCB4 \uB0A0\uC9DC",
-  selectedEmpty: "\uC120\uD0DD\uD55C \uB0A0\uC9DC\uC5D0 \uB4E4\uC5B4\uC628 DM\uC774 \uC5C6\uC5B4\uC694.",
-  totalDm: "\uC804\uCCB4 DM",
-  countSuffix: "\uAC1C",
-  waiting: "\uB2F5\uBCC0 \uB300\uAE30",
-  answered: "\uB2F5\uBCC0 \uC644\uB8CC",
-  viewer: "\uC2DC\uCCAD\uC790",
-  admin: "\uAD00\uB9AC\uC790",
-  firstReceived: "\uCCAB DM",
-  latestActivity: "\uCD5C\uADFC \uD65C\uB3D9",
-  replyPlaceholder: "\uB2F5\uBCC0\uC744 \uC785\uB825\uD558\uC138\uC694",
-  replySave: "\uB2F5\uBCC0 \uC800\uC7A5",
-  edit: "\uC218\uC815",
-  editSave: "\uC218\uC815 \uC800\uC7A5",
-  cancel: "\uCDE8\uC18C",
-  empty: "\uC544\uC9C1 \uB4E4\uC5B4\uC628 DM\uC774 \uC5C6\uC5B4\uC694.",
+  title: "DM 관리",
+  desc: "들어온 DM을 스레드별로 확인하고 바로 답변합니다.",
+  contentLink: "공지 / 스케줄",
+  logout: "관리자 로그아웃",
+  adminCode: "관리자 코드",
+  adminPlaceholder: "관리자 코드를 입력하세요",
+  login: "DM 확인하기",
+  wrongCode: "관리자 코드가 맞지 않아요.",
+  loadError: "DM 목록을 불러오지 못했어요.",
+  saveError: "답변을 저장하지 못했어요.",
+  editError: "답변을 수정하지 못했어요.",
+  refresh: "새로고침",
+  refreshing: "새로고침 중",
+  totalDm: "스레드",
+  countSuffix: "개",
+  waiting: "답변 대기",
+  answered: "답변 완료",
+  viewer: "시청자",
+  admin: "첫째와둘째",
+  replyPlaceholder: "답변을 입력하세요",
+  replySave: "보내기",
+  edit: "수정",
+  editSave: "수정 저장",
+  cancel: "취소",
+  empty: "비어 있음",
+  noSelection: "스레드를 선택해주세요.",
 };
 
 const categoryLabels: Record<string, string> = {
-  support: "\uC751\uC6D0",
-  question: "\uBB38\uC758",
-  suggestion: "\uC81C\uC548",
-  business: "\uC81C\uD734",
-  etc: "\uAE30\uD0C0",
+  support: "응원",
+  question: "문의",
+  suggestion: "제안",
+  business: "제휴",
+  etc: "기타",
 };
 
 function formatDate(value: string) {
@@ -73,90 +69,49 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-function formatDay(value: string) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "short",
-  }).format(new Date(value));
-}
-
-function dayKey(value: string) {
-  const date = new Date(value);
-  return calendarKey(date.getFullYear(), date.getMonth(), date.getDate());
-}
-
-function monthLabel(value: Date) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    year: "numeric",
-    month: "long",
-  }).format(value);
-}
-
-function shiftMonth(value: Date, amount: number) {
-  return new Date(value.getFullYear(), value.getMonth() + amount, 1);
-}
-
-function calendarKey(year: number, month: number, day: number) {
-  return year + "-" + String(month + 1).padStart(2, "0") + "-" + String(day).padStart(2, "0");
-}
-
 function firstViewerMessage(thread: DmThread) {
   return thread.messages.find((message) => message.sender === "viewer");
 }
 
-function latestAdminReply(thread: DmThread) {
-  return thread.messages.filter((message) => message.sender === "admin").at(-1);
+function latestMessage(thread: DmThread) {
+  return thread.messages[thread.messages.length - 1];
+}
+
+function sortThreads(items: DmThread[]) {
+  return items.slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+function shortText(value: string, maxLength = 54) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}...` : normalized;
 }
 
 export default function AdminDmsPage() {
   const [token, setToken] = useState("");
   const [tokenInput, setTokenInput] = useState("");
   const [threads, setThreads] = useState<DmThread[]>([]);
+  const [selectedThreadId, setSelectedThreadId] = useState("");
+  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [editDrafts, setEditDrafts] = useState<Record<string, string>>({});
   const [editingMessageId, setEditingMessageId] = useState("");
-  const [activeDate, setActiveDate] = useState("all");
-  const [calendarMonth, setCalendarMonth] = useState(() => new Date());
 
-  const dateGroups = useMemo(() => {
-    const groups = new Map<string, { key: string; label: string; threads: DmThread[] }>();
-    for (const thread of threads) {
-      const receivedAt = firstViewerMessage(thread)?.createdAt || thread.createdAt;
-      const key = dayKey(receivedAt);
-      const current = groups.get(key) || { key, label: formatDay(receivedAt), threads: [] };
-      current.threads.push(thread);
-      groups.set(key, current);
-    }
-
-    return Array.from(groups.values())
-      .sort((a, b) => b.key.localeCompare(a.key))
-      .map((group) => ({
-        ...group,
-        threads: group.threads.slice().sort((a, b) => (firstViewerMessage(b)?.createdAt || b.createdAt).localeCompare(firstViewerMessage(a)?.createdAt || a.createdAt)),
-      }));
-  }, [threads]);
-
-  const dateGroupMap = useMemo(() => new Map(dateGroups.map((group) => [group.key, group])), [dateGroups]);
-
-  const calendarDays = useMemo(() => {
-    const year = calendarMonth.getFullYear();
-    const month = calendarMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const start = new Date(year, month, 1 - firstDay.getDay());
-
-    return Array.from({ length: 42 }, (_, index) => {
-      const date = new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
-      const key = calendarKey(date.getFullYear(), date.getMonth(), date.getDate());
-      const count = dateGroupMap.get(key)?.threads.length || 0;
-      return { key, day: date.getDate(), currentMonth: date.getMonth() === month, count };
+  const filteredThreads = useMemo(() => {
+    const keyword = query.trim().toLowerCase();
+    if (!keyword) return threads;
+    return threads.filter((thread) => {
+      const viewerName = `${thread.viewer.nickname} ${thread.viewer.channelName} ${thread.viewer.channelId}`.toLowerCase();
+      const messages = thread.messages.map((message) => message.message).join(" ").toLowerCase();
+      return viewerName.includes(keyword) || messages.includes(keyword) || (categoryLabels[thread.category] || "").includes(keyword);
     });
-  }, [calendarMonth, dateGroupMap]);
+  }, [query, threads]);
 
-  const visibleGroups = activeDate === "all" ? dateGroups : dateGroups.filter((group) => group.key === activeDate);
+  const selectedThread = useMemo(
+    () => threads.find((thread) => thread.id === selectedThreadId) || null,
+    [threads, selectedThreadId],
+  );
 
   async function loadThreads(nextToken = token) {
     if (!nextToken) return;
@@ -169,15 +124,12 @@ export default function AdminDmsPage() {
       });
       if (!response.ok) throw new Error(response.status === 401 ? TEXT.wrongCode : TEXT.loadError);
       const payload = (await response.json()) as { threads: DmThread[] };
-      setThreads(payload.threads);
-      const latestThread = payload.threads[0];
-      if (latestThread) {
-        const receivedAt = firstViewerMessage(latestThread)?.createdAt || latestThread.createdAt;
-        setCalendarMonth(new Date(receivedAt));
-      }
-      if (activeDate !== "all" && !payload.threads.some((thread) => dayKey(firstViewerMessage(thread)?.createdAt || thread.createdAt) === activeDate)) {
-        setActiveDate("all");
-      }
+      const sortedThreads = sortThreads(payload.threads);
+      setThreads(sortedThreads);
+      setSelectedThreadId((current) => {
+        if (current && sortedThreads.some((thread) => thread.id === current)) return current;
+        return sortedThreads[0]?.id || "";
+      });
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : TEXT.loadError);
     } finally {
@@ -208,9 +160,15 @@ export default function AdminDmsPage() {
     setToken("");
     setTokenInput("");
     setThreads([]);
+    setSelectedThreadId("");
+    setQuery("");
     setError("");
-    setActiveDate("all");
-    setCalendarMonth(new Date());
+  }
+
+  function openThread(threadId: string) {
+    setSelectedThreadId(threadId);
+    setEditingMessageId("");
+    setError("");
   }
 
   async function submitReply(threadId: string) {
@@ -233,7 +191,8 @@ export default function AdminDmsPage() {
     }
 
     const payload = (await response.json()) as { thread: DmThread };
-    setThreads((items) => items.map((item) => item.id === threadId ? payload.thread : item));
+    setThreads((items) => sortThreads(items.map((item) => item.id === threadId ? payload.thread : item)));
+    setSelectedThreadId(payload.thread.id);
     setReplyDrafts((drafts) => ({ ...drafts, [threadId]: "" }));
   }
 
@@ -267,7 +226,7 @@ export default function AdminDmsPage() {
   }
 
   return (
-    <main className="admin-page">
+    <main className="admin-page admin-dm-page">
       <header className="admin-header">
         <div>
           <p className="kicker">FIRST & SECOND ADMIN</p>
@@ -290,112 +249,101 @@ export default function AdminDmsPage() {
           {error ? <p className="dm-error">{error}</p> : null}
         </form>
       ) : (
-        <section className="admin-dm-shell">
-          <div className="admin-toolbar">
-            <strong>{TEXT.totalDm} {threads.length}{TEXT.countSuffix}</strong>
-            <button type="button" onClick={() => loadThreads()} disabled={loading}>{loading ? TEXT.refreshing : TEXT.refresh}</button>
-          </div>
-          {error ? <p className="dm-error">{error}</p> : null}
+        <section className="admin-messenger" aria-label="관리자 DM">
+          <aside className="admin-messenger-sidebar">
+            <div className="admin-messenger-head">
+              <div>
+                <p className="kicker">DIRECT MESSAGE</p>
+                <h2>{TEXT.totalDm} <span>{threads.length}{TEXT.countSuffix}</span></h2>
+              </div>
+              <button type="button" onClick={() => loadThreads()} disabled={loading}>{loading ? TEXT.refreshing : TEXT.refresh}</button>
+            </div>
 
-          <div className="admin-calendar" aria-label="DM calendar filter">
-            <div className="admin-calendar-head">
-              <button type="button" onClick={() => setCalendarMonth((value) => shiftMonth(value, -1))} aria-label="previous month">&lt;</button>
-              <strong>{monthLabel(calendarMonth)}</strong>
-              <button type="button" onClick={() => setCalendarMonth((value) => shiftMonth(value, 1))} aria-label="next month">&gt;</button>
-            </div>
-            <button className={activeDate === "all" ? "admin-calendar-all active" : "admin-calendar-all"} type="button" onClick={() => setActiveDate("all")}>
-              {TEXT.allDates} <span>{threads.length}</span>
-            </button>
-            <div className="admin-calendar-weekdays" aria-hidden="true">
-              {["\uC77C", "\uC6D4", "\uD654", "\uC218", "\uBAA9", "\uAE08", "\uD1A0"].map((day) => <span key={day}>{day}</span>)}
-            </div>
-            <div className="admin-calendar-grid">
-              {calendarDays.map((day) => {
-                const hasDms = day.count > 0;
-                const isActive = activeDate === day.key;
+            <label className="admin-dm-search">
+              <span className="visually-hidden">DM 검색</span>
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="닉네임 또는 내용 검색" />
+            </label>
+
+            <div className="admin-thread-list" aria-label="DM 스레드 목록">
+              {filteredThreads.length > 0 ? filteredThreads.map((thread) => {
+                const firstMessage = firstViewerMessage(thread);
+                const latest = latestMessage(thread) || firstMessage;
+                const viewerName = thread.viewer.nickname || thread.viewer.channelName || TEXT.viewer;
+                const active = selectedThreadId === thread.id;
                 return (
-                  <button
-                    className={[day.currentMonth ? "" : "muted", hasDms ? "has-dms" : "", isActive ? "active" : ""].filter(Boolean).join(" ")}
-                    type="button"
-                    disabled={!hasDms}
-                    onClick={() => setActiveDate(day.key)}
-                    key={day.key}
-                  >
-                    <span>{day.day}</span>
-                    {hasDms ? <em>{day.count}</em> : null}
+                  <button className={`admin-thread-card ${active ? "active" : ""} ${thread.status === "waiting" ? "waiting" : ""}`} type="button" onClick={() => openThread(thread.id)} key={thread.id}>
+                    <span className="admin-thread-avatar">{viewerName.slice(0, 1)}</span>
+                    <span className="admin-thread-body">
+                      <span className="admin-thread-topline">
+                        <strong>{viewerName}</strong>
+                        <time>{formatDate(thread.updatedAt)}</time>
+                      </span>
+                      <span className="admin-thread-topic">{categoryLabels[thread.category] || categoryLabels.etc} · {shortText(firstMessage?.message || latest?.message || "")}</span>
+                      <span className="admin-thread-preview">{latest?.sender === "admin" ? `${TEXT.admin}: ` : ""}{shortText(latest?.message || "")}</span>
+                    </span>
+                    <em>{thread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
                   </button>
                 );
-              })}
+              }) : (
+                <div className="admin-thread-empty">{TEXT.empty}</div>
+              )}
             </div>
-          </div>
+          </aside>
 
-          <div className="admin-dm-list by-date">
-            {visibleGroups.length > 0 ? visibleGroups.map((group) => (
-              <section className="admin-date-section" key={group.key}>
-                <div className="admin-date-heading">
-                  <h2>{group.label}</h2>
-                  <span>{group.threads.length}{TEXT.countSuffix}</span>
+          <section className="admin-chat-panel">
+            {selectedThread ? (
+              <>
+                <div className="admin-chat-head">
+                  <div className="admin-chat-profile">
+                    <span className="admin-thread-avatar large">{(selectedThread.viewer.nickname || selectedThread.viewer.channelName || TEXT.viewer).slice(0, 1)}</span>
+                    <div>
+                      <strong>{selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong>
+                      <span>{categoryLabels[selectedThread.category] || categoryLabels.etc} · {selectedThread.viewer.channelId}</span>
+                    </div>
+                  </div>
+                  <em className={selectedThread.status === "waiting" ? "waiting" : ""}>{selectedThread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
                 </div>
 
-                {group.threads.map((thread) => {
-                  const firstMessage = firstViewerMessage(thread);
-                  const latestReply = latestAdminReply(thread);
-                  return (
-                    <article className="admin-dm-card" key={thread.id}>
-                      <div className="admin-dm-meta">
-                        <div>
-                          <span>{categoryLabels[thread.category] || categoryLabels.etc}</span>
-                          <h2>{thread.viewer.nickname || thread.viewer.channelName}</h2>
-                          <p>{thread.viewer.channelId}</p>
-                        </div>
-                        <em>{thread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
-                      </div>
-
-                      <div className="admin-dm-summary">
-                        <div><span>{TEXT.firstReceived}</span><strong>{firstMessage ? formatDate(firstMessage.createdAt) : formatDate(thread.createdAt)}</strong></div>
-                        <div><span>{TEXT.latestActivity}</span><strong>{formatDate(thread.updatedAt)}</strong></div>
-                        {latestReply ? <p>{latestReply.message}</p> : null}
-                      </div>
-
-                      <div className="admin-message-list">
-                        {thread.messages.map((message) => {
-                          const isAdminMessage = message.sender === "admin";
-                          const isEditing = editingMessageId === message.id;
-                          return (
-                            <div className={`admin-message ${message.sender}`} key={message.id}>
-                              <div className="admin-message-head">
-                                <strong>{isAdminMessage ? TEXT.admin : TEXT.viewer}</strong>
-                                {isAdminMessage && !isEditing ? <button type="button" onClick={() => startEdit(message)}>{TEXT.edit}</button> : null}
+                <div className="admin-chat-messages" aria-label="DM 대화 내용">
+                  {selectedThread.messages.map((message) => {
+                    const isAdminMessage = message.sender === "admin";
+                    const isEditing = editingMessageId === message.id;
+                    return (
+                      <article className={`admin-chat-row ${isAdminMessage ? "mine" : "theirs"}`} key={message.id}>
+                        <div className="admin-chat-bubble">
+                          <div className="admin-chat-bubble-head">
+                            <strong>{isAdminMessage ? TEXT.admin : selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong>
+                            {isAdminMessage && !isEditing ? <button type="button" onClick={() => startEdit(message)}>{TEXT.edit}</button> : null}
+                          </div>
+                          {isEditing ? (
+                            <div className="admin-edit-reply in-chat">
+                              <textarea value={editDrafts[message.id] || ""} onChange={(event) => setEditDrafts((drafts) => ({ ...drafts, [message.id]: event.target.value }))} rows={3} />
+                              <div>
+                                <button type="button" onClick={() => submitEditReply(selectedThread.id, message.id)}>{TEXT.editSave}</button>
+                                <button type="button" className="secondary" onClick={() => setEditingMessageId("")}>{TEXT.cancel}</button>
                               </div>
-                              {isEditing ? (
-                                <div className="admin-edit-reply">
-                                  <textarea value={editDrafts[message.id] || ""} onChange={(event) => setEditDrafts((drafts) => ({ ...drafts, [message.id]: event.target.value }))} rows={3} />
-                                  <div>
-                                    <button type="button" onClick={() => submitEditReply(thread.id, message.id)}>{TEXT.editSave}</button>
-                                    <button type="button" className="secondary" onClick={() => setEditingMessageId("")}>{TEXT.cancel}</button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <p>{message.message}</p>
-                              )}
-                              <small>{formatDate(message.createdAt)}</small>
                             </div>
-                          );
-                        })}
-                      </div>
+                          ) : (
+                            <p>{message.message}</p>
+                          )}
+                          <time>{formatDate(message.createdAt)}</time>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
 
-                      <div className="admin-reply-box">
-                        <textarea value={replyDrafts[thread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [thread.id]: event.target.value }))} placeholder={TEXT.replyPlaceholder} rows={3} />
-                        <button type="button" onClick={() => submitReply(thread.id)}>{TEXT.replySave}</button>
-                      </div>
-                    </article>
-                  );
-                })}
-              </section>
-            )) : (
-              <div className="admin-empty">{activeDate === "all" ? TEXT.empty : TEXT.selectedEmpty}</div>
+                <form className="admin-chat-reply" onSubmit={(event) => { event.preventDefault(); submitReply(selectedThread.id); }}>
+                  <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} placeholder={TEXT.replyPlaceholder} rows={2} />
+                  <button type="submit">{TEXT.replySave}</button>
+                </form>
+              </>
+            ) : (
+              <div className="admin-chat-empty">{TEXT.noSelection}</div>
             )}
-          </div>
+
+            {error ? <p className="admin-chat-error">{error}</p> : null}
+          </section>
         </section>
       )}
     </main>
