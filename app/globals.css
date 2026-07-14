@@ -124,8 +124,6 @@ button, input, select, textarea { font: inherit; }
 .dm-form textarea, .dm-append-form textarea { resize: vertical; }
 .dm-form input:focus, .dm-form select:focus, .dm-form textarea:focus, .dm-append-form textarea:focus { border-color: rgba(0, 208, 132, 0.7); box-shadow: 0 0 0 4px rgba(0, 255, 163, 0.18); }
 .wide, .dm-form button, .sent { grid-column: 1 / -1; }
-.consent { grid-template-columns: 18px minmax(0, 1fr); align-items: start; line-height: 1.35; }
-.consent input { width: 18px; height: 18px; margin-top: 2px; padding: 0; }
 .dm-form button, .dm-append-form button { display: inline-flex; justify-content: center; align-items: center; min-height: 50px; border: 0; border-radius: 14px; background: var(--chzzk); color: #101814; font-weight: 900; cursor: pointer; }
 .sent { margin: 0; padding: 12px 14px; border-radius: 14px; background: #e8fff0; color: #0b7f42; font-size: 17px; font-weight: 900; }
 

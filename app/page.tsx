@@ -419,7 +419,7 @@ export default function Home() {
                             <div className="dm-conversation">
                               {thread.messages.map((message) => (
                                 <div className={`dm-bubble ${message.sender}`} key={message.id}>
-                                  <strong>{message.sender === "admin" ? "\uAD00\uB9AC\uC790" : viewer.nickname || viewer.channelName}</strong>
+                                  <strong>{message.sender === "admin" ? "\uCCAB\uC9F8\uC640\uB458\uC9F8" : viewer.nickname || viewer.channelName}</strong>
                                   <p>{message.message}</p>
                                   <small>{formatDate(message.createdAt)}</small>
                                 </div>
@@ -464,10 +464,7 @@ export default function Home() {
                     DM 내용
                     <textarea name="message" placeholder="전하고 싶은 이야기를 적어주세요." rows={6} required />
                   </label>
-                  <label className="consent wide">
-                    <input type="checkbox" required />
-                    <span>DM 확인과 답변을 위해 치지직 채널 정보와 입력한 내용을 운영자가 확인하는 것에 동의합니다.</span>
-                  </label>
+
                   <button type="submit">DM 보내기</button>
                 </form>
               ) : null}
