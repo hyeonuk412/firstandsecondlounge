@@ -285,8 +285,8 @@ export default function DmPage() {
         <section className="dm-login-screen">
           <p className="kicker">DIRECT MESSAGE</p>
           <h1>DM은 로그인 후 보낼 수 있어요.</h1>
-          <p>치지직으로 로그인하면 닉네임이 자동으로 연동되고, 보낸 DM과 답변을 같은 계정 기준으로 확인할 수 있어요.</p>
-          <a className="dm-login-cta" href="/api/auth/chzzk/start">치지직으로 로그인</a>
+          <p>치지직 로그인하면 닉네임이 자동으로 연동되고, 닉네임을 제외한 정보는 수집하지 않아요.</p>
+          <a className="dm-login-cta" href="/api/auth/chzzk/start?next=/dm">치지직으로 로그인</a>
         </section>
       </main>
     );

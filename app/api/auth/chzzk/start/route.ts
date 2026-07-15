@@ -1,4 +1,12 @@
 ﻿const STATE_COOKIE = "chzzk_oauth_state";
+const NEXT_COOKIE = "chzzk_oauth_next";
+
+// only allow same-site relative paths to prevent open-redirect
+function safeNext(value: string | null) {
+  if (!value) return "";
+  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return "";
+  return value;
+}
 
 function getEnv(name: string) {
   const value = process.env[name];
@@ -38,6 +46,9 @@ export async function GET(request: Request) {
 
   const headers = new Headers({ Location: authorizeUrl.toString() });
   headers.append("Set-Cookie", cookieValue(STATE_COOKIE, state, request.url));
+
+  const next = safeNext(new URL(request.url).searchParams.get("next"));
+  if (next) headers.append("Set-Cookie", cookieValue(NEXT_COOKIE, next, request.url));
 
   return new Response(null, { status: 302, headers });
 }

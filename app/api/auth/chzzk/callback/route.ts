@@ -33,7 +33,15 @@ type ChzzkUserPayload = {
 };
 
 const STATE_COOKIE = "chzzk_oauth_state";
+const NEXT_COOKIE = "chzzk_oauth_next";
 const OPEN_API_BASE = "https://openapi.chzzk.naver.com";
+
+// only allow same-site relative paths to prevent open-redirect
+function safeNext(value: string | undefined) {
+  if (!value) return "/";
+  if (!value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return "/";
+  return value;
+}
 
 function getEnv(name: string) {
   const value = process.env[name];
@@ -58,6 +66,11 @@ function clearStateCookie(requestUrl: string) {
   return `${STATE_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
 }
 
+function clearNextCookie(requestUrl: string) {
+  const secure = new URL(requestUrl).protocol === "https:" ? "; Secure" : "";
+  return `${NEXT_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${secure}`;
+}
+
 async function parseResponse(response: Response) {
   const text = await response.text();
   try {
@@ -75,8 +88,8 @@ function userFields(payload: ChzzkUserPayload) {
   return payload.content ?? payload;
 }
 
-function redirectHome(request: Request, headers: Headers) {
-  const target = new URL("/", request.url);
+function redirectTo(request: Request, headers: Headers, path: string) {
+  const target = new URL(path, request.url);
   headers.set("Location", target.toString());
   return new Response(null, { status: 302, headers });
 }
@@ -120,13 +133,16 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const state = url.searchParams.get("state");
-  const savedState = parseCookies(request.headers.get("cookie")).get(STATE_COOKIE);
+  const cookies = parseCookies(request.headers.get("cookie"));
+  const savedState = cookies.get(STATE_COOKIE);
+  const nextPath = safeNext(cookies.get(NEXT_COOKIE));
   const headers = new Headers();
   headers.append("Set-Cookie", clearStateCookie(request.url));
+  headers.append("Set-Cookie", clearNextCookie(request.url));
 
   if (!code || !state || !savedState || state !== savedState) {
     headers.append("Set-Cookie", clearViewerCookie(request.url));
-    return redirectHome(request, headers);
+    return redirectTo(request, headers, nextPath);
   }
 
   try {
@@ -149,10 +165,10 @@ export async function GET(request: Request) {
       ),
     );
 
-    return redirectHome(request, headers);
+    return redirectTo(request, headers, nextPath);
   } catch {
     headers.append("Set-Cookie", clearViewerCookie(request.url));
-    return redirectHome(request, headers);
+    return redirectTo(request, headers, nextPath);
   }
 }
 
