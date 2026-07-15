@@ -3284,7 +3284,7 @@ body:has(.cc-home) {
 /* ---- Hero ---- */
 .cc-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) 420px;
   gap: 18px;
   margin-top: 10px;
 }

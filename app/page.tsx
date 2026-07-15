@@ -47,7 +47,7 @@ export default async function Home() {
   const links = [
     { label: "치지직", href: CHZZK_CHANNEL, tone: "chzzk", icon: CHZZK_ICON },
     { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: YOUTUBE_ICON },
-    { label: "쪽지 DM", href: "/dm", tone: "dm", icon: MESSENGER_ICON },
+    { label: "DM", href: "/dm", tone: "dm", icon: MESSENGER_ICON },
     { label: "디스코드", href: discordUrl || "#", tone: "discord", icon: DISCORD_ICON },
   ];
 
