@@ -60,14 +60,16 @@ function toNotice(message: DiscordMessage): DiscordNotice | null {
   if (!body && attachmentNames.length) body = `첨부파일: ${attachmentNames.join(", ")}`;
   if (!body) return null;
 
-  const firstLine = body.split("\n").find((line) => line.trim()) || body;
+  const date = kstDate(message.timestamp);
+  const [, month, day] = date.split("-");
+  const title = month && day ? `${Number(month)}월 ${Number(day)}일 공지` : "공지";
 
   return {
     id: `discord-${message.id}`,
     tag: "공지",
-    title: firstLine.trim().slice(0, 80) || "제목 없음",
+    title,
     body: body.slice(0, 2000),
-    date: kstDate(message.timestamp),
+    date,
   };
 }
 
