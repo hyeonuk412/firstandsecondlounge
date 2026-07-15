@@ -429,21 +429,32 @@ export default function CheotdoolAdminClient() {
       attachment = result.attachment;
     }
 
+    // optimistic: show the reply immediately, clear the input
+    const tempId = `temp-${Date.now()}`;
+    const tempMessage: DmMessage = { id: tempId, sender: "admin", message, createdAt: new Date().toISOString(), ...(attachment ? { attachment } : {}) };
+    setThreads((items) => sortThreads(items.map((item) => (item.id === threadId
+      ? { ...item, status: "answered", updatedAt: tempMessage.createdAt, messages: [...item.messages, tempMessage] }
+      : item))));
+    setReplyDrafts((drafts) => ({ ...drafts, [threadId]: "" }));
+    if (replyFileRef.current) replyFileRef.current.value = "";
+    setReplyAttachName("");
+
     const response = await fetch(`/api/admin/dms/${encodeURIComponent(threadId)}/reply`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message, attachment }),
     });
     if (!response.ok) {
+      // rollback the optimistic reply
+      setThreads((items) => items.map((item) => (item.id === threadId
+        ? { ...item, messages: item.messages.filter((m) => !m.id.startsWith("temp-")) }
+        : item)));
       setDmError(TEXT.dmSaveError);
       return;
     }
     const payload = (await response.json()) as { thread: DmThread };
     setThreads((items) => sortThreads(items.map((item) => item.id === threadId ? payload.thread : item)));
     setSelectedThreadId(payload.thread.id);
-    setReplyDrafts((drafts) => ({ ...drafts, [threadId]: "" }));
-    if (replyFileRef.current) replyFileRef.current.value = "";
-    setReplyAttachName("");
   }
 
   function addNotice() {

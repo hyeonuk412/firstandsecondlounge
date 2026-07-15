@@ -1,4 +1,16 @@
-﻿import { hasFirebaseConfig, firestore } from "../firebase";
+﻿import { del } from "@vercel/blob";
+import { hasFirebaseConfig, firestore } from "../firebase";
+
+async function deleteAttachments(thread: DmThread | null) {
+  if (!thread || !process.env.BLOB_READ_WRITE_TOKEN) return;
+  const urls = thread.messages.map((message) => message.attachment?.url).filter((url): url is string => Boolean(url));
+  if (!urls.length) return;
+  try {
+    await del(urls);
+  } catch {
+    // best-effort cleanup; ignore blob deletion failures
+  }
+}
 
 export type DmAttachment = {
   url: string;
@@ -223,6 +235,7 @@ export async function deleteDmThread(threadId: string) {
     const store = memoryStore();
     const index = store.findIndex((item) => item.id === threadId);
     if (index === -1) return false;
+    await deleteAttachments(store[index]);
     store.splice(index, 1);
     return true;
   }
@@ -230,6 +243,7 @@ export async function deleteDmThread(threadId: string) {
   const ref = dmsCollection().doc(threadId);
   const snapshot = await ref.get();
   if (!snapshot.exists) return false;
+  await deleteAttachments(normalizeThread(snapshot.data(), snapshot.id));
   await ref.delete();
   return true;
 }

@@ -3976,3 +3976,19 @@ body:has(.cc-page) .kicker,
   transition: background 0.15s ease;
 }
 .dm-thread-delete:hover { background: #ffd2c4; }
+
+/* Admin messenger: collapse to one column earlier + keep header from overflowing */
+@media (max-width: 1000px) {
+  .admin-messenger { grid-template-columns: 1fr; min-height: auto; }
+  .admin-messenger-sidebar { border-right: 0; border-bottom: 1px solid var(--cc-line); }
+  .cheotdool-admin-page .admin-messenger { min-height: auto; height: auto; }
+  .admin-thread-list { max-height: 320px; }
+}
+.admin-messenger, .admin-chat-panel, .admin-chat-head, .admin-chat-profile, .admin-chat-profile div { min-width: 0; }
+.admin-chat-profile { flex: 1 1 auto; }
+.admin-chat-profile strong,
+.admin-chat-profile span:not(.admin-thread-avatar) {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+}
+.admin-chat-head-right { flex: 0 0 auto; }
+.admin-chat-bubble { max-width: min(78%, 460px); }

@@ -208,6 +208,7 @@ export default function DmPage() {
     const hasFile = file instanceof File && file.size > 0;
     if (!message && !hasFile) return;
 
+    const threadId = selectedThread.id;
     setSending(true);
     setError("");
     try {
@@ -217,18 +218,29 @@ export default function DmPage() {
         if (!result.ok) throw new Error(result.error);
         attachment = result.attachment;
       }
+      // optimistic: show the message immediately, clear the input
+      const tempId = `temp-${Date.now()}`;
+      const tempMessage: DmMessage = { id: tempId, sender: "viewer", message, createdAt: new Date().toISOString(), ...(attachment ? { attachment } : {}) };
+      setThreads((current) => current.map((thread) => (thread.id === threadId
+        ? { ...thread, status: "waiting", updatedAt: tempMessage.createdAt, messages: [...thread.messages, tempMessage] }
+        : thread)));
+      form.reset();
+      setReplyAttachName("");
+
       const response = await fetch("/api/dms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ threadId: selectedThread.id, message, attachment }),
+        body: JSON.stringify({ threadId, message, attachment }),
       });
       if (!response.ok) throw new Error("DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
       const payload = (await response.json()) as { thread: DmThread };
       setThreads((current) => [payload.thread, ...current.filter((thread) => thread.id !== payload.thread.id)]);
       setSelectedThreadId(payload.thread.id);
-      form.reset();
-      setReplyAttachName("");
     } catch (sendError) {
+      // rollback the optimistic message
+      setThreads((current) => current.map((thread) => (thread.id === threadId
+        ? { ...thread, messages: thread.messages.filter((item) => !item.id.startsWith("temp-")) }
+        : thread)));
       setError(sendError instanceof Error ? sendError.message : "DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
     } finally {
       setSending(false);
