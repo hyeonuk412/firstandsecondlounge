@@ -3347,7 +3347,7 @@ body:has(.cc-home) {
   margin-top: auto;
   display: inline-flex; align-items: center; justify-content: center;
   min-height: 50px; border-radius: 16px;
-  background: #00ffa3; color: #05271b;
+  background: #06cd8b; color: #05271b;
   font-weight: 800; font-size: 16px;
   transition: transform 0.12s ease, background 0.15s ease;
 }
