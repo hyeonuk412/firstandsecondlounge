@@ -4139,3 +4139,24 @@ body:has(.cheotdool-admin-page) { background: var(--cc-cream); }
   align-items: center;
   justify-content: center;
 }
+
+/* ---- Admin settings: nicknames as a compact flat list (like notices) ---- */
+.admin-nickname-list { display: flex; flex-direction: column; }
+.admin-nickname-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--cc-line);
+}
+.admin-nickname-row:last-child { border-bottom: 0; }
+.admin-nickname-row input {
+  flex: 1;
+  min-width: 0;
+}
+.admin-nickname-row .admin-danger {
+  flex: none;
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 13px;
+}

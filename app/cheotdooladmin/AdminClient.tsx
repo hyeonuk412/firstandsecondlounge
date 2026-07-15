@@ -799,13 +799,14 @@ export default function CheotdoolAdminClient() {
               <p className="admin-hint">공지를 가져올 디스코드 채널 ID예요. 채널 우클릭 → &ldquo;ID 복사&rdquo;(개발자 모드). 저장 후 공지 화면에서 &ldquo;디스코드에서 가져오기&rdquo;를 누르세요.</p>
             </article>
             <div className="admin-section-head"><h2>{TEXT.adminNicknames}</h2><button type="button" onClick={() => setSettings((current) => ({ ...current, adminNicknames: [...current.adminNicknames, ""] }))}>{TEXT.addNickname}</button></div>
-            <div className="admin-edit-list">
+            <div className="admin-nickname-list">
               {settings.adminNicknames.map((nickname, index) => (
-                <article className="admin-edit-card admin-nickname-card" key={`${nickname}-${index}`}>
-                  <label>{TEXT.adminNicknames}<input value={nickname} onChange={(event) => updateAdminNickname(index, event.target.value)} placeholder="치지직 닉네임" /></label>
+                <div className="admin-nickname-row" key={`${nickname}-${index}`}>
+                  <input value={nickname} onChange={(event) => updateAdminNickname(index, event.target.value)} placeholder="치지직 닉네임" />
                   <button className="admin-danger" type="button" onClick={() => removeAdminNickname(index)}>{TEXT.delete}</button>
-                </article>
+                </div>
               ))}
+              {!settings.adminNicknames.length ? <div className="admin-empty">{TEXT.empty}</div> : null}
             </div>
           </section>
         </section>
