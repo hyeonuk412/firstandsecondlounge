@@ -3910,7 +3910,7 @@ body:has(.cc-page) .kicker,
 .admin-thread-card.waiting::after { top: 11px; right: 11px; }
 
 /* DM attachments (viewer + admin) */
-.dm-attach { display: block; margin-top: 4px; }
+.dm-attach { display: inline-block; margin-top: 4px; }
 .dm-attach img, .admin-chat-attach img {
   display: block; max-width: min(260px, 100%); max-height: 300px;
   border-radius: 12px; object-fit: cover;
@@ -3921,7 +3921,7 @@ body:has(.cc-page) .kicker,
   background: rgba(255, 255, 255, 0.7); color: var(--cc-ink);
   font-size: 13px; font-weight: 700; text-decoration: none; word-break: break-all;
 }
-.admin-chat-attach { display: block; margin-top: 4px; }
+.admin-chat-attach { display: inline-block; margin-top: 4px; }
 
 /* compose attach button */
 .dm-attach-btn {
