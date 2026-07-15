@@ -20,6 +20,16 @@ export type DiscordFetchResult =
   | { ok: true; notices: DiscordNotice[] }
   | { ok: false; error: string; status?: number };
 
+// Accepts a raw channel id or a pasted channel URL/link and returns just the
+// channel id. e.g. "https://discord.com/channels/<guild>/<channel>" -> "<channel>".
+export function extractDiscordChannelId(raw: string): string {
+  const value = String(raw || "").trim();
+  const urlMatch = value.match(/channels\/\d+\/(\d+)/);
+  if (urlMatch) return urlMatch[1];
+  const digits = value.match(/\d{5,}/g);
+  return digits ? digits[digits.length - 1] : value;
+}
+
 function kstDate(iso: string): string {
   const parsed = new Date(iso);
   if (Number.isNaN(parsed.getTime())) return iso.slice(0, 10);
@@ -63,11 +73,12 @@ function toNotice(message: DiscordMessage): DiscordNotice | null {
 
 // Reads recent messages from a Discord channel via the bot REST API and maps
 // them to notice items (date = the Discord post date, in KST).
-export async function fetchDiscordNotices(channelId: string, limit = 30): Promise<DiscordFetchResult> {
+export async function fetchDiscordNotices(rawChannelId: string, limit = 30): Promise<DiscordFetchResult> {
   const token = process.env.DISCORD_BOT_TOKEN;
   if (!token) {
     return { ok: false, error: "DISCORD_BOT_TOKEN 환경변수가 없어요. Vercel에 봇 토큰을 추가해주세요." };
   }
+  const channelId = extractDiscordChannelId(rawChannelId);
   if (!channelId) {
     return { ok: false, error: "디스코드 공지 채널 ID를 먼저 설정해주세요." };
   }

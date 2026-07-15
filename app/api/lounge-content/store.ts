@@ -1,4 +1,5 @@
 import { hasFirebaseConfig, firestore } from "../firebase";
+import { extractDiscordChannelId } from "../discord/notices";
 
 export type NoticeItem = {
   id: string;
@@ -70,7 +71,7 @@ function cleanSettings(value: unknown): SiteSettings {
   const settings = value as Partial<SiteSettings> | undefined;
   return {
     discordUrl: cleanText(settings?.discordUrl, 300),
-    discordNoticeChannelId: cleanText(settings?.discordNoticeChannelId, 40),
+    discordNoticeChannelId: extractDiscordChannelId(cleanText(settings?.discordNoticeChannelId, 200)),
     adminNicknames: cleanAdminNicknames(settings?.adminNicknames),
   };
 }
