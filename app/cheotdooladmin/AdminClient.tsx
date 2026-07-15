@@ -355,7 +355,7 @@ export default function CheotdoolAdminClient() {
   }, []);
 
   useEffect(() => {
-    if (activePanel !== "dms") return;
+    if (activePanel !== "dms" && activePanel !== "home") return;
     loadThreads({ silent: threads.length > 0 });
     const timer = window.setInterval(() => {
       loadThreads({ silent: true });
@@ -574,10 +574,10 @@ export default function CheotdoolAdminClient() {
 
       {activePanel === "home" ? (
         <section className="admin-home-grid" aria-label="관리자 첫 화면">
-          <button type="button" className="admin-home-card" onClick={() => openPanel("dms")}>
+          <button type="button" className={`admin-home-card${waitingCount > 0 ? " alert" : ""}`} onClick={() => openPanel("dms")}>
             <span>DIRECT MESSAGE</span>
-            <strong>DM</strong>
-            <small>{threads.length > 0 && waitingCount > 0 ? waitingCount + TEXT.countSuffix + " 답변 대기" : "눌러서 확인하기"}</small>
+            <strong>{waitingCount}{TEXT.countSuffix}</strong>
+            <small>{waitingCount > 0 ? `답변 대기 · 전체 ${threads.length}${TEXT.countSuffix}` : `답변 대기 없음 · 전체 ${threads.length}${TEXT.countSuffix}`}</small>
           </button>
           <button type="button" className="admin-home-card" onClick={() => openPanel("notices")}>
             <span>NOTICE</span>

@@ -4160,3 +4160,9 @@ body:has(.cheotdool-admin-page) { background: var(--cc-cream); }
   padding: 0 14px;
   font-size: 13px;
 }
+
+/* ---- Admin home: DM card highlight when replies are waiting ---- */
+/* .admin-home-grid prefix needed to beat the nth-child background rules */
+.admin-home-grid .admin-home-card.alert { border: 1px solid var(--cc-coral); background: var(--cc-coral-soft); }
+.admin-home-grid .admin-home-card.alert span,
+.admin-home-grid .admin-home-card.alert strong { color: #c23f24; }
