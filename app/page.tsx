@@ -1,5 +1,4 @@
 import { getLoungeContent, type NoticeItem, type ScheduleItem } from "./api/lounge-content/store";
-import { getDisplayNotices } from "./api/lounge-content/display";
 import HomeAuth from "./HomeAuth";
 import LiveStatusCard from "./LiveStatusCard";
 
@@ -40,7 +39,7 @@ function scheduleLabel(item: ScheduleItem) {
 
 export default async function Home() {
   const content = await getLoungeContent();
-  const notices = await getDisplayNotices();
+  const notices = Array.isArray(content.notices) ? content.notices : [];
   const schedules = Array.isArray(content.schedules) ? content.schedules : [];
   const discordUrl = content.settings?.discordUrl || content.links?.discordUrl || "";
   const adminNicknames = content.settings?.adminNicknames?.length ? content.settings.adminNicknames : DEFAULT_ADMIN_NICKNAMES;
