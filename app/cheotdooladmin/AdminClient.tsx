@@ -619,7 +619,7 @@ export default function CheotdoolAdminClient() {
                                   <img src={message.attachment.url} alt={message.attachment.name} loading="lazy" />
                                 </a>
                               ) : (
-                                <a className="admin-chat-attach-file" href={message.attachment.url} target="_blank" rel="noreferrer">📎 {message.attachment.name}</a>
+                                <a className="admin-chat-attach-file" href={message.attachment.url} target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg> {message.attachment.name}</a>
                               )
                             ) : null}
                           </div>
@@ -630,9 +630,9 @@ export default function CheotdoolAdminClient() {
                   })}
                 </div>
                 <form className="admin-chat-reply" onSubmit={(event) => { event.preventDefault(); submitReply(selectedThread.id); }}>
-                  {replyAttachName ? <span className="dm-attach-chip"><span aria-hidden="true">📎</span> {replyAttachName}</span> : null}
+                  {replyAttachName ? <span className="dm-attach-chip"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg> {replyAttachName}</span> : null}
                   <label className="dm-attach-icon" title="파일 첨부 (이미지·PDF)">
-                    📎
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg>
                     <input ref={replyFileRef} type="file" accept="image/*,application/pdf" hidden onChange={(event) => setReplyAttachName(event.target.files?.[0]?.name || "")} />
                   </label>
                   <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} onKeyDown={submitTextareaOnEnter} placeholder={TEXT.replyPlaceholder} rows={1} />

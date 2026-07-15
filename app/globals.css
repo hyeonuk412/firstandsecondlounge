@@ -4069,3 +4069,19 @@ body:has(.cc-page) .kicker,
 }
 .admin-thread-card.waiting::after { display: none; }
 .admin-thread-preview { padding-right: 44px; }
+
+/* DM input: clean single line (no scrollbar / resize grip) */
+.dm-chat-input textarea, .admin-chat-reply textarea {
+  resize: none;
+  overflow: hidden;
+  field-sizing: content;
+  height: auto;
+  min-height: 46px;
+  max-height: 130px;
+}
+/* attach clip icon color */
+.dm-attach-icon { color: var(--cc-ink-soft); }
+.dm-attach-icon svg { display: block; }
+.dm-attach-btn svg, .dm-attach-chip svg, .dm-attach-file svg, .admin-chat-attach-file svg { vertical-align: -2px; }
+/* nudge the paper plane to optical center */
+.dm-send-btn svg { transform: translateX(1px); }

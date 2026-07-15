@@ -43,7 +43,7 @@ function AttachmentView({ attachment }: { attachment: DmAttachment }) {
   }
   return (
     <a className="dm-attach-file" href={attachment.url} target="_blank" rel="noreferrer">
-      <span aria-hidden="true">📎</span> {attachment.name}
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg> {attachment.name}
     </a>
   );
 }
@@ -354,7 +354,7 @@ export default function DmPage() {
                   <textarea name="message" placeholder="첫째와둘째에게 전하고 싶은 내용을 적어주세요." rows={8} onKeyDown={submitTextareaOnEnter} />
                 </label>
                 <label className="dm-attach-btn">
-                  <span aria-hidden="true">📎</span> {newAttachName || "사진·파일 첨부 (이미지·PDF, 8MB)"}
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg> {newAttachName || "사진·파일 첨부 (이미지·PDF, 8MB)"}
                   <input type="file" name="file" accept="image/*,application/pdf" hidden onChange={(event) => setNewAttachName(event.target.files?.[0]?.name || "")} />
                 </label>
                 <button type="submit" disabled={sending}>{sending ? "보내는 중" : "DM 보내기"}</button>
@@ -385,9 +385,9 @@ export default function DmPage() {
               </div>
 
               <form className="dm-chat-input" onSubmit={handleAppend}>
-                {replyAttachName ? <span className="dm-attach-chip"><span aria-hidden="true">📎</span> {replyAttachName}</span> : null}
+                {replyAttachName ? <span className="dm-attach-chip"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg> {replyAttachName}</span> : null}
                 <label className="dm-attach-icon" title="파일 첨부 (이미지·PDF)">
-                  📎
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg>
                   <input type="file" name="file" accept="image/*,application/pdf" hidden onChange={(event) => setReplyAttachName(event.target.files?.[0]?.name || "")} />
                 </label>
                 <textarea name="message" placeholder="이 스레드에 이어서 DM 보내기" rows={1} onKeyDown={submitTextareaOnEnter} />
