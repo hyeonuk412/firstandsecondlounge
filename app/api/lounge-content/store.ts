@@ -18,6 +18,7 @@ export type ScheduleItem = {
 
 export type SiteSettings = {
   discordUrl: string;
+  discordNoticeChannelId: string;
   adminNicknames: string[];
 };
 
@@ -37,6 +38,7 @@ const DEFAULT_NOTICES: NoticeItem[] = [];
 
 const DEFAULT_SETTINGS: SiteSettings = {
   discordUrl: "",
+  discordNoticeChannelId: "",
   adminNicknames: ["첫째와둘째", "첫째입니다", "오늘의메뉴"],
 };
 
@@ -68,6 +70,7 @@ function cleanSettings(value: unknown): SiteSettings {
   const settings = value as Partial<SiteSettings> | undefined;
   return {
     discordUrl: cleanText(settings?.discordUrl, 300),
+    discordNoticeChannelId: cleanText(settings?.discordNoticeChannelId, 40),
     adminNicknames: cleanAdminNicknames(settings?.adminNicknames),
   };
 }

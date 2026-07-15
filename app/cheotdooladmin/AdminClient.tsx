@@ -20,6 +20,7 @@ type ScheduleItem = {
 
 type SiteSettings = {
   discordUrl: string;
+  discordNoticeChannelId: string;
   adminNicknames: string[];
 };
 
@@ -72,6 +73,7 @@ type AdminPanel = "home" | "dms" | "notices" | "schedules" | "settings";
 
 const DEFAULT_SETTINGS: SiteSettings = {
   discordUrl: "",
+  discordNoticeChannelId: "",
   adminNicknames: ["첫째와둘째", "첫째입니다", "오늘의메뉴"],
 };
 
@@ -89,6 +91,9 @@ const TEXT = {
   adminNicknames: "관리자 닉네임",
   addNickname: "닉네임 추가",
   addNotice: "공지 추가",
+  importDiscord: "디스코드에서 가져오기",
+  importing: "가져오는 중",
+  discordChannelId: "디스코드 공지 채널 ID",
   addSchedule: "일정 추가",
   save: "저장하기",
   saving: "저장 중",
@@ -255,6 +260,8 @@ export default function CheotdoolAdminClient() {
   const [contentSaved, setContentSaved] = useState(false);
   const [contentError, setContentError] = useState("");
   const [selectedNoticeId, setSelectedNoticeId] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState("");
   const [calendarMonth, setCalendarMonth] = useState(monthKey());
   const [selectedScheduleDate, setSelectedScheduleDate] = useState(todayKey());
 
@@ -463,6 +470,36 @@ export default function CheotdoolAdminClient() {
     setSelectedNoticeId(notice.id);
   }
 
+  async function importFromDiscord() {
+    setImporting(true);
+    setImportMsg("");
+    setContentError("");
+    setContentSaved(false);
+    try {
+      const response = await fetch("/api/admin/notices/import-discord", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channelId: settings.discordNoticeChannelId }),
+      });
+      const payload = (await response.json()) as { notices?: NoticeItem[]; error?: string };
+      if (!response.ok) throw new Error(payload.error || "디스코드에서 가져오지 못했어요.");
+
+      const incoming = payload.notices || [];
+      const existing = new Set(notices.map((item) => item.id));
+      const fresh = incoming.filter((item) => !existing.has(item.id));
+      setNotices((items) => {
+        const seen = new Set(items.map((item) => item.id));
+        return [...fresh.filter((item) => !seen.has(item.id)), ...items];
+      });
+      if (fresh.length) setSelectedNoticeId(fresh[0].id);
+      setImportMsg(fresh.length ? `${fresh.length}개를 불러왔어요. 저장을 누르면 반영돼요.` : "새로 가져올 공지가 없어요.");
+    } catch (importError) {
+      setImportMsg(importError instanceof Error ? importError.message : "디스코드에서 가져오지 못했어요.");
+    } finally {
+      setImporting(false);
+    }
+  }
+
   function updateNotice(id: string, patch: Partial<NoticeItem>) {
     setNotices((items) => items.map((item) => item.id === id ? { ...item, ...patch } : item));
   }
@@ -657,7 +694,14 @@ export default function CheotdoolAdminClient() {
           {contentError ? <p className="dm-error">{contentError}</p> : null}
           <div className="admin-notice-manager">
             <section className="admin-notice-list-panel">
-              <div className="admin-section-head"><h2>목록</h2><button type="button" onClick={addNotice}>{TEXT.addNotice}</button></div>
+              <div className="admin-section-head">
+                <h2>목록</h2>
+                <div className="admin-head-actions">
+                  <button type="button" onClick={importFromDiscord} disabled={importing}>{importing ? TEXT.importing : TEXT.importDiscord}</button>
+                  <button type="button" onClick={addNotice}>{TEXT.addNotice}</button>
+                </div>
+              </div>
+              {importMsg ? <p className="admin-hint">{importMsg}</p> : null}
               <div className="admin-notice-list">
                 {sortedNoticeItems.length ? sortedNoticeItems.map((notice) => (
                   <button className={selectedNotice?.id === notice.id ? "active" : ""} type="button" onClick={() => setSelectedNoticeId(notice.id)} key={notice.id}>
@@ -744,6 +788,8 @@ export default function CheotdoolAdminClient() {
             <div className="admin-section-head"><h2>디스코드</h2></div>
             <article className="admin-edit-card">
               <label>{TEXT.discordUrl}<input value={settings.discordUrl} onChange={(event) => setSettings((current) => ({ ...current, discordUrl: event.target.value }))} placeholder="https://discord.gg/..." /></label>
+              <label>{TEXT.discordChannelId}<input value={settings.discordNoticeChannelId} onChange={(event) => setSettings((current) => ({ ...current, discordNoticeChannelId: event.target.value }))} placeholder="예: 123456789012345678" /></label>
+              <p className="admin-hint">공지를 가져올 디스코드 채널 ID예요. 채널 우클릭 → &ldquo;ID 복사&rdquo;(개발자 모드). 저장 후 공지 화면에서 &ldquo;디스코드에서 가져오기&rdquo;를 누르세요.</p>
             </article>
             <div className="admin-section-head"><h2>{TEXT.adminNicknames}</h2><button type="button" onClick={() => setSettings((current) => ({ ...current, adminNicknames: [...current.adminNicknames, ""] }))}>{TEXT.addNickname}</button></div>
             <div className="admin-edit-list">

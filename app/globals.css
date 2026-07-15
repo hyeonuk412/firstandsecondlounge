@@ -4105,3 +4105,12 @@ body:has(.cheotdool-admin-page) { background: var(--cc-cream); }
 
 /* wider inner pages too */
 .cc-page { width: min(1040px, calc(100% - 40px)); }
+
+/* ---- Admin: Discord notice import ---- */
+.admin-head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.admin-hint {
+  margin: 2px 0 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--cc-ink-soft);
+}
