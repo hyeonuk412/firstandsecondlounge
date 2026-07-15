@@ -693,7 +693,10 @@ export default function CheotdoolAdminClient() {
         <section className="admin-dm-shell admin-content-shell">
           <div className="admin-toolbar">
             <strong>{contentLoading ? "Loading" : TEXT.notices}</strong>
-            <button type="button" onClick={saveContent} disabled={contentSaving}>{contentSaving ? TEXT.saving : TEXT.save}</button>
+            <div className="admin-head-actions">
+              <button type="button" onClick={importFromDiscord} disabled={importing}>{importing ? TEXT.importing : TEXT.importDiscord}</button>
+              <button type="button" onClick={addNotice}>{TEXT.addNotice}</button>
+            </div>
           </div>
           {contentSaved ? <p className="sent">{TEXT.saved}</p> : null}
           {contentError ? <p className="dm-error">{contentError}</p> : null}
@@ -701,10 +704,6 @@ export default function CheotdoolAdminClient() {
             <section className="admin-notice-list-panel">
               <div className="admin-section-head">
                 <h2>목록</h2>
-                <div className="admin-head-actions">
-                  <button type="button" onClick={importFromDiscord} disabled={importing}>{importing ? TEXT.importing : TEXT.importDiscord}</button>
-                  <button type="button" onClick={addNotice}>{TEXT.addNotice}</button>
-                </div>
               </div>
               {importMsg ? <p className="admin-hint">{importMsg}</p> : null}
               <div className="admin-notice-list">
@@ -725,7 +724,10 @@ export default function CheotdoolAdminClient() {
                   </div>
                   <label>{TEXT.noticeTitle}<input value={selectedNotice.title} onChange={(event) => updateNotice(selectedNotice.id, { title: event.target.value })} /></label>
                   <label>{TEXT.noticeBody}<textarea rows={8} value={selectedNotice.body} onChange={(event) => updateNotice(selectedNotice.id, { body: event.target.value })} /></label>
-                  <button className="admin-danger" type="button" onClick={() => removeNotice(selectedNotice.id)}>{TEXT.delete}</button>
+                  <div className="admin-edit-actions">
+                    <button className="admin-danger" type="button" onClick={() => removeNotice(selectedNotice.id)}>{TEXT.delete}</button>
+                    <button type="button" onClick={saveContent} disabled={contentSaving}>{contentSaving ? TEXT.saving : TEXT.save}</button>
+                  </div>
                 </article>
               ) : <div className="admin-empty">공지를 선택하거나 추가해주세요.</div>}
             </section>
