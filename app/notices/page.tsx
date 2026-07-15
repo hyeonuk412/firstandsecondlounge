@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getLoungeContent, type NoticeItem } from "../api/lounge-content/store";
+import { type NoticeItem } from "../api/lounge-content/store";
+import { getDisplayNotices } from "../api/lounge-content/display";
 
 export const revalidate = 10;
 
@@ -19,8 +20,7 @@ function byNewest(a: NoticeItem, b: NoticeItem) {
 }
 
 export default async function NoticesPage() {
-  const content = await getLoungeContent();
-  const notices = content.notices.slice().sort(byNewest);
+  const notices = (await getDisplayNotices()).slice().sort(byNewest);
 
   return (
     <main className="cc-page cc-notices">

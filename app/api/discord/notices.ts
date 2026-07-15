@@ -122,3 +122,24 @@ export async function fetchDiscordNotices(channelId: string, limit = 30): Promis
 
   return { ok: true, notices };
 }
+
+declare global {
+  var __discordNoticeCache: Map<string, { expiresAt: number; notices: DiscordNotice[] }> | undefined;
+}
+
+// Cached read for public pages: avoids hammering Discord on every render.
+// On error it serves the last good result (if any) rather than nothing.
+export async function getDiscordNoticesCached(channelId: string, ttlMs = 60000): Promise<DiscordNotice[]> {
+  if (!channelId || !process.env.DISCORD_BOT_TOKEN) return [];
+
+  globalThis.__discordNoticeCache ??= new Map();
+  const cache = globalThis.__discordNoticeCache;
+  const hit = cache.get(channelId);
+  if (hit && hit.expiresAt > Date.now()) return hit.notices;
+
+  const result = await fetchDiscordNotices(channelId, 30);
+  if (!result.ok) return hit?.notices || [];
+
+  cache.set(channelId, { expiresAt: Date.now() + ttlMs, notices: result.notices });
+  return result.notices;
+}

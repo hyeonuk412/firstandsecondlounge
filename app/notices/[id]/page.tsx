@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { getLoungeContent } from "../../api/lounge-content/store";
+import { getDisplayNotices } from "../../api/lounge-content/display";
 
 export const revalidate = 10;
 
@@ -21,8 +22,8 @@ function noticeDate(value?: string) {
 
 export default async function NoticeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const content = await getLoungeContent();
-  const notice = content.notices.find((item) => item.id === decodeURIComponent(id));
+  const notices = await getDisplayNotices();
+  const notice = notices.find((item) => item.id === decodeURIComponent(id));
   if (!notice) notFound();
 
   return (
