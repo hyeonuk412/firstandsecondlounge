@@ -51,7 +51,6 @@ export default function HomeAuth({ adminNicknames }: HomeAuthProps) {
     return (
       <>
         <div className="cc-viewer">
-          <span className="cc-viewer-avatar" aria-hidden="true">🙌</span>
           <span className="cc-viewer-copy">
             <em>반가워요</em>
             <strong>{viewer.nickname || viewer.channelName}</strong>

@@ -27,14 +27,14 @@ function byNewestNotice(a: NoticeItem, b: NoticeItem) {
   return (b.date || "").localeCompare(a.date || "");
 }
 
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
 function scheduleLabel(item: ScheduleItem) {
-  if (!item.date) return item.day;
-  const date = new Date(item.date + "T00:00:00");
-  if (Number.isNaN(date.getTime())) return item.date;
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "numeric",
-    day: "numeric",
-  }).format(date);
+  if (item.date) {
+    const date = new Date(item.date + "T00:00:00");
+    if (!Number.isNaN(date.getTime())) return WEEKDAYS[date.getDay()];
+  }
+  return item.day || "";
 }
 
 export default async function Home() {
@@ -65,7 +65,7 @@ export default async function Home() {
           </span>
           <span className="cc-brand-name">
             <b>첫째와둘째</b>
-            <em>팬 라운지</em>
+            <em>라운지</em>
           </span>
         </a>
         <div className="cc-auth">
@@ -141,9 +141,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <footer className="cc-foot">
-        <span>💛 첫째와둘째 팬 라운지</span>
-      </footer>
     </main>
   );
 }
