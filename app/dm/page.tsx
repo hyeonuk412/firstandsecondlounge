@@ -19,12 +19,17 @@ type DmMessage = {
   attachment?: DmAttachment;
 };
 
-async function uploadAttachment(file: File): Promise<DmAttachment | null> {
+type UploadResult = { ok: true; attachment: DmAttachment } | { ok: false; error: string };
+
+async function uploadAttachment(file: File): Promise<UploadResult> {
   const form = new FormData();
   form.append("file", file);
   const response = await fetch("/api/dms/upload", { method: "POST", body: form });
-  if (!response.ok) return null;
-  return (await response.json()) as DmAttachment;
+  const data = (await response.json().catch(() => ({}))) as Partial<DmAttachment> & { error?: string };
+  if (!response.ok || !data.url) {
+    return { ok: false, error: data.error || "첨부 파일을 올리지 못했어요." };
+  }
+  return { ok: true, attachment: { url: data.url, name: data.name || file.name, type: data.type || file.type } };
 }
 
 function AttachmentView({ attachment }: { attachment: DmAttachment }) {
@@ -169,8 +174,9 @@ export default function DmPage() {
     try {
       let attachment: DmAttachment | null = null;
       if (hasFile) {
-        attachment = await uploadAttachment(file);
-        if (!attachment) throw new Error("첨부 파일을 올리지 못했어요. (이미지·PDF, 8MB 이하)");
+        const result = await uploadAttachment(file);
+        if (!result.ok) throw new Error(result.error);
+        attachment = result.attachment;
       }
       const response = await fetch("/api/dms", {
         method: "POST",
@@ -207,8 +213,9 @@ export default function DmPage() {
     try {
       let attachment: DmAttachment | null = null;
       if (hasFile) {
-        attachment = await uploadAttachment(file);
-        if (!attachment) throw new Error("첨부 파일을 올리지 못했어요. (이미지·PDF, 8MB 이하)");
+        const result = await uploadAttachment(file);
+        if (!result.ok) throw new Error(result.error);
+        attachment = result.attachment;
       }
       const response = await fetch("/api/dms", {
         method: "POST",

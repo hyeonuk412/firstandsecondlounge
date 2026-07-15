@@ -38,10 +38,18 @@ export async function POST(request: Request) {
   const safeName = (file.name || "file").replace(/[^\w.\-가-힣]+/g, "_").slice(0, 80) || "file";
   const key = `dm/${Date.now()}-${crypto.randomUUID().slice(0, 8)}-${safeName}`;
 
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return Response.json({ error: "파일 저장소(Blob) 연결이 안 돼 있어요. Vercel에서 Blob 스토어를 이 프로젝트에 연결하고 다시 배포해주세요." }, { status: 500 });
+  }
+
   try {
     const blob = await put(key, file, { access: "public", contentType: type });
     return Response.json({ url: blob.url, name: file.name || safeName, type });
-  } catch {
-    return Response.json({ error: "업로드에 실패했어요. 잠시 후 다시 시도해주세요." }, { status: 500 });
+  } catch (uploadError) {
+    const raw = uploadError instanceof Error ? uploadError.message : "";
+    const message = /token|BLOB_READ_WRITE|unauthor|forbidden/i.test(raw)
+      ? "파일 저장소(Blob) 연결/권한 문제예요. Vercel Blob 설정을 확인해주세요."
+      : `업로드에 실패했어요: ${raw || "알 수 없는 오류"}`.slice(0, 160);
+    return Response.json({ error: message }, { status: 500 });
   }
 }
