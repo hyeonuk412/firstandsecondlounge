@@ -635,8 +635,10 @@ export default function CheotdoolAdminClient() {
                     📎
                     <input ref={replyFileRef} type="file" accept="image/*,application/pdf" hidden onChange={(event) => setReplyAttachName(event.target.files?.[0]?.name || "")} />
                   </label>
-                  <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} onKeyDown={submitTextareaOnEnter} placeholder={TEXT.replyPlaceholder} rows={2} />
-                  <button type="submit">{TEXT.replySave}</button>
+                  <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} onKeyDown={submitTextareaOnEnter} placeholder={TEXT.replyPlaceholder} rows={1} />
+                  <button className="dm-send-btn" type="submit" aria-label="보내기">
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M2.3 20.3 21.5 12 2.3 3.7 2.3 10.3 15 12 2.3 13.7z" /></svg>
+                  </button>
                 </form>
               </>
             ) : <div className="admin-chat-empty">{TEXT.noSelection}</div>}

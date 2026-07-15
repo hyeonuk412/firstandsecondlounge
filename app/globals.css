@@ -4034,3 +4034,38 @@ body:has(.cc-page) .kicker,
 .admin-notice-list button.active { background: transparent; }
 .admin-notice-list button.active strong { color: var(--cc-mint); }
 .admin-notice-list button:last-child { border-bottom: 0; }
+
+/* ---- DM input row: one-line textarea + round paper-plane send ---- */
+.dm-chat-input, .admin-chat-reply { align-items: center; }
+.dm-chat-input textarea, .admin-chat-reply textarea {
+  min-height: 46px; height: 46px; max-height: 130px; padding: 12px 14px; line-height: 1.35;
+}
+.dm-chat-input .dm-send-btn, .admin-chat-reply .dm-send-btn {
+  width: 46px; height: 46px; min-height: 46px; flex: 0 0 auto; padding: 0;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: var(--cc-mint); color: #08321f; cursor: pointer;
+  box-shadow: none; transition: background 0.15s ease, transform 0.1s ease;
+}
+.dm-chat-input .dm-send-btn:hover, .admin-chat-reply .dm-send-btn:hover { background: #3f9d7e; transform: translateY(-1px); }
+.dm-chat-input .dm-send-btn:disabled, .admin-chat-reply .dm-send-btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+.dm-send-btn svg { display: block; }
+
+/* ---- DM thread cards: smaller (viewer + admin) ---- */
+.dm-thread-card, .admin-thread-card { padding: 8px 10px; gap: 9px; min-height: 0; }
+.dm-thread-card { grid-template-columns: 34px minmax(0, 1fr) auto; }
+.admin-thread-card { grid-template-columns: 34px minmax(0, 1fr); }
+.dm-thread-avatar, .admin-thread-avatar { width: 34px; height: 34px; font-size: 14px; border-radius: 11px; }
+.dm-thread-summary strong, .admin-thread-topline strong { font-size: 13.5px; }
+.dm-thread-summary small, .admin-thread-preview { font-size: 11.5px; }
+.dm-thread-meta time, .admin-thread-topline time { font-size: 11px; }
+.dm-thread-meta em, .admin-thread-card em { font-size: 10px; padding: 3px 7px; margin-top: 1px; }
+
+/* Admin thread card: put status badge in the corner (was taking its own row) */
+.admin-thread-card { position: relative; }
+.admin-thread-card em {
+  position: absolute; bottom: 7px; right: 10px;
+  grid-column: auto; justify-self: auto; margin: 0;
+}
+.admin-thread-card.waiting::after { display: none; }
+.admin-thread-preview { padding-right: 44px; }

@@ -390,8 +390,10 @@ export default function DmPage() {
                   📎
                   <input type="file" name="file" accept="image/*,application/pdf" hidden onChange={(event) => setReplyAttachName(event.target.files?.[0]?.name || "")} />
                 </label>
-                <textarea name="message" placeholder="이 스레드에 이어서 DM 보내기" rows={2} onKeyDown={submitTextareaOnEnter} />
-                <button type="submit" disabled={sending}>{sending ? "전송 중" : "보내기"}</button>
+                <textarea name="message" placeholder="이 스레드에 이어서 DM 보내기" rows={1} onKeyDown={submitTextareaOnEnter} />
+                <button className="dm-send-btn" type="submit" disabled={sending} aria-label="보내기">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M2.3 20.3 21.5 12 2.3 3.7 2.3 10.3 15 12 2.3 13.7z" /></svg>
+                </button>
               </form>
             </>
           ) : (
