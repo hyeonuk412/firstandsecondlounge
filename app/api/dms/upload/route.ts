@@ -3,11 +3,6 @@ import { readViewerSession } from "../../auth/chzzk/session";
 
 export const runtime = "nodejs";
 
-// TEMP diagnostic: report only whether Blob storage is configured (no secret).
-export async function GET() {
-  return Response.json({ blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN) });
-}
-
 const MAX_BYTES = 8 * 1024 * 1024; // 8MB
 const ALLOWED_TYPE = /^(image\/(png|jpe?g|gif|webp|avif|bmp)|application\/pdf)$/i;
 
