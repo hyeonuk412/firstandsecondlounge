@@ -43,8 +43,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    const blob = await put(key, file, { access: "public", contentType: type });
-    return Response.json({ url: blob.url, name: file.name || safeName, type });
+    const blob = await put(key, file, { access: "private", contentType: type });
+    // Serve through an authenticated proxy (private blobs need a token to read).
+    const src = `/api/dms/file?p=${encodeURIComponent(blob.pathname)}`;
+    return Response.json({ url: src, name: file.name || safeName, type });
   } catch (uploadError) {
     const raw = uploadError instanceof Error ? uploadError.message : "";
     const message = /token|BLOB_READ_WRITE|unauthor|forbidden/i.test(raw)

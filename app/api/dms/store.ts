@@ -3,10 +3,16 @@ import { hasFirebaseConfig, firestore } from "../firebase";
 
 async function deleteAttachments(thread: DmThread | null) {
   if (!thread || !process.env.BLOB_READ_WRITE_TOKEN) return;
-  const urls = thread.messages.map((message) => message.attachment?.url).filter((url): url is string => Boolean(url));
-  if (!urls.length) return;
+  const pathnames = thread.messages
+    .map((message) => {
+      const url = message.attachment?.url || "";
+      const match = url.match(/[?&]p=([^&]+)/);
+      return match ? decodeURIComponent(match[1]) : "";
+    })
+    .filter((pathname) => pathname.startsWith("dm/"));
+  if (!pathnames.length) return;
   try {
-    await del(urls);
+    await del(pathnames);
   } catch {
     // best-effort cleanup; ignore blob deletion failures
   }

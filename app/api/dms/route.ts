@@ -9,8 +9,8 @@ function parseAttachment(value: unknown): DmAttachment | undefined {
   if (!value || typeof value !== "object") return undefined;
   const a = value as Partial<DmAttachment>;
   const url = typeof a.url === "string" ? a.url : "";
-  // only accept URLs we produced (Vercel Blob)
-  if (!/^https:\/\/[^/]*\.blob\.vercel-storage\.com\//.test(url)) return undefined;
+  // only accept the attachment proxy path we produced
+  if (!/^\/api\/dms\/file\?p=dm%2F/.test(url)) return undefined;
   return { url, name: String(a.name || "첨부파일").slice(0, 120), type: String(a.type || "").slice(0, 80) };
 }
 
