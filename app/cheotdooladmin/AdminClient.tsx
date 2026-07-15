@@ -384,6 +384,18 @@ export default function CheotdoolAdminClient() {
     setDmError("");
   }
 
+  async function deleteThread(threadId: string) {
+    if (typeof window !== "undefined" && !window.confirm("이 DM 스레드를 삭제할까요? 되돌릴 수 없어요.")) return;
+    setDmError("");
+    const response = await fetch(`/api/admin/dms/${encodeURIComponent(threadId)}`, { method: "DELETE" });
+    if (!response.ok) {
+      setDmError("스레드를 삭제하지 못했어요.");
+      return;
+    }
+    setThreads((items) => items.filter((item) => item.id !== threadId));
+    setSelectedThreadId((current) => (current === threadId ? "" : current));
+  }
+
   async function submitReply(threadId: string) {
     const message = replyDrafts[threadId]?.trim() || "";
     if (!message) return;
@@ -543,7 +555,10 @@ export default function CheotdoolAdminClient() {
                     <span className="admin-thread-avatar large">{(selectedThread.viewer.nickname || selectedThread.viewer.channelName || TEXT.viewer).slice(0, 1)}</span>
                     <div><strong>{selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong><span>{selectedThread.viewer.channelId}</span></div>
                   </div>
-                  <em className={selectedThread.status === "waiting" ? "waiting" : ""}>{selectedThread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
+                  <div className="admin-chat-head-right">
+                    <em className={selectedThread.status === "waiting" ? "waiting" : ""}>{selectedThread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
+                    <button type="button" className="admin-danger" onClick={() => deleteThread(selectedThread.id)}>{TEXT.delete}</button>
+                  </div>
                 </div>
                 <div className="admin-chat-messages" aria-label="DM 대화 내용" ref={chatMessagesRef}>
                   {selectedThread.messages.map((message) => {

@@ -3961,3 +3961,16 @@ body:has(.cc-page) .kicker,
   border-radius: 999px; background: var(--cc-mint-soft); color: #0f7a58;
   font-size: 12px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
+/* DM thread delete buttons */
+.admin-chat-head-right, .dm-chat-head-right {
+  display: flex; align-items: center; gap: 10px; flex: 0 0 auto;
+}
+.admin-chat-head-right .admin-danger { min-height: 34px; padding: 0 13px; font-size: 12px; }
+.dm-thread-delete {
+  border: 0; border-radius: 999px;
+  background: var(--cc-coral-soft); color: #c33f22;
+  font-weight: 800; font-size: 12px; min-height: 34px; padding: 0 13px; cursor: pointer;
+  transition: background 0.15s ease;
+}
+.dm-thread-delete:hover { background: #ffd2c4; }

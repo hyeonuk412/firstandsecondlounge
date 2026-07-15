@@ -246,6 +246,19 @@ export default function DmPage() {
     setError("");
   }
 
+  async function deleteThread(threadId: string) {
+    if (typeof window !== "undefined" && !window.confirm("이 DM을 삭제할까요? 되돌릴 수 없어요.")) return;
+    setError("");
+    try {
+      const response = await fetch(`/api/dms/${encodeURIComponent(threadId)}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("DM을 삭제하지 못했어요.");
+      setThreads((current) => current.filter((thread) => thread.id !== threadId));
+      setSelectedThreadId((current) => (current === threadId ? "" : current));
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "DM을 삭제하지 못했어요.");
+    }
+  }
+
   if (loadingViewer) {
     return (
       <main className="dm-page">
@@ -347,7 +360,10 @@ export default function DmPage() {
                 <div>
                   <h2>{shortText(firstViewerMessage(selectedThread), 42)}</h2>
                 </div>
-                <em>{selectedThread.status === "answered" ? "답변 완료" : "답변 대기"}</em>
+                <div className="dm-chat-head-right">
+                  <em>{selectedThread.status === "answered" ? "답변 완료" : "답변 대기"}</em>
+                  <button type="button" className="dm-thread-delete" onClick={() => deleteThread(selectedThread.id)}>삭제</button>
+                </div>
               </div>
 
               <div className="dm-message-list" aria-label="DM 대화 내용" ref={messageListRef}>

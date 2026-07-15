@@ -218,3 +218,36 @@ export async function replyDmThread(threadId: string, message: string, attachmen
   });
 }
 
+export async function deleteDmThread(threadId: string) {
+  if (!hasFirebaseConfig()) {
+    const store = memoryStore();
+    const index = store.findIndex((item) => item.id === threadId);
+    if (index === -1) return false;
+    store.splice(index, 1);
+    return true;
+  }
+
+  const ref = dmsCollection().doc(threadId);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) return false;
+  await ref.delete();
+  return true;
+}
+
+export async function deleteViewerDmThread(threadId: string, channelId: string) {
+  if (!hasFirebaseConfig()) {
+    const store = memoryStore();
+    const index = store.findIndex((item) => item.id === threadId && item.viewer.channelId === channelId);
+    if (index === -1) return false;
+    store.splice(index, 1);
+    return true;
+  }
+
+  const ref = dmsCollection().doc(threadId);
+  const snapshot = await ref.get();
+  const thread = normalizeThread(snapshot.data(), snapshot.id);
+  if (!snapshot.exists || !thread || thread.viewer.channelId !== channelId) return false;
+  await ref.delete();
+  return true;
+}
+
