@@ -33,6 +33,14 @@ type LoungeContent = {
 
 type DmAttachment = { url: string; name: string; type: string };
 
+async function uploadAttachment(file: File): Promise<DmAttachment | null> {
+  const form = new FormData();
+  form.append("file", file);
+  const response = await fetch("/api/dms/upload", { method: "POST", body: form });
+  if (!response.ok) return null;
+  return (await response.json()) as DmAttachment;
+}
+
 type DmMessage = {
   id: string;
   sender: "viewer" | "admin";
@@ -285,6 +293,9 @@ export default function CheotdoolAdminClient() {
     if (el) el.scrollTop = el.scrollHeight;
   }, [selectedThreadId, selectedThread?.messages.length]);
 
+  const replyFileRef = useRef<HTMLInputElement>(null);
+  const [replyAttachName, setReplyAttachName] = useState("");
+
   async function loadContent() {
     setContentLoading(true);
     setContentError("");
@@ -398,12 +409,24 @@ export default function CheotdoolAdminClient() {
 
   async function submitReply(threadId: string) {
     const message = replyDrafts[threadId]?.trim() || "";
-    if (!message) return;
+    const file = replyFileRef.current?.files?.[0];
+    const hasFile = file instanceof File && file.size > 0;
+    if (!message && !hasFile) return;
     setDmError("");
+
+    let attachment: DmAttachment | null = null;
+    if (hasFile) {
+      attachment = await uploadAttachment(file);
+      if (!attachment) {
+        setDmError("첨부 파일을 올리지 못했어요. (이미지·PDF, 8MB 이하)");
+        return;
+      }
+    }
+
     const response = await fetch(`/api/admin/dms/${encodeURIComponent(threadId)}/reply`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, attachment }),
     });
     if (!response.ok) {
       setDmError(TEXT.dmSaveError);
@@ -413,6 +436,8 @@ export default function CheotdoolAdminClient() {
     setThreads((items) => sortThreads(items.map((item) => item.id === threadId ? payload.thread : item)));
     setSelectedThreadId(payload.thread.id);
     setReplyDrafts((drafts) => ({ ...drafts, [threadId]: "" }));
+    if (replyFileRef.current) replyFileRef.current.value = "";
+    setReplyAttachName("");
   }
 
   function addNotice() {
@@ -588,6 +613,11 @@ export default function CheotdoolAdminClient() {
                   })}
                 </div>
                 <form className="admin-chat-reply" onSubmit={(event) => { event.preventDefault(); submitReply(selectedThread.id); }}>
+                  {replyAttachName ? <span className="dm-attach-chip"><span aria-hidden="true">📎</span> {replyAttachName}</span> : null}
+                  <label className="dm-attach-icon" title="파일 첨부 (이미지·PDF)">
+                    📎
+                    <input ref={replyFileRef} type="file" accept="image/*,application/pdf" hidden onChange={(event) => setReplyAttachName(event.target.files?.[0]?.name || "")} />
+                  </label>
                   <textarea value={replyDrafts[selectedThread.id] || ""} onChange={(event) => setReplyDrafts((drafts) => ({ ...drafts, [selectedThread.id]: event.target.value }))} onKeyDown={submitTextareaOnEnter} placeholder={TEXT.replyPlaceholder} rows={2} />
                   <button type="submit">{TEXT.replySave}</button>
                 </form>

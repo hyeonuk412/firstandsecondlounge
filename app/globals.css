@@ -3947,13 +3947,15 @@ body:has(.cc-page) .kicker,
 .dm-attach-btn:hover { border-color: var(--cc-mint); color: var(--cc-ink); }
 
 /* reply row attach icon + selected chip */
-.dm-chat-input { grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; }
+.dm-chat-input,
+.admin-chat-reply { grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; }
 .dm-attach-icon {
-  display: grid; place-items: center; width: 46px; height: 52px;
-  border-radius: 14px; background: var(--cc-cream); cursor: pointer; font-size: 20px;
-  transition: background 0.15s ease;
+  display: grid; place-items: center; width: 44px; height: 44px;
+  border-radius: 50%; background: var(--cc-cream); cursor: pointer; font-size: 18px;
+  align-self: end; flex: 0 0 auto;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
-.dm-attach-icon:hover { background: var(--cc-mint-soft); }
+.dm-attach-icon:hover { background: var(--cc-mint-soft); transform: translateY(-1px); }
 .dm-attach-chip {
   grid-column: 1 / -1;
   display: inline-flex; align-items: center; gap: 6px; justify-self: start;

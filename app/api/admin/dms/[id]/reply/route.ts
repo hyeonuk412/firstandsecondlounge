@@ -1,5 +1,5 @@
 import { requireAdmin } from "../../../auth";
-import { replyDmThread, updateAdminDmReply } from "../../../../dms/store";
+import { replyDmThread, updateAdminDmReply, type DmAttachment } from "../../../../dms/store";
 
 export const runtime = "nodejs";
 
@@ -10,6 +10,14 @@ async function ensureAdmin(request: Request) {
   return null;
 }
 
+function parseAttachment(value: unknown): DmAttachment | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const a = value as Partial<DmAttachment>;
+  const url = typeof a.url === "string" ? a.url : "";
+  if (!/^https:\/\/[^/]*\.blob\.vercel-storage\.com\//.test(url)) return undefined;
+  return { url, name: String(a.name || "첨부파일").slice(0, 120), type: String(a.type || "").slice(0, 80) };
+}
+
 export async function POST(
   request: Request,
   context: { params: Promise<{ id: string }> },
@@ -17,20 +25,21 @@ export async function POST(
   const adminError = await ensureAdmin(request);
   if (adminError) return adminError;
 
-  let payload: { message?: string };
+  let payload: { message?: string; attachment?: unknown };
   try {
-    payload = (await request.json()) as { message?: string };
+    payload = (await request.json()) as { message?: string; attachment?: unknown };
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const message = payload.message?.trim() || "";
-  if (!message) {
-    return Response.json({ error: "message is required" }, { status: 400 });
+  const attachment = parseAttachment(payload.attachment);
+  if (!message && !attachment) {
+    return Response.json({ error: "message or attachment is required" }, { status: 400 });
   }
 
   const { id } = await context.params;
-  const thread = await replyDmThread(id, message);
+  const thread = await replyDmThread(id, message, attachment);
   if (!thread) {
     return Response.json({ error: "DM not found" }, { status: 404 });
   }
