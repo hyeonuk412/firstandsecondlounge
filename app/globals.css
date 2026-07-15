@@ -3255,15 +3255,14 @@ body:has(.cc-home) {
 /* auth pills */
 .cc-login {
   display: inline-flex; align-items: center; gap: 6px;
-  min-height: 46px; padding: 0 20px;
+  min-height: 40px; padding: 0 18px;
   border-radius: 999px;
   background: var(--cc-mint);
-  color: #08321f; font-size: 17px;
-  box-shadow: 0 8px 0 #23a97b;
+  color: #08321f; font-size: 14px;
+  box-shadow: var(--cc-shadow-sm);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
-.cc-login:hover { transform: translateY(2px); box-shadow: 0 6px 0 #23a97b; }
-.cc-login:active { transform: translateY(6px); box-shadow: 0 2px 0 #23a97b; }
+.cc-login:hover { transform: translateY(-2px); box-shadow: var(--cc-shadow); }
 .cc-auth-note { color: var(--cc-ink-soft); font-size: 14px; font-weight: 700; }
 .cc-viewer { display: inline-flex; align-items: center; gap: 9px; padding: 6px 14px 6px 8px; border-radius: 999px; background: #fff; box-shadow: var(--cc-shadow-sm); }
 .cc-viewer-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--cc-butter-soft); font-size: 18px; }

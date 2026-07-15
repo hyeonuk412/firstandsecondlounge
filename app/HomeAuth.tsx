@@ -66,7 +66,7 @@ export default function HomeAuth({ adminNicknames }: HomeAuthProps) {
 
   return (
     <a className="cc-login" href="/api/auth/chzzk/start">
-      💚 치지직으로 로그인
+      치지직으로 로그인
     </a>
   );
 }
