@@ -3997,3 +3997,40 @@ body:has(.cc-page) .kicker,
   background: var(--cc-mint-soft);
   color: #2f8f6f;
 }
+
+/* ---- DM messenger: fix bubble wrap + compact layout ---- */
+/* stacks as flex so short bubbles size to one line (grid was collapsing them) */
+.dm-message-stack, .admin-chat-stack { display: flex; flex-direction: column; gap: 3px; max-width: min(74%, 520px); }
+.dm-message-row.mine .dm-message-stack, .admin-chat-row.mine .admin-chat-stack { align-items: flex-end; margin-left: auto; }
+.dm-message-row.theirs .dm-message-stack, .admin-chat-row.theirs .admin-chat-stack { align-items: flex-start; margin-right: auto; }
+.dm-message-bubble, .admin-chat-bubble { width: fit-content; max-width: 100%; }
+
+/* compact so more fits on screen */
+.dm-message-list, .admin-chat-messages { gap: 6px; padding: 16px; }
+.dm-message-bubble, .admin-chat-bubble { padding: 7px 11px; border-radius: 14px; }
+.dm-message-bubble p, .admin-chat-bubble p { font-size: 14px; line-height: 1.4; margin: 0; }
+.dm-message-author, .admin-chat-bubble-head strong { font-size: 11px; }
+.dm-message-time, .admin-chat-time { font-size: 10px; }
+.dm-chat-head, .admin-chat-head { min-height: 0; padding: 12px 16px; }
+.admin-chat-profile strong { font-size: 17px; }
+.admin-chat-profile span:not(.admin-thread-avatar) { font-size: 12px; }
+.admin-thread-avatar.large { width: 40px; height: 40px; font-size: 18px; }
+.dm-chat-head h2 { font-size: 19px; }
+.dm-chat-input, .admin-chat-reply { padding: 12px; }
+.dm-chat-input textarea, .admin-chat-reply textarea { min-height: 44px; }
+
+/* ---- Admin notice list: flat rows (no rounded card backgrounds) ---- */
+.admin-notice-list { gap: 0; padding: 4px 0; }
+.admin-notice-list button {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--cc-line);
+  border-radius: 0;
+  padding: 13px 6px;
+  min-height: 0;
+}
+.admin-notice-list button:hover,
+.admin-notice-list button:focus-visible { background: transparent; transform: none; }
+.admin-notice-list button.active { background: transparent; }
+.admin-notice-list button.active strong { color: var(--cc-mint); }
+.admin-notice-list button:last-child { border-bottom: 0; }
