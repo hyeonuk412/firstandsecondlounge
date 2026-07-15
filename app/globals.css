@@ -3169,7 +3169,7 @@ a:focus-visible, button:focus-visible {
    Scoped under .cc-home so other pages are untouched.
    ===================================================================== */
 :root {
-  --cc-cream: #fff8f0;
+  --cc-cream: #f4f3f0;
   --cc-ink: #4b4147;
   --cc-ink-soft: #9a8d93;
   --cc-line: #f0e6da;
@@ -3187,16 +3187,12 @@ a:focus-visible, button:focus-visible {
 
 /* warm page backdrop only on the home page */
 body:has(.cc-home) {
-  background:
-    radial-gradient(circle at 6% -4%, rgba(139, 123, 245, 0.12), transparent 26rem),
-    radial-gradient(circle at 96% 4%, rgba(53, 205, 154, 0.12), transparent 24rem),
-    radial-gradient(circle at 78% 96%, rgba(255, 134, 172, 0.10), transparent 26rem),
-    var(--cc-cream);
+  background: var(--cc-cream);
 }
 
 .cc-home {
   position: relative;
-  width: min(1080px, calc(100% - 32px));
+  width: min(1340px, calc(100% - 40px));
   min-height: 100vh;
   margin: 0 auto;
   padding: 18px 0 60px;
@@ -3489,7 +3485,7 @@ body:has(.cc-home) {
   .cc-cols { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
-  .cc-home { width: min(100% - 22px, 1080px); }
+  .cc-home { width: min(100% - 22px, 1340px); }
   .cc-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cc-top { justify-content: center; }
 }
@@ -4085,3 +4081,27 @@ body:has(.cc-page) .kicker,
 .dm-attach-btn svg, .dm-attach-chip svg, .dm-attach-file svg, .admin-chat-attach-file svg { vertical-align: -2px; }
 /* nudge the paper plane to optical center */
 .dm-send-btn svg { transform: translateX(1px); }
+
+/* ---- Calmer, less-childish surfaces + full-width feel ---- */
+/* flat uniform backdrop on all pages (no colored blobs, no boxed feel) */
+body:has(.cc-page),
+body:has(.dm-page),
+body:has(.admin-page),
+body:has(.cheotdool-admin-page) { background: var(--cc-cream); }
+.cc-blob { display: none; }
+
+/* white cards instead of pastel gradients */
+.cc-hero-card { background: #fff; }
+.cc-live, .cc-live.is-live { background: #fff; }
+
+/* neutral icon tiles — let the brand logos carry the color */
+.cc-link.chzzk .cc-link-icon,
+.cc-link.youtube .cc-link-icon,
+.cc-link.dm .cc-link-icon,
+.cc-link.discord .cc-link-icon { background: #efece7; }
+
+/* logged-in greeting chip: plain text, no border/background */
+.cc-viewer { background: none; box-shadow: none; padding: 0; }
+
+/* wider inner pages too */
+.cc-page { width: min(1040px, calc(100% - 40px)); }
