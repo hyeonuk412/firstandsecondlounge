@@ -95,7 +95,7 @@ const TEXT = {
   importing: "가져오는 중",
   discordChannelId: "디스코드 공지 채널 ID",
   addSchedule: "일정 추가",
-  save: "저장하기",
+  save: "저장",
   saving: "저장 중",
   saved: "저장했어요.",
   delete: "삭제",

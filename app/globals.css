@@ -4128,3 +4128,14 @@ body:has(.cheotdool-admin-page) { background: var(--cc-cream); }
   gap: 10px;
   margin-top: 4px;
 }
+/* delete + save share the exact same pill size */
+.admin-edit-actions button {
+  min-height: 38px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
