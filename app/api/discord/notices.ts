@@ -17,7 +17,7 @@ type DiscordMessage = {
 };
 
 export type DiscordFetchResult =
-  | { ok: true; notices: DiscordNotice[] }
+  | { ok: true; notices: DiscordNotice[]; fetched: number }
   | { ok: false; error: string; status?: number };
 
 // Accepts a raw channel id or a pasted channel URL/link and returns just the
@@ -127,9 +127,8 @@ export async function fetchDiscordNotices(rawChannelId: string, limit = 30): Pro
   }
 
   const notices = messages
-    .filter((message) => message.type === 0 || message.type === 19) // default + reply
     .map(toNotice)
     .filter((notice): notice is DiscordNotice => Boolean(notice));
 
-  return { ok: true, notices };
+  return { ok: true, notices, fetched: messages.length };
 }

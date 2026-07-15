@@ -23,5 +23,13 @@ export async function POST(request: Request) {
   if (!result.ok) {
     return Response.json({ error: result.error }, { status: 400 });
   }
-  return Response.json({ notices: result.notices });
+
+  // Messages exist but none produced readable text -> almost always the
+  // Message Content privileged intent is still off for the bot.
+  const note =
+    result.notices.length === 0 && result.fetched > 0
+      ? "디스코드에서 메시지는 확인했지만 내용을 읽지 못했어요. 개발자 포털 → Bot → 'MESSAGE CONTENT INTENT'를 켜고 저장한 뒤 다시 시도해주세요."
+      : "";
+
+  return Response.json({ notices: result.notices, fetched: result.fetched, note });
 }

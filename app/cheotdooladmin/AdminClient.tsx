@@ -481,10 +481,15 @@ export default function CheotdoolAdminClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ channelId: settings.discordNoticeChannelId }),
       });
-      const payload = (await response.json()) as { notices?: NoticeItem[]; error?: string };
+      const payload = (await response.json()) as { notices?: NoticeItem[]; error?: string; note?: string };
       if (!response.ok) throw new Error(payload.error || "디스코드에서 가져오지 못했어요.");
 
       const incoming = payload.notices || [];
+      if (!incoming.length) {
+        setImportMsg(payload.note || "디스코드에서 불러온 공지가 없어요.");
+        return;
+      }
+
       const existing = new Set(notices.map((item) => item.id));
       const fresh = incoming.filter((item) => !existing.has(item.id));
       setNotices((items) => {
@@ -492,7 +497,7 @@ export default function CheotdoolAdminClient() {
         return [...fresh.filter((item) => !seen.has(item.id)), ...items];
       });
       if (fresh.length) setSelectedNoticeId(fresh[0].id);
-      setImportMsg(fresh.length ? `${fresh.length}개를 불러왔어요. 저장을 누르면 반영돼요.` : "새로 가져올 공지가 없어요.");
+      setImportMsg(fresh.length ? `${fresh.length}개를 불러왔어요. 저장을 누르면 반영돼요.` : "이미 다 가져온 공지예요.");
     } catch (importError) {
       setImportMsg(importError instanceof Error ? importError.message : "디스코드에서 가져오지 못했어요.");
     } finally {
