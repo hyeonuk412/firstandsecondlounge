@@ -93,7 +93,7 @@ export async function fetchDiscordNotices(rawChannelId: string, limit = 30): Pro
       {
         headers: {
           Authorization: `Bot ${token}`,
-          "User-Agent": "FirstAndSecondLounge (https://fnslounge.vercel.app, 1.0)",
+          "User-Agent": "FirstAndSecondLounge (https://fns.vercel.app, 1.0)",
         },
         cache: "no-store",
       },

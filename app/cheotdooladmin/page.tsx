@@ -16,7 +16,7 @@ async function readViewerFromCookies() {
     .map((cookie) => `${cookie.name}=${encodeURIComponent(cookie.value)}`)
     .join("; ");
 
-  return readViewerSession(new Request("https://fnslounge.vercel.app/cheotdooladmin", {
+  return readViewerSession(new Request("https://fns.vercel.app/cheotdooladmin", {
     headers: { cookie: cookieHeader },
   }));
 }
