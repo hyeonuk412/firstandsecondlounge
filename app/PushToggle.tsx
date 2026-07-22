@@ -15,13 +15,26 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export default function PushToggle() {
   const [supported, setSupported] = useState(false);
+  const [iosHint, setIosHint] = useState(false);
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
 
   useEffect(() => {
+    if (!PUBLIC_KEY) return;
+    const ua = navigator.userAgent || "";
+    const nav = navigator as Navigator & { standalone?: boolean };
+    const isIOS = /iphone|ipad|ipod/i.test(ua) || (nav.platform === "MacIntel" && nav.maxTouchPoints > 1);
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || nav.standalone === true;
     const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-    if (!ok || !PUBLIC_KEY) return;
+
+    // iOS only supports web push from a Safari-installed home-screen app.
+    if (isIOS && !standalone) {
+      setIosHint(true);
+      return;
+    }
+    if (!ok) return;
+
     setSupported(true);
     navigator.serviceWorker.getRegistration().then(async (reg) => {
       if (!reg) return;
@@ -29,6 +42,12 @@ export default function PushToggle() {
       setEnabled(Boolean(sub));
     }).catch(() => {});
   }, []);
+
+  function showIosHelp() {
+    window.alert(
+      "아이폰은 사파리(Safari)로 이 사이트를 연 뒤, 공유 버튼 → '홈 화면에 추가'로 설치하고, 홈 화면 아이콘으로 열면 알림을 켤 수 있어요.\n(크롬 등 다른 브라우저는 iOS에서 웹 알림을 지원하지 않아요.)",
+    );
+  }
 
   async function enable() {
     setBusy(true);
@@ -79,6 +98,18 @@ export default function PushToggle() {
     } finally {
       setBusy(false);
     }
+  }
+
+  if (iosHint) {
+    return (
+      <button type="button" className="push-toggle" onClick={showIosHelp} title="아이폰 알림 안내">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        알림 안내
+      </button>
+    );
   }
 
   if (!supported) return null;
