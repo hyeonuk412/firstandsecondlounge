@@ -55,9 +55,15 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
   const [newImageName, setNewImageName] = useState("");
   const [busyComment, setBusyComment] = useState("");
   const [commentImageName, setCommentImageName] = useState<Record<string, string>>({});
+  const [editingPostId, setEditingPostId] = useState("");
+  const [editPostBody, setEditPostBody] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState("");
+  const [editCommentBody, setEditCommentBody] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
   const newFormRef = useRef<HTMLFormElement>(null);
 
   const isAdmin = Boolean(viewer && (adminNicknames.includes(viewer.nickname) || adminNicknames.includes(viewer.channelName)));
+  const isOwner = (author: BoardAuthor) => Boolean(viewer && author.channelId === viewer.channelId);
 
   useEffect(() => {
     let cancelled = false;
@@ -163,18 +169,89 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
   }
 
   async function removePost(postId: string) {
-    if (!isAdmin || !window.confirm("이 게시글을 삭제할까요?")) return;
-    const response = await fetch(`/api/admin/board/${encodeURIComponent(postId)}`, { method: "DELETE" });
+    if (!window.confirm("이 게시글을 삭제할까요?")) return;
+    const response = await fetch(`/api/board/${encodeURIComponent(postId)}`, { method: "DELETE" });
     if (response.ok) setPosts((current) => current.filter((post) => post.id !== postId));
+    else setError("삭제하지 못했어요.");
   }
 
   async function removeComment(postId: string, commentId: string) {
-    if (!isAdmin || !window.confirm("이 댓글을 삭제할까요?")) return;
-    const response = await fetch(`/api/admin/board/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`, { method: "DELETE" });
+    if (!window.confirm("이 댓글을 삭제할까요?")) return;
+    const response = await fetch(`/api/board/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`, { method: "DELETE" });
     if (response.ok) {
       setPosts((current) => current.map((post) => (post.id === postId
         ? { ...post, comments: post.comments.filter((comment) => comment.id !== commentId) }
         : post)));
+    } else setError("삭제하지 못했어요.");
+  }
+
+  function startEditPost(post: BoardPost) {
+    setEditingCommentId("");
+    setEditingPostId(post.id);
+    setEditPostBody(post.body);
+  }
+
+  async function saveEditPost(postId: string) {
+    const body = editPostBody.trim();
+    const post = posts.find((item) => item.id === postId);
+    if (!body && !post?.attachment) {
+      setError("내용을 입력해주세요.");
+      return;
+    }
+    setSavingEdit(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/board/${encodeURIComponent(postId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body }),
+      });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(payload.error || "수정하지 못했어요.");
+      }
+      const payload = (await response.json()) as { post: BoardPost };
+      setPosts((current) => current.map((item) => (item.id === postId ? payload.post : item)));
+      setEditingPostId("");
+    } catch (editError) {
+      setError(editError instanceof Error ? editError.message : "수정하지 못했어요.");
+    } finally {
+      setSavingEdit(false);
+    }
+  }
+
+  function startEditComment(comment: BoardComment) {
+    setEditingPostId("");
+    setEditingCommentId(comment.id);
+    setEditCommentBody(comment.body);
+  }
+
+  async function saveEditComment(postId: string, commentId: string) {
+    const body = editCommentBody.trim();
+    const comment = posts.find((p) => p.id === postId)?.comments.find((c) => c.id === commentId);
+    if (!body && !comment?.attachment) {
+      setError("내용을 입력해주세요.");
+      return;
+    }
+    setSavingEdit(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/board/${encodeURIComponent(postId)}/comments/${encodeURIComponent(commentId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body }),
+      });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => ({}))) as { error?: string };
+        throw new Error(payload.error || "수정하지 못했어요.");
+      }
+      const payload = (await response.json()) as { post: BoardPost };
+      setPosts((current) => current.map((item) => (item.id === postId ? payload.post : item)));
+      setEditingCommentId("");
+    } catch (editError) {
+      setError(editError instanceof Error ? editError.message : "수정하지 못했어요.");
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -236,9 +313,29 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
                       <time>{formatDate(post.createdAt)}</time>
                     </div>
                   </div>
-                  {isAdmin ? <button className="cc-board-del" type="button" onClick={() => removePost(post.id)}>삭제</button> : null}
+                  {(isOwner(post.author) || isAdmin) ? (
+                    <div className="cc-board-actions">
+                      {isOwner(post.author) && editingPostId !== post.id ? (
+                        <button className="cc-board-edit" type="button" onClick={() => startEditPost(post)}>수정</button>
+                      ) : null}
+                      <button className="cc-board-del" type="button" onClick={() => removePost(post.id)}>삭제</button>
+                    </div>
+                  ) : null}
                 </header>
-                {post.body ? <p className="cc-board-body">{post.body}</p> : null}
+                {editingPostId === post.id ? (
+                  <div className="cc-board-edit-box">
+                    <textarea value={editPostBody} onChange={(event) => setEditPostBody(event.target.value)} rows={3} />
+                    <div className="cc-board-edit-actions">
+                      <button type="button" onClick={() => saveEditPost(post.id)} disabled={savingEdit}>{savingEdit ? "저장 중" : "저장"}</button>
+                      <button type="button" className="ghost" onClick={() => setEditingPostId("")}>취소</button>
+                    </div>
+                  </div>
+                ) : post.body ? (
+                  <p className="cc-board-body">
+                    {post.body}
+                    {post.updatedAt !== post.createdAt ? <span className="cc-board-edited"> · 수정됨</span> : null}
+                  </p>
+                ) : null}
                 {post.attachment ? (
                   <a className="cc-board-img" href={post.attachment.url} target="_blank" rel="noreferrer">
                     <img src={post.attachment.url} alt={post.attachment.name} loading="lazy" />
@@ -248,17 +345,34 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
                 <div className="cc-board-comments">
                   {post.comments.map((comment) => (
                     <div className="cc-board-comment" key={comment.id}>
-                      <div className="cc-board-comment-main">
-                        <strong>{authorName(comment.author)}</strong>
-                        {comment.body ? <span>{comment.body}</span> : null}
-                        {comment.attachment ? (
-                          <a className="cc-board-img small" href={comment.attachment.url} target="_blank" rel="noreferrer">
-                            <img src={comment.attachment.url} alt={comment.attachment.name} loading="lazy" />
-                          </a>
-                        ) : null}
-                        <time>{formatDate(comment.createdAt)}</time>
-                      </div>
-                      {isAdmin ? <button className="cc-board-del small" type="button" onClick={() => removeComment(post.id, comment.id)}>삭제</button> : null}
+                      {editingCommentId === comment.id ? (
+                        <div className="cc-board-comment-edit">
+                          <input value={editCommentBody} onChange={(event) => setEditCommentBody(event.target.value)} />
+                          <button type="button" onClick={() => saveEditComment(post.id, comment.id)} disabled={savingEdit}>{savingEdit ? "…" : "저장"}</button>
+                          <button type="button" className="ghost" onClick={() => setEditingCommentId("")}>취소</button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="cc-board-comment-main">
+                            <strong>{authorName(comment.author)}</strong>
+                            {comment.body ? <span>{comment.body}</span> : null}
+                            {comment.attachment ? (
+                              <a className="cc-board-img small" href={comment.attachment.url} target="_blank" rel="noreferrer">
+                                <img src={comment.attachment.url} alt={comment.attachment.name} loading="lazy" />
+                              </a>
+                            ) : null}
+                            <time>{formatDate(comment.createdAt)}</time>
+                          </div>
+                          {(isOwner(comment.author) || isAdmin) ? (
+                            <div className="cc-board-actions small">
+                              {isOwner(comment.author) ? (
+                                <button className="cc-board-edit small" type="button" onClick={() => startEditComment(comment)}>수정</button>
+                              ) : null}
+                              <button className="cc-board-del small" type="button" onClick={() => removeComment(post.id, comment.id)}>삭제</button>
+                            </div>
+                          ) : null}
+                        </>
+                      )}
                     </div>
                   ))}
 

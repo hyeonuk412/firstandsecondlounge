@@ -165,6 +165,49 @@ export async function addComment(postId: string, input: { author: BoardAuthor; b
   });
 }
 
+export async function updatePost(postId: string, body: string): Promise<BoardPost | null> {
+  const updatedAt = now();
+  if (!hasFirebaseConfig()) {
+    const post = memoryStore().find((item) => item.id === postId);
+    if (!post) return null;
+    post.body = body;
+    post.updatedAt = updatedAt;
+    return post;
+  }
+
+  const ref = postsCollection().doc(postId);
+  return firestore().runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const post = normalizePost(snapshot.data(), snapshot.id);
+    if (!snapshot.exists || !post) return null;
+    const next: BoardPost = { ...post, body, updatedAt };
+    transaction.set(ref, next);
+    return next;
+  });
+}
+
+export async function updateComment(postId: string, commentId: string, body: string): Promise<BoardPost | null> {
+  if (!hasFirebaseConfig()) {
+    const post = memoryStore().find((item) => item.id === postId);
+    if (!post) return null;
+    const comment = post.comments.find((c) => c.id === commentId);
+    if (!comment) return null;
+    comment.body = body;
+    return post;
+  }
+
+  const ref = postsCollection().doc(postId);
+  return firestore().runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    const post = normalizePost(snapshot.data(), snapshot.id);
+    if (!snapshot.exists || !post) return null;
+    const comments = post.comments.map((c) => (c.id === commentId ? { ...c, body } : c));
+    const next: BoardPost = { ...post, comments };
+    transaction.set(ref, next);
+    return next;
+  });
+}
+
 export async function deletePost(postId: string): Promise<boolean> {
   if (!hasFirebaseConfig()) {
     const store = memoryStore();
