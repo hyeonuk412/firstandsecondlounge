@@ -44,6 +44,12 @@ function buildMessage(sender: "viewer" | "admin", message: string, createdAt: st
   return attachment ? { ...base, attachment } : base;
 }
 
+export type DmTarget = "first" | "second" | "both";
+
+function normalizeTarget(value: unknown): DmTarget {
+  return value === "first" || value === "second" ? value : "both";
+}
+
 export type DmThread = {
   id: string;
   viewer: {
@@ -52,6 +58,7 @@ export type DmThread = {
     nickname: string;
   };
   category: string;
+  target: DmTarget;
   status: "waiting" | "answered";
   createdAt: string;
   updatedAt: string;
@@ -86,6 +93,7 @@ function normalizeThread(data: FirebaseFirestore.DocumentData | undefined, fallb
       nickname: String(data.viewer?.nickname || ""),
     },
     category: String(data.category || "etc"),
+    target: normalizeTarget(data.target),
     status: data.status === "answered" ? "answered" : "waiting",
     createdAt: String(data.createdAt || now()),
     updatedAt: String(data.updatedAt || data.createdAt || now()),
@@ -127,6 +135,7 @@ export async function listViewerDmThreads(channelId: string) {
 export async function createDmThread(input: {
   viewer: DmThread["viewer"];
   category: string;
+  target: DmTarget;
   message: string;
   attachment?: DmAttachment;
 }) {
@@ -135,6 +144,7 @@ export async function createDmThread(input: {
     id: crypto.randomUUID(),
     viewer: input.viewer,
     category: input.category,
+    target: input.target,
     status: "waiting",
     createdAt,
     updatedAt: createdAt,

@@ -1,9 +1,10 @@
 ﻿import { readViewerSession } from "../auth/chzzk/session";
-import { appendViewerDmThread, createDmThread, type DmAttachment } from "./store";
+import { appendViewerDmThread, createDmThread, type DmAttachment, type DmTarget } from "./store";
 
 export const runtime = "nodejs";
 
 const ALLOWED_CATEGORIES = new Set(["support", "question", "suggestion", "business", "etc"]);
+const ALLOWED_TARGETS = new Set<DmTarget>(["first", "second", "both"]);
 
 function parseAttachment(value: unknown): DmAttachment | undefined {
   if (!value || typeof value !== "object") return undefined;
@@ -20,14 +21,15 @@ export async function POST(request: Request) {
     return Response.json({ error: "CHZZK login is required" }, { status: 401 });
   }
 
-  let payload: { category?: string; message?: string; threadId?: string; attachment?: unknown };
+  let payload: { category?: string; target?: string; message?: string; threadId?: string; attachment?: unknown };
   try {
-    payload = (await request.json()) as { category?: string; message?: string; threadId?: string; attachment?: unknown };
+    payload = (await request.json()) as { category?: string; target?: string; message?: string; threadId?: string; attachment?: unknown };
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const category = ALLOWED_CATEGORIES.has(payload.category || "") ? payload.category! : "etc";
+  const target: DmTarget = ALLOWED_TARGETS.has(payload.target as DmTarget) ? (payload.target as DmTarget) : "both";
   const message = payload.message?.trim() || "";
   const attachment = parseAttachment(payload.attachment);
   if (!message && !attachment) {
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
       nickname: viewer.nickname,
     },
     category,
+    target,
     message,
     attachment,
   });

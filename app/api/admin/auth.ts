@@ -1,19 +1,23 @@
 import { readViewerSession } from "../auth/chzzk/session";
-import { getLoungeContent } from "../lounge-content/store";
+import { getLoungeContent, adminNicknameStrings, roleForNickname, type AdminRole } from "../lounge-content/store";
 
-const DEFAULT_ADMIN_NICKNAMES = ["첫째와둘째", "첫째입니다", "오늘의메뉴"];
-
-export async function getAdminViewer(request: Request) {
+export async function getAdminContext(request: Request) {
   const viewer = await readViewerSession(request);
   if (!viewer) return null;
 
   const content = await getLoungeContent();
-  const nicknames = content.settings?.adminNicknames?.length ? content.settings.adminNicknames : DEFAULT_ADMIN_NICKNAMES;
-  const admins = new Set(nicknames);
+  const admins = new Set(adminNicknameStrings(content.settings));
   if (!admins.has(viewer.nickname) && !admins.has(viewer.channelName)) return null;
-  return viewer;
+
+  const role: AdminRole = roleForNickname(content.settings, viewer.nickname, viewer.channelName) || "operator";
+  return { viewer, role };
+}
+
+export async function getAdminViewer(request: Request) {
+  const context = await getAdminContext(request);
+  return context ? context.viewer : null;
 }
 
 export async function requireAdmin(request: Request) {
-  return Boolean(await getAdminViewer(request));
+  return Boolean(await getAdminContext(request));
 }

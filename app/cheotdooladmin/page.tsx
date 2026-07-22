@@ -2,12 +2,10 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { readViewerSession } from "../api/auth/chzzk/session";
-import { getLoungeContent } from "../api/lounge-content/store";
+import { getLoungeContent, adminNicknameStrings } from "../api/lounge-content/store";
 import CheotdoolAdminClient from "./AdminClient";
 
 export const dynamic = "force-dynamic";
-
-const DEFAULT_ADMIN_NICKNAMES = ["첫째와둘째", "첫째입니다", "오늘의메뉴"];
 
 async function readViewerFromCookies() {
   const cookieStore = await cookies();
@@ -26,8 +24,7 @@ export default async function CheotdoolAdminPage() {
   if (!viewer) redirect("/api/auth/chzzk/start");
 
   const content = await getLoungeContent();
-  const nicknames = content.settings?.adminNicknames?.length ? content.settings.adminNicknames : DEFAULT_ADMIN_NICKNAMES;
-  const admins = new Set(nicknames);
+  const admins = new Set(adminNicknameStrings(content.settings));
   const isAdmin = admins.has(viewer.nickname) || admins.has(viewer.channelName);
 
   if (!isAdmin) {

@@ -48,14 +48,27 @@ function AttachmentView({ attachment }: { attachment: DmAttachment }) {
   );
 }
 
+type DmTarget = "first" | "second" | "both";
+
 type DmThread = {
   id: string;
   category: string;
+  target: DmTarget;
   status: "waiting" | "answered";
   createdAt: string;
   updatedAt: string;
   messages: DmMessage[];
 };
+
+const TARGET_OPTIONS: { value: DmTarget; label: string }[] = [
+  { value: "first", label: "첫째" },
+  { value: "second", label: "둘째" },
+  { value: "both", label: "첫째와둘째" },
+];
+
+function targetLabel(target: DmTarget) {
+  return TARGET_OPTIONS.find((option) => option.value === target)?.label || "첫째와둘째";
+}
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -88,6 +101,7 @@ export default function DmPage() {
   const [isComposing, setIsComposing] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [target, setTarget] = useState<DmTarget>("both");
 
   const selectedThread = useMemo(
     () => threads.find((thread) => thread.id === selectedThreadId) || null,
@@ -181,7 +195,7 @@ export default function DmPage() {
       const response = await fetch("/api/dms", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, attachment }),
+        body: JSON.stringify({ message, attachment, target }),
       });
       if (!response.ok) throw new Error("DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
       const payload = (await response.json()) as { thread: DmThread };
@@ -190,6 +204,7 @@ export default function DmPage() {
       setIsComposing(false);
       form.reset();
       setNewAttachName("");
+      setTarget("both");
     } catch (sendError) {
       setError(sendError instanceof Error ? sendError.message : "DM을 보내지 못했어요. 잠시 후 다시 시도해주세요.");
     } finally {
@@ -328,6 +343,7 @@ export default function DmPage() {
                     </span>
                     <span className="dm-thread-meta">
                       <time>{formatDate(thread.updatedAt)}</time>
+                      <b className="dm-thread-to">{targetLabel(thread.target)}</b>
                       <em>{thread.status === "answered" ? "답변" : "대기"}</em>
                     </span>
                   </button>
@@ -349,9 +365,24 @@ export default function DmPage() {
                 </div>
               </div>
               <form className="dm-new-form" onSubmit={handleCreate}>
+                <div className="dm-target-field">
+                  <span className="dm-target-label">받는 사람</span>
+                  <div className="dm-target-group" role="group" aria-label="받는 사람 선택">
+                    {TARGET_OPTIONS.map((option) => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        className={`dm-target-chip ${target === option.value ? "active" : ""}`}
+                        onClick={() => setTarget(option.value)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <label>
                   DM 내용
-                  <textarea name="message" placeholder="첫째와둘째에게 전하고 싶은 내용을 적어주세요." rows={8} onKeyDown={submitTextareaOnEnter} />
+                  <textarea name="message" placeholder={`${targetLabel(target)}에게 전하고 싶은 내용을 적어주세요.`} rows={8} onKeyDown={submitTextareaOnEnter} />
                 </label>
                 <label className="dm-attach-btn">
                   <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg> {newAttachName || "사진·파일 첨부 (이미지·PDF, 8MB)"}
@@ -365,6 +396,7 @@ export default function DmPage() {
               <div className="dm-chat-head">
                 <div>
                   <h2>{shortText(firstViewerMessage(selectedThread), 42)}</h2>
+                  <span className="dm-chat-target">받는 사람 · {targetLabel(selectedThread.target)}</span>
                 </div>
                 <em>{selectedThread.status === "answered" ? "답변 완료" : "답변 대기"}</em>
               </div>

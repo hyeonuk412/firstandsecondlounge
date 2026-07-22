@@ -17,10 +17,13 @@ export type ScheduleItem = {
   title: string;
 };
 
+export type AdminRole = "first" | "second" | "operator";
+export type AdminNick = { nickname: string; role: AdminRole };
+
 export type SiteSettings = {
   discordUrl: string;
   discordNoticeChannelId: string;
-  adminNicknames: string[];
+  adminNicknames: AdminNick[];
 };
 
 export type LinkSettings = {
@@ -40,7 +43,11 @@ const DEFAULT_NOTICES: NoticeItem[] = [];
 const DEFAULT_SETTINGS: SiteSettings = {
   discordUrl: "",
   discordNoticeChannelId: "",
-  adminNicknames: ["첫째와둘째", "첫째입니다", "오늘의메뉴"],
+  adminNicknames: [
+    { nickname: "첫째와둘째", role: "second" },
+    { nickname: "첫째입니다", role: "first" },
+    { nickname: "오늘의메뉴", role: "operator" },
+  ],
 };
 
 const DEFAULT_SCHEDULES: ScheduleItem[] = [];
@@ -58,13 +65,50 @@ function cleanText(value: unknown, maxLength: number) {
   return String(value || "").trim().slice(0, maxLength);
 }
 
-function cleanAdminNicknames(value: unknown) {
+function inferRole(nickname: string): AdminRole {
+  if (nickname === "첫째입니다") return "first";
+  if (nickname === "첫째와둘째") return "second";
+  return "operator";
+}
+
+// Accepts legacy string[] or the current {nickname, role}[]; legacy names get
+// a role inferred from the known account names.
+function cleanAdminNicknames(value: unknown): AdminNick[] {
   if (!Array.isArray(value)) return DEFAULT_SETTINGS.adminNicknames;
-  const nicknames = value
-    .map((item) => cleanText(item, 40))
-    .filter(Boolean)
-    .slice(0, 20);
-  return nicknames.length ? Array.from(new Set(nicknames)) : DEFAULT_SETTINGS.adminNicknames;
+  const validRoles = new Set<AdminRole>(["first", "second", "operator"]);
+  const seen = new Set<string>();
+  const out: AdminNick[] = [];
+  for (const item of value) {
+    let nickname = "";
+    let role: AdminRole | "" = "";
+    if (typeof item === "string") {
+      nickname = cleanText(item, 40);
+    } else if (item && typeof item === "object") {
+      nickname = cleanText((item as Partial<AdminNick>).nickname, 40);
+      const raw = String((item as Partial<AdminNick>).role || "");
+      if (validRoles.has(raw as AdminRole)) role = raw as AdminRole;
+    }
+    if (!nickname || seen.has(nickname)) continue;
+    seen.add(nickname);
+    out.push({ nickname, role: role || inferRole(nickname) });
+    if (out.length >= 20) break;
+  }
+  return out.length ? out : DEFAULT_SETTINGS.adminNicknames;
+}
+
+export function adminNicknameStrings(settings?: { adminNicknames?: AdminNick[] }): string[] {
+  return (settings?.adminNicknames || []).map((admin) => admin.nickname).filter(Boolean);
+}
+
+export function roleForNickname(
+  settings: { adminNicknames?: AdminNick[] } | undefined,
+  nickname: string,
+  channelName: string,
+): AdminRole | null {
+  const match = (settings?.adminNicknames || []).find(
+    (admin) => admin.nickname === nickname || admin.nickname === channelName,
+  );
+  return match ? match.role : null;
 }
 
 function cleanSettings(value: unknown): SiteSettings {

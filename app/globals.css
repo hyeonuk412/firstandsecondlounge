@@ -4165,3 +4165,38 @@ body:has(.cheotdool-admin-page) { background: var(--cc-cream); }
 .admin-home-grid .admin-home-card.alert { border: 1px solid var(--cc-coral); background: var(--cc-coral-soft); }
 .admin-home-grid .admin-home-card.alert span,
 .admin-home-grid .admin-home-card.alert strong { color: #c23f24; }
+
+/* ---- DM target (recipient) selection ---- */
+.dm-target-field { display: flex; flex-direction: column; gap: 8px; }
+.dm-target-label { font-size: 13px; font-weight: 800; color: var(--cc-ink-soft); }
+.dm-target-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.dm-target-chip {
+  min-height: 38px; padding: 0 16px; border-radius: 999px;
+  border: 1px solid var(--cc-line); background: #fff;
+  color: var(--cc-ink); font-size: 14px; font-weight: 800; cursor: pointer;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.dm-target-chip:hover { transform: translateY(-1px); }
+.dm-target-chip.active { background: var(--cc-mint); color: #08321f; border-color: transparent; }
+
+.dm-chat-target { display: block; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--cc-ink-soft); }
+.dm-thread-to { font-size: 10px; font-weight: 800; color: var(--cc-mint); }
+
+/* admin: DM recipient tags */
+.admin-thread-to {
+  margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+  background: var(--cc-mint-soft); color: var(--cc-mint);
+  font-size: 10px; font-weight: 800;
+}
+.admin-chat-to {
+  padding: 3px 10px; border-radius: 999px;
+  background: var(--cc-mint-soft); color: var(--cc-mint);
+  font-size: 12px; font-weight: 800;
+}
+
+/* admin nickname row: role select */
+.admin-nickname-row select {
+  flex: none; min-height: 34px; padding: 0 10px;
+  border-radius: 10px; border: 1px solid var(--cc-line);
+  background: #fff; color: var(--cc-ink); font-size: 13px; font-weight: 700;
+}

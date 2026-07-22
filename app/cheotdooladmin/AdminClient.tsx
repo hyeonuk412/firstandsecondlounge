@@ -21,7 +21,7 @@ type ScheduleItem = {
 type SiteSettings = {
   discordUrl: string;
   discordNoticeChannelId: string;
-  adminNicknames: string[];
+  adminNicknames: AdminNick[];
 };
 
 type LoungeContent = {
@@ -55,6 +55,8 @@ type DmMessage = {
   attachment?: DmAttachment;
 };
 
+type DmTarget = "first" | "second" | "both";
+
 type DmThread = {
   id: string;
   viewer: {
@@ -63,18 +65,38 @@ type DmThread = {
     nickname: string;
   };
   category: string;
+  target: DmTarget;
   status: "waiting" | "answered";
   createdAt: string;
   updatedAt: string;
   messages: DmMessage[];
 };
 
+function dmTargetLabel(target: DmTarget) {
+  if (target === "first") return "첫째";
+  if (target === "second") return "둘째";
+  return "첫째와둘째";
+}
+
+type AdminRole = "first" | "second" | "operator";
+type AdminNick = { nickname: string; role: AdminRole };
+
+const ADMIN_ROLE_OPTIONS: { value: AdminRole; label: string }[] = [
+  { value: "first", label: "첫째" },
+  { value: "second", label: "둘째" },
+  { value: "operator", label: "운영자(전체)" },
+];
+
 type AdminPanel = "home" | "dms" | "notices" | "schedules" | "settings";
 
 const DEFAULT_SETTINGS: SiteSettings = {
   discordUrl: "",
   discordNoticeChannelId: "",
-  adminNicknames: ["첫째와둘째", "첫째입니다", "오늘의메뉴"],
+  adminNicknames: [
+    { nickname: "첫째와둘째", role: "second" },
+    { nickname: "첫째입니다", role: "first" },
+    { nickname: "오늘의메뉴", role: "operator" },
+  ],
 };
 
 const TEXT = {
@@ -364,9 +386,12 @@ export default function CheotdoolAdminClient() {
   }, [activePanel]);
 
   async function saveContent() {
+    const seenNick = new Set<string>();
     const cleanSettings = {
       ...settings,
-      adminNicknames: Array.from(new Set(settings.adminNicknames.map((item) => item.trim()).filter(Boolean))),
+      adminNicknames: settings.adminNicknames
+        .map((item) => ({ nickname: item.nickname.trim(), role: item.role }))
+        .filter((item) => item.nickname && !seenNick.has(item.nickname) && seenNick.add(item.nickname)),
     };
     const normalizedSchedules = schedules.map((schedule) => ({
       ...schedule,
@@ -531,10 +556,10 @@ export default function CheotdoolAdminClient() {
     setSchedules((items) => items.filter((item) => item.id !== id));
   }
 
-  function updateAdminNickname(index: number, value: string) {
+  function updateAdminNickname(index: number, patch: Partial<AdminNick>) {
     setSettings((current) => ({
       ...current,
-      adminNicknames: current.adminNicknames.map((item, itemIndex) => itemIndex === index ? value : item),
+      adminNicknames: current.adminNicknames.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item),
     }));
   }
 
@@ -621,7 +646,7 @@ export default function CheotdoolAdminClient() {
                   <button className={`admin-thread-card ${active ? "active" : ""} ${thread.status === "waiting" ? "waiting" : ""}`} type="button" onClick={() => openThread(thread.id)} key={thread.id}>
                     <span className="admin-thread-avatar">{viewerName.slice(0, 1)}</span>
                     <span className="admin-thread-body">
-                      <span className="admin-thread-topline"><strong>{viewerName}</strong><time>{formatDate(thread.updatedAt)}</time></span>
+                      <span className="admin-thread-topline"><strong>{viewerName}</strong><b className="admin-thread-to">{dmTargetLabel(thread.target)}</b><time>{formatDate(thread.updatedAt)}</time></span>
                       <span className="admin-thread-topic">{shortText(firstMessage?.message || latest?.message || "")}</span>
                       <span className="admin-thread-preview">{latest?.sender === "admin" ? TEXT.admin + ": " : ""}{shortText(latest?.message || "")}</span>
                     </span>
@@ -640,6 +665,7 @@ export default function CheotdoolAdminClient() {
                     <div><strong>{selectedThread.viewer.nickname || selectedThread.viewer.channelName}</strong><span>{selectedThread.viewer.channelId}</span></div>
                   </div>
                   <div className="admin-chat-head-right">
+                    <b className="admin-chat-to">받는 사람 · {dmTargetLabel(selectedThread.target)}</b>
                     <em className={selectedThread.status === "waiting" ? "waiting" : ""}>{selectedThread.status === "answered" ? TEXT.answered : TEXT.waiting}</em>
                     <button type="button" className="admin-danger" onClick={() => deleteThread(selectedThread.id)}>{TEXT.delete}</button>
                   </div>
@@ -798,11 +824,17 @@ export default function CheotdoolAdminClient() {
               <label>{TEXT.discordChannelId}<input value={settings.discordNoticeChannelId} onChange={(event) => setSettings((current) => ({ ...current, discordNoticeChannelId: event.target.value }))} placeholder="예: 123456789012345678" /></label>
               <p className="admin-hint">공지를 가져올 디스코드 채널 ID예요. 채널 우클릭 → &ldquo;ID 복사&rdquo;(개발자 모드). 저장 후 공지 화면에서 &ldquo;디스코드에서 가져오기&rdquo;를 누르세요.</p>
             </article>
-            <div className="admin-section-head"><h2>{TEXT.adminNicknames}</h2><button type="button" onClick={() => setSettings((current) => ({ ...current, adminNicknames: [...current.adminNicknames, ""] }))}>{TEXT.addNickname}</button></div>
+            <div className="admin-section-head"><h2>{TEXT.adminNicknames}</h2><button type="button" onClick={() => setSettings((current) => ({ ...current, adminNicknames: [...current.adminNicknames, { nickname: "", role: "operator" }] }))}>{TEXT.addNickname}</button></div>
+            <p className="admin-hint">역할에 따라 받는 DM이 달라져요. 첫째=&ldquo;첫째&rdquo;·&ldquo;첫째와둘째&rdquo; DM, 둘째=&ldquo;둘째&rdquo;·&ldquo;첫째와둘째&rdquo; DM, 운영자=전체 열람.</p>
             <div className="admin-nickname-list">
-              {settings.adminNicknames.map((nickname, index) => (
-                <div className="admin-nickname-row" key={`${nickname}-${index}`}>
-                  <input value={nickname} onChange={(event) => updateAdminNickname(index, event.target.value)} placeholder="치지직 닉네임" />
+              {settings.adminNicknames.map((item, index) => (
+                <div className="admin-nickname-row" key={index}>
+                  <input value={item.nickname} onChange={(event) => updateAdminNickname(index, { nickname: event.target.value })} placeholder="치지직 닉네임" />
+                  <select value={item.role} onChange={(event) => updateAdminNickname(index, { role: event.target.value as AdminRole })}>
+                    {ADMIN_ROLE_OPTIONS.map((option) => (
+                      <option value={option.value} key={option.value}>{option.label}</option>
+                    ))}
+                  </select>
                   <button className="admin-danger" type="button" onClick={() => removeAdminNickname(index)}>{TEXT.delete}</button>
                 </div>
               ))}
