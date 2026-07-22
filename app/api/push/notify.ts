@@ -1,7 +1,7 @@
 import webpush from "web-push";
 import { listSubscriptions, removeSubscription, type PushSub } from "./store";
 import { getLoungeContent, roleForNickname, type AdminRole } from "../lounge-content/store";
-import type { DmThread } from "../dms/store";
+import { adminSeesTarget, type DmThread } from "../dms/store";
 import type { BoardPost, BoardComment } from "../board/store";
 
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "";
@@ -56,7 +56,7 @@ async function adminSubscriptions(): Promise<{ sub: PushSub; role: AdminRole }[]
 export async function notifyNewDm(thread: DmThread) {
   const admins = await adminSubscriptions();
   const targets = admins
-    .filter(({ role }) => role === "operator" || thread.target === "both" || thread.target === role)
+    .filter(({ role }) => adminSeesTarget(role, thread.target))
     .map((item) => item.sub);
   await sendPush(dedupe(targets), {
     title: "새 DM이 왔어요",
@@ -75,9 +75,9 @@ export async function notifyDmReply(thread: DmThread) {
   });
 }
 
-// New board post -> notify all admins.
+// New board post -> notify all admins (except 제외).
 export async function notifyNewPost(post: BoardPost) {
-  const targets = (await adminSubscriptions()).map((item) => item.sub);
+  const targets = (await adminSubscriptions()).filter((item) => item.role !== "none").map((item) => item.sub);
   await sendPush(dedupe(targets), {
     title: "자유게시판 새 글",
     body: `${post.author.nickname || "익명"}님의 새 글`,
@@ -87,7 +87,7 @@ export async function notifyNewPost(post: BoardPost) {
 
 // New comment -> notify admins + the post author (unless they wrote the comment).
 export async function notifyNewComment(post: BoardPost, comment: BoardComment) {
-  const adminSubs = (await adminSubscriptions()).map((item) => item.sub);
+  const adminSubs = (await adminSubscriptions()).filter((item) => item.role !== "none").map((item) => item.sub);
   const authorSubs = post.author.channelId && post.author.channelId !== comment.author.channelId
     ? (await listSubscriptions()).filter((sub) => sub.channelId === post.author.channelId)
     : [];

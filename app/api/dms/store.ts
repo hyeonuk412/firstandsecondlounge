@@ -1,5 +1,6 @@
 ﻿import { del } from "@vercel/blob";
 import { hasFirebaseConfig, firestore } from "../firebase";
+import type { AdminRole } from "../lounge-content/store";
 
 async function deleteAttachments(thread: DmThread | null) {
   if (!thread || !process.env.BLOB_READ_WRITE_TOKEN) return;
@@ -48,6 +49,14 @@ export type DmTarget = "first" | "second" | "both";
 
 function normalizeTarget(value: unknown): DmTarget {
   return value === "first" || value === "second" ? value : "both";
+}
+
+// Whether an admin with the given role should see / be notified of a DM.
+export function adminSeesTarget(role: AdminRole, target: DmTarget): boolean {
+  if (role === "operator") return true;
+  if (role === "first") return target === "first" || target === "both";
+  if (role === "second") return target === "second" || target === "both";
+  return false; // "none" (제외)
 }
 
 export type DmThread = {

@@ -64,7 +64,7 @@ type DmThread = {
 const TARGET_OPTIONS: { value: DmTarget; label: string }[] = [
   { value: "first", label: "첫째" },
   { value: "second", label: "둘째" },
-  { value: "both", label: "첫째와둘째" },
+  { value: "both", label: "둘 다" },
 ];
 
 function targetLabel(target: DmTarget) {

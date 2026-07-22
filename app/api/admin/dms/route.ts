@@ -1,5 +1,5 @@
 import { getAdminContext } from "../auth";
-import { listDmThreads } from "../../dms/store";
+import { listDmThreads, adminSeesTarget } from "../../dms/store";
 
 export const runtime = "nodejs";
 
@@ -10,10 +10,7 @@ export async function GET(request: Request) {
   }
 
   const all = await listDmThreads();
-  // operators see everything; 첫째/둘째 see threads addressed to them (or both)
-  const threads = context.role === "operator"
-    ? all
-    : all.filter((thread) => thread.target === context.role || thread.target === "both");
+  const threads = all.filter((thread) => adminSeesTarget(context.role, thread.target));
 
   return Response.json({ threads, role: context.role });
 }

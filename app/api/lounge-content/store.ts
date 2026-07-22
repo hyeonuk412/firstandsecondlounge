@@ -17,7 +17,7 @@ export type ScheduleItem = {
   title: string;
 };
 
-export type AdminRole = "first" | "second" | "operator";
+export type AdminRole = "first" | "second" | "operator" | "none";
 export type AdminNick = { nickname: string; role: AdminRole };
 
 export type SiteSettings = {
@@ -75,7 +75,7 @@ function inferRole(nickname: string): AdminRole {
 // a role inferred from the known account names.
 function cleanAdminNicknames(value: unknown): AdminNick[] {
   if (!Array.isArray(value)) return DEFAULT_SETTINGS.adminNicknames;
-  const validRoles = new Set<AdminRole>(["first", "second", "operator"]);
+  const validRoles = new Set<AdminRole>(["first", "second", "operator", "none"]);
   const seen = new Set<string>();
   const out: AdminNick[] = [];
   for (const item of value) {

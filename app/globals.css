@@ -4170,15 +4170,17 @@ body:has(.cheotdool-admin-page) { background: var(--cc-cream); }
 /* ---- DM target (recipient) selection ---- */
 .dm-target-field { display: flex; flex-direction: column; gap: 8px; }
 .dm-target-label { font-size: 13px; font-weight: 800; color: var(--cc-ink-soft); }
-.dm-target-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.dm-target-chip {
-  min-height: 38px; padding: 0 16px; border-radius: 999px;
-  border: 1px solid var(--cc-line); background: #fff;
-  color: var(--cc-ink); font-size: 14px; font-weight: 800; cursor: pointer;
-  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+.dm-target-group {
+  display: flex; gap: 4px; padding: 4px;
+  border-radius: 14px; background: var(--cc-cream); border: 1px solid var(--cc-line);
 }
-.dm-target-chip:hover { transform: translateY(-1px); }
-.dm-target-chip.active { background: var(--cc-mint); color: #08321f; border-color: transparent; }
+.dm-target-chip {
+  flex: 1; min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--cc-ink-soft);
+  font-size: 14px; font-weight: 800; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.dm-target-chip.active { background: #fff; color: var(--cc-mint); box-shadow: var(--cc-shadow-sm); }
 
 .dm-chat-target { display: block; margin-top: 3px; font-size: 12px; font-weight: 700; color: var(--cc-ink-soft); }
 .dm-thread-to { font-size: 10px; font-weight: 800; color: var(--cc-mint); }

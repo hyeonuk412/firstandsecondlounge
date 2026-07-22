@@ -52,6 +52,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "DM not found" }, { status: 404 });
     }
 
+    await notifyNewDm(thread);
     return Response.json({ thread });
   }
 

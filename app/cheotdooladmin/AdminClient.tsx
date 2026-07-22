@@ -75,16 +75,17 @@ type DmThread = {
 function dmTargetLabel(target: DmTarget) {
   if (target === "first") return "첫째";
   if (target === "second") return "둘째";
-  return "첫째와둘째";
+  return "둘 다";
 }
 
-type AdminRole = "first" | "second" | "operator";
+type AdminRole = "first" | "second" | "operator" | "none";
 type AdminNick = { nickname: string; role: AdminRole };
 
 const ADMIN_ROLE_OPTIONS: { value: AdminRole; label: string }[] = [
   { value: "first", label: "첫째" },
   { value: "second", label: "둘째" },
   { value: "operator", label: "운영자(전체)" },
+  { value: "none", label: "제외(DM 안 받음)" },
 ];
 
 type AdminPanel = "home" | "dms" | "notices" | "schedules" | "settings";
