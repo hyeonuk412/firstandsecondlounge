@@ -8,6 +8,7 @@ const CHZZK_ICON = "/icons/chzzk.png";
 const YOUTUBE_ICON = "/icons/youtube.svg";
 const MESSENGER_ICON = "/icons/messenger.svg";
 const DISCORD_ICON = "/icons/discord.svg";
+const BOARD_ICON = "/icons/board.svg";
 
 export const revalidate = 10;
 
@@ -46,6 +47,7 @@ export default async function Home() {
   const links = [
     { label: "치지직", href: CHZZK_CHANNEL, tone: "chzzk", icon: CHZZK_ICON },
     { label: "유튜브", href: YOUTUBE, tone: "youtube", icon: YOUTUBE_ICON },
+    { label: "자유게시판", href: "/board", tone: "board", icon: BOARD_ICON },
     { label: "DM", href: "/dm", tone: "dm", icon: MESSENGER_ICON },
     { label: "디스코드", href: discordUrl || "#", tone: "discord", icon: DISCORD_ICON },
   ];
