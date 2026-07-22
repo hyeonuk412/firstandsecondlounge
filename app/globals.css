@@ -4213,6 +4213,26 @@ body:has(.cc-board) { background: var(--cc-cream); }
 .cc-board-title { margin-top: 4px; }
 .cc-board-title h1 { margin: 2px 0 0; font-size: 26px; }
 
+.cc-board-topbar { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.cc-board-write-btn { display: inline-flex; align-items: center; gap: 6px; flex: none; min-height: 42px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--cc-mint); color: #06301d; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: var(--cc-shadow-sm); transition: transform 0.12s ease; }
+.cc-board-write-btn:hover { transform: translateY(-1px); }
+
+.cc-board-rows { display: flex; flex-direction: column; gap: 10px; }
+.cc-board-row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px 16px; border: 1px solid var(--cc-line); border-radius: 16px; background: #fff; box-shadow: var(--cc-shadow-sm); cursor: pointer; transition: transform 0.12s ease, border-color 0.14s ease; }
+.cc-board-row:hover { transform: translateY(-1px); border-color: var(--cc-mint); }
+.cc-board-row-avatar { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--cc-mint-soft); color: var(--cc-mint); font-weight: 800; }
+.cc-board-row-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.cc-board-row-title { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 15.5px; font-weight: 800; color: #34302f; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.cc-board-row-img { flex: none; color: var(--cc-mint); }
+.cc-board-row-meta { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #8a8086; }
+.cc-board-row-count { padding: 1px 8px; border-radius: 999px; background: var(--cc-mint-soft); color: #1f7d5c; font-weight: 800; font-size: 11.5px; }
+.cc-board-row-arrow { flex: none; color: #cabfc5; }
+
+.cc-board-detail-head { display: flex; align-items: center; gap: 12px; }
+.cc-board-detail-head h2 { margin: 0; font-size: 18px; color: #34302f; }
+.cc-board-back { display: inline-flex; align-items: center; gap: 4px; flex: none; min-height: 38px; padding: 0 15px 0 11px; border: 1px solid var(--cc-line); border-radius: 999px; background: #fff; color: #4b4147; font-size: 13.5px; font-weight: 800; cursor: pointer; transition: border-color 0.14s ease, color 0.14s ease; }
+.cc-board-back:hover { border-color: var(--cc-mint); color: var(--cc-mint); }
+
 .cc-board-new { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 20px; background: #fff; box-shadow: var(--cc-shadow-sm); }
 .cc-board-new textarea { width: 100%; border: 1px solid var(--cc-line); border-radius: 14px; padding: 12px; font: inherit; resize: vertical; min-height: 74px; background: var(--cc-cream); }
 .cc-board-new-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; }

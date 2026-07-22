@@ -60,10 +60,41 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
   const [editingCommentId, setEditingCommentId] = useState("");
   const [editCommentBody, setEditCommentBody] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [view, setView] = useState<"list" | "write" | "detail">("list");
+  const [selectedId, setSelectedId] = useState("");
   const newFormRef = useRef<HTMLFormElement>(null);
 
   const isAdmin = Boolean(viewer && (adminNicknames.includes(viewer.nickname) || adminNicknames.includes(viewer.channelName)));
   const isOwner = (author: BoardAuthor) => Boolean(viewer && author.channelId === viewer.channelId);
+  const selectedPost = posts.find((post) => post.id === selectedId) || null;
+
+  function postTitle(post: BoardPost) {
+    const line = (post.body || "").split("\n")[0].trim();
+    if (line) return line.length > 40 ? `${line.slice(0, 40)}…` : line;
+    return post.attachment ? "사진" : "(내용 없음)";
+  }
+
+  function openDetail(id: string) {
+    setSelectedId(id);
+    setEditingPostId("");
+    setEditingCommentId("");
+    setError("");
+    setView("detail");
+  }
+
+  function openWrite() {
+    setNewImageName("");
+    setError("");
+    setView("write");
+  }
+
+  function backToList() {
+    setView("list");
+    setSelectedId("");
+    setEditingPostId("");
+    setEditingCommentId("");
+    setError("");
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -126,6 +157,7 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
       setPosts((current) => [payload.post, ...current]);
       form.reset();
       setNewImageName("");
+      openDetail(payload.post.id);
     } catch (postError) {
       setError(postError instanceof Error ? postError.message : "글을 올리지 못했어요.");
     } finally {
@@ -171,8 +203,10 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
   async function removePost(postId: string) {
     if (!window.confirm("이 게시글을 삭제할까요?")) return;
     const response = await fetch(`/api/board/${encodeURIComponent(postId)}`, { method: "DELETE" });
-    if (response.ok) setPosts((current) => current.filter((post) => post.id !== postId));
-    else setError("삭제하지 못했어요.");
+    if (response.ok) {
+      setPosts((current) => current.filter((post) => post.id !== postId));
+      backToList();
+    } else setError("삭제하지 못했어요.");
   }
 
   async function removeComment(postId: string, commentId: string) {
@@ -255,6 +289,96 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
     }
   }
 
+  function renderPostArticle(post: BoardPost) {
+    return (
+      <article className="cc-board-post">
+        <header className="cc-board-post-head">
+          <div className="cc-board-author">
+            <span className="cc-board-avatar">{authorName(post.author).slice(0, 1)}</span>
+            <div>
+              <strong>{authorName(post.author)}</strong>
+              <time>{formatDate(post.createdAt)}</time>
+            </div>
+          </div>
+          {(isOwner(post.author) || isAdmin) ? (
+            <div className="cc-board-actions">
+              {isOwner(post.author) && editingPostId !== post.id ? (
+                <button className="cc-board-edit" type="button" onClick={() => startEditPost(post)}>수정</button>
+              ) : null}
+              <button className="cc-board-del" type="button" onClick={() => removePost(post.id)}>삭제</button>
+            </div>
+          ) : null}
+        </header>
+        {editingPostId === post.id ? (
+          <div className="cc-board-edit-box">
+            <textarea value={editPostBody} onChange={(event) => setEditPostBody(event.target.value)} rows={4} />
+            <div className="cc-board-edit-actions">
+              <button type="button" onClick={() => saveEditPost(post.id)} disabled={savingEdit}>{savingEdit ? "저장 중" : "저장"}</button>
+              <button type="button" className="ghost" onClick={() => setEditingPostId("")}>취소</button>
+            </div>
+          </div>
+        ) : post.body ? (
+          <p className="cc-board-body">
+            {post.body}
+            {post.updatedAt !== post.createdAt ? <span className="cc-board-edited"> · 수정됨</span> : null}
+          </p>
+        ) : null}
+        {post.attachment ? (
+          <a className="cc-board-img" href={post.attachment.url} target="_blank" rel="noreferrer">
+            <img src={post.attachment.url} alt={post.attachment.name} loading="lazy" />
+          </a>
+        ) : null}
+
+        <div className="cc-board-comments">
+          {post.comments.map((comment) => (
+            <div className="cc-board-comment" key={comment.id}>
+              {editingCommentId === comment.id ? (
+                <div className="cc-board-comment-edit">
+                  <input value={editCommentBody} onChange={(event) => setEditCommentBody(event.target.value)} />
+                  <button type="button" onClick={() => saveEditComment(post.id, comment.id)} disabled={savingEdit}>{savingEdit ? "…" : "저장"}</button>
+                  <button type="button" className="ghost" onClick={() => setEditingCommentId("")}>취소</button>
+                </div>
+              ) : (
+                <>
+                  <div className="cc-board-comment-main">
+                    <strong>{authorName(comment.author)}</strong>
+                    {comment.body ? <span>{comment.body}</span> : null}
+                    {comment.attachment ? (
+                      <a className="cc-board-img small" href={comment.attachment.url} target="_blank" rel="noreferrer">
+                        <img src={comment.attachment.url} alt={comment.attachment.name} loading="lazy" />
+                      </a>
+                    ) : null}
+                    <time>{formatDate(comment.createdAt)}</time>
+                  </div>
+                  {(isOwner(comment.author) || isAdmin) ? (
+                    <div className="cc-board-actions small">
+                      {isOwner(comment.author) ? (
+                        <button className="cc-board-edit small" type="button" onClick={() => startEditComment(comment)}>수정</button>
+                      ) : null}
+                      <button className="cc-board-del small" type="button" onClick={() => removeComment(post.id, comment.id)}>삭제</button>
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </div>
+          ))}
+
+          {viewer ? (
+            <form className="cc-board-comment-form" onSubmit={(event) => submitComment(post.id, event)}>
+              <input name="body" placeholder="댓글 달기" />
+              <label className="dm-attach-icon" title="이미지 첨부">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg>
+                <input type="file" name="file" accept="image/*" hidden onChange={(event) => setCommentImageName((current) => ({ ...current, [post.id]: event.target.files?.[0]?.name || "" }))} />
+              </label>
+              <button type="submit" disabled={busyComment === post.id}>{busyComment === post.id ? "…" : "등록"}</button>
+              {commentImageName[post.id] ? <span className="cc-board-comment-file">{commentImageName[post.id]}</span> : null}
+            </form>
+          ) : null}
+        </div>
+      </article>
+    );
+  }
+
   return (
     <main className="cc-board">
       <header className="dm-page-header">
@@ -273,127 +397,91 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
       </header>
 
       <section className="cc-board-inner">
-        <div className="cc-board-title">
-          <p className="kicker">FREE BOARD</p>
-          <h1>자유게시판</h1>
-        </div>
-
-        {viewer ? (
-          <form className="cc-board-new" onSubmit={submitPost} ref={newFormRef}>
-            <textarea name="body" rows={3} placeholder={`${authorName(viewer)}님, 자유롭게 이야기를 남겨보세요.`} />
-            <div className="cc-board-new-foot">
-              <label className="dm-attach-btn">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg>
-                {newImageName || "이미지 첨부"}
-                <input type="file" name="file" accept="image/*" hidden onChange={(event) => setNewImageName(event.target.files?.[0]?.name || "")} />
-              </label>
-              <button type="submit" disabled={posting}>{posting ? "올리는 중" : "글 올리기"}</button>
+        {view === "list" ? (
+          <>
+            <div className="cc-board-topbar">
+              <div className="cc-board-title">
+                <p className="kicker">FREE BOARD</p>
+                <h1>자유게시판</h1>
+              </div>
+              {viewer ? (
+                <button type="button" className="cc-board-write-btn" onClick={openWrite}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                  글 작성
+                </button>
+              ) : null}
             </div>
-          </form>
-        ) : loadingViewer ? null : (
-          <div className="cc-board-login">
-            <p>글과 댓글은 로그인 후 남길 수 있어요. (닉네임만 표시되고 다른 정보는 수집하지 않아요)</p>
-            <a className="dm-login-cta" href="/api/auth/chzzk/start?next=/board">치지직으로 로그인</a>
-          </div>
+
+            {!viewer && !loadingViewer ? (
+              <div className="cc-board-login">
+                <p>글과 댓글은 로그인 후 남길 수 있어요. (닉네임만 표시되고 다른 정보는 수집하지 않아요)</p>
+                <a className="dm-login-cta" href="/api/auth/chzzk/start?next=/board">치지직으로 로그인</a>
+              </div>
+            ) : null}
+
+            {error ? <p className="dm-page-error">{error}</p> : null}
+
+            <div className="cc-board-rows">
+              {loadingPosts ? (
+                <p className="cc-empty">불러오는 중이에요…</p>
+              ) : posts.length ? (
+                posts.map((post) => (
+                  <button type="button" className="cc-board-row" key={post.id} onClick={() => openDetail(post.id)}>
+                    <span className="cc-board-row-avatar">{authorName(post.author).slice(0, 1)}</span>
+                    <span className="cc-board-row-body">
+                      <span className="cc-board-row-title">
+                        {postTitle(post)}
+                        {post.attachment ? (
+                          <svg className="cc-board-row-img" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-label="사진 있음"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
+                        ) : null}
+                      </span>
+                      <span className="cc-board-row-meta">
+                        {authorName(post.author)} · {formatDate(post.createdAt)}
+                        {post.comments.length ? <span className="cc-board-row-count">댓글 {post.comments.length}</span> : null}
+                      </span>
+                    </span>
+                    <svg className="cc-board-row-arrow" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6" /></svg>
+                  </button>
+                ))
+              ) : (
+                <p className="cc-empty">아직 글이 없어요. 글 작성 버튼으로 첫 글을 남겨보세요 🌱</p>
+              )}
+            </div>
+          </>
+        ) : view === "write" ? (
+          <>
+            <div className="cc-board-detail-head">
+              <button type="button" className="cc-board-back" onClick={backToList}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+                목록
+              </button>
+              <h2>새 글 작성</h2>
+            </div>
+            <form className="cc-board-new" onSubmit={submitPost} ref={newFormRef}>
+              <textarea name="body" rows={6} placeholder={`${viewer ? authorName(viewer) : ""}님, 자유롭게 이야기를 남겨보세요.`} />
+              <div className="cc-board-new-foot">
+                <label className="dm-attach-btn">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg>
+                  {newImageName || "이미지 첨부"}
+                  <input type="file" name="file" accept="image/*" hidden onChange={(event) => setNewImageName(event.target.files?.[0]?.name || "")} />
+                </label>
+                <button type="submit" disabled={posting}>{posting ? "올리는 중" : "글 올리기"}</button>
+              </div>
+            </form>
+            {error ? <p className="dm-page-error">{error}</p> : null}
+          </>
+        ) : (
+          <>
+            <div className="cc-board-detail-head">
+              <button type="button" className="cc-board-back" onClick={backToList}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+                목록
+              </button>
+            </div>
+            {error ? <p className="dm-page-error">{error}</p> : null}
+            {selectedPost ? renderPostArticle(selectedPost) : <p className="cc-empty">글을 찾을 수 없어요.</p>}
+          </>
         )}
-
-        {error ? <p className="dm-page-error">{error}</p> : null}
-
-        <div className="cc-board-list">
-          {loadingPosts ? (
-            <p className="cc-empty">불러오는 중이에요…</p>
-          ) : posts.length ? (
-            posts.map((post) => (
-              <article className="cc-board-post" key={post.id}>
-                <header className="cc-board-post-head">
-                  <div className="cc-board-author">
-                    <span className="cc-board-avatar">{authorName(post.author).slice(0, 1)}</span>
-                    <div>
-                      <strong>{authorName(post.author)}</strong>
-                      <time>{formatDate(post.createdAt)}</time>
-                    </div>
-                  </div>
-                  {(isOwner(post.author) || isAdmin) ? (
-                    <div className="cc-board-actions">
-                      {isOwner(post.author) && editingPostId !== post.id ? (
-                        <button className="cc-board-edit" type="button" onClick={() => startEditPost(post)}>수정</button>
-                      ) : null}
-                      <button className="cc-board-del" type="button" onClick={() => removePost(post.id)}>삭제</button>
-                    </div>
-                  ) : null}
-                </header>
-                {editingPostId === post.id ? (
-                  <div className="cc-board-edit-box">
-                    <textarea value={editPostBody} onChange={(event) => setEditPostBody(event.target.value)} rows={3} />
-                    <div className="cc-board-edit-actions">
-                      <button type="button" onClick={() => saveEditPost(post.id)} disabled={savingEdit}>{savingEdit ? "저장 중" : "저장"}</button>
-                      <button type="button" className="ghost" onClick={() => setEditingPostId("")}>취소</button>
-                    </div>
-                  </div>
-                ) : post.body ? (
-                  <p className="cc-board-body">
-                    {post.body}
-                    {post.updatedAt !== post.createdAt ? <span className="cc-board-edited"> · 수정됨</span> : null}
-                  </p>
-                ) : null}
-                {post.attachment ? (
-                  <a className="cc-board-img" href={post.attachment.url} target="_blank" rel="noreferrer">
-                    <img src={post.attachment.url} alt={post.attachment.name} loading="lazy" />
-                  </a>
-                ) : null}
-
-                <div className="cc-board-comments">
-                  {post.comments.map((comment) => (
-                    <div className="cc-board-comment" key={comment.id}>
-                      {editingCommentId === comment.id ? (
-                        <div className="cc-board-comment-edit">
-                          <input value={editCommentBody} onChange={(event) => setEditCommentBody(event.target.value)} />
-                          <button type="button" onClick={() => saveEditComment(post.id, comment.id)} disabled={savingEdit}>{savingEdit ? "…" : "저장"}</button>
-                          <button type="button" className="ghost" onClick={() => setEditingCommentId("")}>취소</button>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="cc-board-comment-main">
-                            <strong>{authorName(comment.author)}</strong>
-                            {comment.body ? <span>{comment.body}</span> : null}
-                            {comment.attachment ? (
-                              <a className="cc-board-img small" href={comment.attachment.url} target="_blank" rel="noreferrer">
-                                <img src={comment.attachment.url} alt={comment.attachment.name} loading="lazy" />
-                              </a>
-                            ) : null}
-                            <time>{formatDate(comment.createdAt)}</time>
-                          </div>
-                          {(isOwner(comment.author) || isAdmin) ? (
-                            <div className="cc-board-actions small">
-                              {isOwner(comment.author) ? (
-                                <button className="cc-board-edit small" type="button" onClick={() => startEditComment(comment)}>수정</button>
-                              ) : null}
-                              <button className="cc-board-del small" type="button" onClick={() => removeComment(post.id, comment.id)}>삭제</button>
-                            </div>
-                          ) : null}
-                        </>
-                      )}
-                    </div>
-                  ))}
-
-                  {viewer ? (
-                    <form className="cc-board-comment-form" onSubmit={(event) => submitComment(post.id, event)}>
-                      <input name="body" placeholder="댓글 달기" />
-                      <label className="dm-attach-icon" title="이미지 첨부">
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3 3 0 0 1 4.24 4.24l-9.19 9.19a1 1 0 0 1-1.42-1.42l8.49-8.48" /></svg>
-                        <input type="file" name="file" accept="image/*" hidden onChange={(event) => setCommentImageName((current) => ({ ...current, [post.id]: event.target.files?.[0]?.name || "" }))} />
-                      </label>
-                      <button type="submit" disabled={busyComment === post.id}>{busyComment === post.id ? "…" : "등록"}</button>
-                      {commentImageName[post.id] ? <span className="cc-board-comment-file">{commentImageName[post.id]}</span> : null}
-                    </form>
-                  ) : null}
-                </div>
-              </article>
-            ))
-          ) : (
-            <p className="cc-empty">아직 글이 없어요. 첫 글을 남겨보세요 🌱</p>
-          )}
-        </div>
       </section>
     </main>
   );
