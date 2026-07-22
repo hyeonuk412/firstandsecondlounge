@@ -1,5 +1,6 @@
 import { requireAdmin } from "../../../auth";
 import { replyDmThread, updateAdminDmReply, type DmAttachment } from "../../../../dms/store";
+import { notifyDmReply } from "../../../../push/notify";
 
 export const runtime = "nodejs";
 
@@ -44,6 +45,7 @@ export async function POST(
     return Response.json({ error: "DM not found" }, { status: 404 });
   }
 
+  await notifyDmReply(thread);
   return Response.json({ thread });
 }
 

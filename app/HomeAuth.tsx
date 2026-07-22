@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PushToggle from "./PushToggle";
 
 type Viewer = {
   channelId: string;
@@ -59,6 +60,7 @@ export default function HomeAuth({ adminNicknames }: HomeAuthProps) {
         {isAdminViewer(viewer, adminNicknames) ? (
           <a className="cc-chip cc-chip-admin" href="/cheotdooladmin">🔧 관리자</a>
         ) : null}
+        <PushToggle />
         <a className="cc-chip" href="/api/auth/chzzk/logout">로그아웃</a>
       </>
     );

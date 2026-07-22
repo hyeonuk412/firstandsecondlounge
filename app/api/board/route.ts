@@ -1,5 +1,6 @@
 import { readViewerSession } from "../auth/chzzk/session";
 import { listPosts, createPost, type BoardAttachment } from "./store";
+import { notifyNewPost } from "../push/notify";
 
 export const runtime = "nodejs";
 
@@ -43,5 +44,6 @@ export async function POST(request: Request) {
     body,
     attachment,
   });
+  await notifyNewPost(post);
   return Response.json({ post }, { status: 201 });
 }

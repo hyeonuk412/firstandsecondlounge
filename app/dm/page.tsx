@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import PushToggle from "../PushToggle";
 
 type Viewer = {
   channelId: string;
@@ -313,6 +314,7 @@ export default function DmPage() {
         <a className="dm-home-link" href="/">첫째와둘째 팬 라운지</a>
         <div className="dm-header-user">
           <span>{viewer.nickname || viewer.channelName}님</span>
+          <PushToggle />
           <a href="/api/auth/chzzk/logout">로그아웃</a>
         </div>
       </header>

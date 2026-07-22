@@ -4247,3 +4247,17 @@ body:has(.cc-board) { background: var(--cc-cream); }
 @media (max-width: 640px) {
   .cc-board { width: calc(100% - 22px); }
 }
+
+/* ---- Push notification toggle ---- */
+.push-toggle {
+  display: inline-flex; align-items: center; gap: 5px;
+  min-height: 34px; padding: 0 13px;
+  border-radius: 999px; border: 1px solid var(--cc-line);
+  background: #fff; color: var(--cc-ink);
+  font-size: 13px; font-weight: 800; cursor: pointer;
+  transition: transform 0.12s ease, background 0.15s ease;
+}
+.push-toggle:hover { transform: translateY(-1px); }
+.push-toggle.on { background: var(--cc-mint-soft); color: var(--cc-mint); border-color: transparent; }
+.push-toggle svg { flex: none; }
+.push-toggle:disabled { opacity: 0.6; cursor: default; }

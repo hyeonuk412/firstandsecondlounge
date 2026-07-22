@@ -1,5 +1,6 @@
 ﻿import { readViewerSession } from "../auth/chzzk/session";
 import { appendViewerDmThread, createDmThread, type DmAttachment, type DmTarget } from "./store";
+import { notifyNewDm } from "../push/notify";
 
 export const runtime = "nodejs";
 
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
     attachment,
   });
 
+  await notifyNewDm(thread);
   return Response.json({ thread }, { status: 201 });
 }
 

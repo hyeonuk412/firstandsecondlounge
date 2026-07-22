@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import PushToggle from "../PushToggle";
 
 type Viewer = {
   channelId: string;
@@ -185,6 +186,7 @@ export default function BoardClient({ adminNicknames }: { adminNicknames: string
           {viewer ? (
             <>
               <span>{authorName(viewer)}님</span>
+              <PushToggle />
               <a href="/api/auth/chzzk/logout">로그아웃</a>
             </>
           ) : (
