@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { readViewerSession } from "../auth/chzzk/session";
 import { listPosts, createPost, type BoardAttachment } from "./store";
 import { notifyNewPost } from "../push/notify";
@@ -44,6 +45,6 @@ export async function POST(request: Request) {
     body,
     attachment,
   });
-  await notifyNewPost(post);
+  after(() => notifyNewPost(post));
   return Response.json({ post }, { status: 201 });
 }

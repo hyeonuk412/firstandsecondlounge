@@ -1,5 +1,6 @@
 ﻿import { readViewerSession } from "../auth/chzzk/session";
 import { appendViewerDmThread, createDmThread, type DmAttachment, type DmTarget } from "./store";
+import { after } from "next/server";
 import { notifyNewDm } from "../push/notify";
 
 export const runtime = "nodejs";
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
       return Response.json({ error: "DM not found" }, { status: 404 });
     }
 
-    await notifyNewDm(thread);
+    after(() => notifyNewDm(thread));
     return Response.json({ thread });
   }
 
@@ -68,7 +69,7 @@ export async function POST(request: Request) {
     attachment,
   });
 
-  await notifyNewDm(thread);
+  after(() => notifyNewDm(thread));
   return Response.json({ thread }, { status: 201 });
 }
 

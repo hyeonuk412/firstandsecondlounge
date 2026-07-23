@@ -381,8 +381,8 @@ export default function CheotdoolAdminClient() {
     if (activePanel !== "dms" && activePanel !== "home") return;
     loadThreads({ silent: threads.length > 0 });
     const timer = window.setInterval(() => {
-      loadThreads({ silent: true });
-    }, 10000);
+      if (document.visibilityState === "visible") loadThreads({ silent: true });
+    }, 12000);
     return () => window.clearInterval(timer);
   }, [activePanel]);
 

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import { readViewerSession } from "../../../auth/chzzk/session";
 import { addComment, type BoardAttachment } from "../../store";
 import { notifyNewComment } from "../../../push/notify";
@@ -45,6 +46,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return Response.json({ error: "게시글을 찾을 수 없어요" }, { status: 404 });
   }
   const newComment = post.comments[post.comments.length - 1];
-  if (newComment) await notifyNewComment(post, newComment);
+  if (newComment) after(() => notifyNewComment(post, newComment));
   return Response.json({ post });
 }

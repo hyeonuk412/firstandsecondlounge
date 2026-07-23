@@ -24,11 +24,16 @@ export type BoardPost = {
 
 declare global {
   var __firstAndSecondBoardPosts: BoardPost[] | undefined;
+  var __firstAndSecondBoardCache: { expiresAt: number; posts: BoardPost[] } | undefined;
 }
 
 function memoryStore() {
   globalThis.__firstAndSecondBoardPosts ??= [];
   return globalThis.__firstAndSecondBoardPosts;
+}
+
+function bustPostsCache() {
+  globalThis.__firstAndSecondBoardCache = undefined;
 }
 
 function now() {
@@ -104,10 +109,14 @@ async function deleteAttachments(urls: (string | undefined)[]) {
 
 export async function listPosts(): Promise<BoardPost[]> {
   if (!hasFirebaseConfig()) return sortByNewest(memoryStore());
+  const cached = globalThis.__firstAndSecondBoardCache;
+  if (cached && cached.expiresAt > Date.now()) return cached.posts;
   const snapshot = await postsCollection().orderBy("createdAt", "desc").get();
-  return snapshot.docs
+  const posts = snapshot.docs
     .map((doc) => normalizePost(doc.data(), doc.id))
     .filter((post): post is BoardPost => Boolean(post));
+  globalThis.__firstAndSecondBoardCache = { expiresAt: Date.now() + 8000, posts };
+  return posts;
 }
 
 export async function getPost(id: string): Promise<BoardPost | null> {
@@ -133,10 +142,12 @@ export async function createPost(input: { author: BoardAuthor; body: string; att
     return post;
   }
   await postsCollection().doc(post.id).set(post);
+  bustPostsCache();
   return post;
 }
 
 export async function addComment(postId: string, input: { author: BoardAuthor; body: string; attachment?: BoardAttachment }): Promise<BoardPost | null> {
+  bustPostsCache();
   const createdAt = now();
   const comment: BoardComment = {
     id: crypto.randomUUID(),
@@ -166,6 +177,7 @@ export async function addComment(postId: string, input: { author: BoardAuthor; b
 }
 
 export async function updatePost(postId: string, body: string): Promise<BoardPost | null> {
+  bustPostsCache();
   const updatedAt = now();
   if (!hasFirebaseConfig()) {
     const post = memoryStore().find((item) => item.id === postId);
@@ -187,6 +199,7 @@ export async function updatePost(postId: string, body: string): Promise<BoardPos
 }
 
 export async function updateComment(postId: string, commentId: string, body: string): Promise<BoardPost | null> {
+  bustPostsCache();
   if (!hasFirebaseConfig()) {
     const post = memoryStore().find((item) => item.id === postId);
     if (!post) return null;
@@ -209,6 +222,7 @@ export async function updateComment(postId: string, commentId: string, body: str
 }
 
 export async function deletePost(postId: string): Promise<boolean> {
+  bustPostsCache();
   if (!hasFirebaseConfig()) {
     const store = memoryStore();
     const index = store.findIndex((post) => post.id === postId);
@@ -228,6 +242,7 @@ export async function deletePost(postId: string): Promise<boolean> {
 }
 
 export async function deleteComment(postId: string, commentId: string): Promise<boolean> {
+  bustPostsCache();
   if (!hasFirebaseConfig()) {
     const post = memoryStore().find((item) => item.id === postId);
     if (!post) return false;

@@ -148,8 +148,8 @@ export default function DmPage() {
 
     loadDmThreads();
     const timer = window.setInterval(() => {
-      loadDmThreads({ silent: true });
-    }, 5000);
+      if (document.visibilityState === "visible") loadDmThreads({ silent: true });
+    }, 8000);
 
     return () => window.clearInterval(timer);
   }, [viewer]);

@@ -54,6 +54,7 @@ async function adminSubscriptions(): Promise<{ sub: PushSub; role: AdminRole }[]
 
 // New viewer DM -> notify admins who can see this target.
 export async function notifyNewDm(thread: DmThread) {
+  if (!configured) return;
   const admins = await adminSubscriptions();
   const targets = admins
     .filter(({ role }) => adminSeesTarget(role, thread.target))
@@ -67,6 +68,7 @@ export async function notifyNewDm(thread: DmThread) {
 
 // Admin reply -> notify the viewer who owns the thread.
 export async function notifyDmReply(thread: DmThread) {
+  if (!configured) return;
   const subs = (await listSubscriptions()).filter((sub) => sub.channelId === thread.viewer.channelId);
   await sendPush(dedupe(subs), {
     title: "DM 답변이 도착했어요",
@@ -77,6 +79,7 @@ export async function notifyDmReply(thread: DmThread) {
 
 // New board post -> notify all admins (except 제외).
 export async function notifyNewPost(post: BoardPost) {
+  if (!configured) return;
   const targets = (await adminSubscriptions()).filter((item) => item.role !== "none").map((item) => item.sub);
   await sendPush(dedupe(targets), {
     title: "자유게시판 새 글",
@@ -87,6 +90,7 @@ export async function notifyNewPost(post: BoardPost) {
 
 // New comment -> notify admins + the post author (unless they wrote the comment).
 export async function notifyNewComment(post: BoardPost, comment: BoardComment) {
+  if (!configured) return;
   const adminSubs = (await adminSubscriptions()).filter((item) => item.role !== "none").map((item) => item.sub);
   const authorSubs = post.author.channelId && post.author.channelId !== comment.author.channelId
     ? (await listSubscriptions()).filter((sub) => sub.channelId === post.author.channelId)
